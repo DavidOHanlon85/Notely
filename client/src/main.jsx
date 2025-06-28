@@ -1,6 +1,9 @@
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS features
+import * as bootstrap from 'bootstrap'; // This enables all Bootstrap JS features
+
 
 import './index.css'
 import App from './App.jsx'

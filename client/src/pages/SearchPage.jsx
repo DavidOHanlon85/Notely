@@ -59,11 +59,37 @@ export default function SearchPage() {
   { /* NO longer needed? */ }
   const validateFields = () => {
     const errors = {};
-    
+  
+    // Tutor Name: Letters and spaces only
+    if (formData.tutorName && !/^[a-zA-Z\s]+$/.test(formData.tutorName)) {
+      errors.tutorName = "Name should only contain letters.";
+    }
+  
+    // Price: Must be a valid number if set
+    if (formData.price && isNaN(Number(formData.price))) {
+      errors.price = "Price must be a number.";
+    }
+  
+    // Instrument
+    if (
+      formData.instrument &&
+      !instrumentOptions.includes(formData.instrument)
+    ) {
+      errors.instrument = "Please select a valid instrument.";
+    }
+
+    // City - Must be from Dataset
+    if (formData.city && !cityOptions.includes(formData.city)) {
+      errors.city = "Please select a valid city from the list.";
+    }
+  
     return errors;
   };
 
-  const [tutors, setTutors] = useState([])
+  const [currentPage, setCurrentPage] = useState(1);
+  const [tutors, setTutors] = useState([]);
+  const [totalTutors, setTotalTutors] = useState(0);
+  const resultsPerPage = 9; // Testing this currently
 
   const handleSearch = async () => {
     console.log("Searching...");
@@ -71,9 +97,9 @@ export default function SearchPage() {
     setHasSearched(true);
     const errors = validateFields();
     setFormErrors(errors);
-
+  
     if (Object.keys(errors).length === 0) {
-      try{
+      try {
         const response = await axios.get("http://localhost:3002/api/tutors", {
           params: {
             instrument: formData.instrument,
@@ -87,31 +113,61 @@ export default function SearchPage() {
             sen: formData.sen,
             dbs: formData.dbs,
             sortBy: formData.sortBy,
+            page: currentPage,         // NEW
+            limit: resultsPerPage      // NEW
           },
         });
-        setTutors(response.data);
-        
+  
+        setTutors(response.data.tutors);             // expects backend to return .tutors
+        setTotalTutors(response.data.totalTutors);   // expects backend to return .totalTutors
+  
       } catch (error) {
-        console.log("Error fetching tutors:", error)
+        console.log("Error fetching tutors:", error);
       }
     }
   };
 
-  {/* Listen to changes in formData and triggers handleSearch() only after the first button press sets hasSearched to true */ }
+  {/* Trigger Pagination */}
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
+  {/* Rerun search when currentPage changes */}
 
   useEffect(() => {
-    if (!hasSearched) return;
-  
-    const debounced = setTimeout(() => {
+    if (hasSearched) {
       handleSearch();
-    }, 300);
-  
-    return () => clearTimeout(debounced);
-  }, [formData, hasSearched]);
+    }
+  // eslint-disable-next-line
+  }, [currentPage]);
 
- 
+  // Reset page to 1 on any filter change
+// Trigger the actual debounced search (core features) only when currentPage changes
+
+// Reset currentPage to 1 *only* when filters (not page) change
+const previousFormDataRef = useRef(formData);
+
+useEffect(() => {
+  const prev = previousFormDataRef.current;
+  const hasFormDataChanged = JSON.stringify(prev) !== JSON.stringify(formData);
+
+  if (hasSearched && hasFormDataChanged) {
+    setCurrentPage(1);
+  }
+
+  previousFormDataRef.current = formData;
+}, [formData, hasSearched]);
+
+useEffect(() => {
+  if (!hasSearched) return;
+
+  const debounced = setTimeout(() => {
+    handleSearch();
+  }, 300);
+
+  return () => clearTimeout(debounced);
+}, [formData, currentPage, hasSearched]);
 
 
 
@@ -185,8 +241,11 @@ export default function SearchPage() {
                   value={formData.tutorName}
                   onChange={handleChange}
                   placeholder="e.g. Sarah Palmer"
-                  className="form-control border border-secondary rounded-end"
+                  className={`form-control border border-secondary rounded-end ${formErrors.tutorName ? "is-invalid" : ""}`}
                 />
+                {formErrors.tutorName && (
+  <div className="invalid-feedback">{formErrors.tutorName}</div>
+)}
               </div>
             </div>
           </div>
@@ -225,13 +284,16 @@ export default function SearchPage() {
                   name="price"
                   value={formData.price}
                   onChange={handleChange}
-                  className="form-select border border-secondary rounded-end"
+                  className={`form-select border border-secondary rounded-end ${formErrors.price ? "is-invalid" : ""}`}
                 >
                   <option value="">No Max</option>
                   {[20, 30, 40, 50, 60, 70, 80, 90, 100].map((p) => (
                     <option key={p} value={p}>{`£${p}`}</option>
                   ))}
                 </select>
+                {formErrors.price && (
+  <div className="invalid-feedback">{formErrors.price}</div>
+)}
               </div>
             </div>
 
@@ -248,13 +310,16 @@ export default function SearchPage() {
                   value={formData.city}
                   onChange={handleChange}
                   placeholder="e.g. Belfast"
-                  className="form-control border border-secondary rounded-end"
+                  className={`form-control border border-secondary rounded-end ${hasSearched && formErrors.city ? "is-invalid" : ""}`}
                 />
                 <datalist id="cityList">
                   {cityOptions.map((city, index) => (
                     <option key={index} value={city} />
                   ))}
                 </datalist>
+                {formErrors.city && (
+  <div className="invalid-feedback">{formErrors.city}</div>
+)}
               </div>
             </div>
           </div>
@@ -381,12 +446,12 @@ export default function SearchPage() {
   <div className="container mt-0 fade-in">
     {tutors.length > 0 ? (
       <>
-        <h3 className="text-muted fw-semibold mb-1">{tutors.length} Tutors Found</h3>
+        <h3 className="text-muted fw-semibold mb-1">{totalTutors} Tutors Found</h3>
         <hr className="mb-4" />
       </>
     ) : (
       <>
-        <h3 className="text-muted fw-semibold mb-1">{tutors.length} tutors found — try adjusting your search.</h3>
+        <h3 className="text-muted fw-semibold mb-1">{totalTutors} tutors found — try adjusting your search.</h3>
         <hr className="mb-4" />
       </>
     )}
@@ -395,7 +460,7 @@ export default function SearchPage() {
 
   {/* Dynamic Cards Start */}
 
-  <div className="container mt-5 px-3 pb-5">
+  <div className="container mt-5 px-3 pb-2">
   <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     {tutors.length > 0 &&
       tutors.map((tutor, index) => (
@@ -407,6 +472,44 @@ export default function SearchPage() {
 </div>
 
   {/* Dynamic Cards End */}
+
+
+  {/* Pagination Controls Start */}
+
+  {hasSearched && totalTutors > resultsPerPage && (
+  <div className="notely-pagination mb-5">
+    {/* Previous Arrow */}
+    {currentPage > 1 && (
+      <button
+        onClick={() => setCurrentPage(currentPage - 1)}
+        className="notely-arrow-btn"
+      >
+        <i className="bi bi-chevron-left"></i>
+      </button>
+    )}
+
+    {/* Dot Indicators */}
+    {Array.from({ length: Math.ceil(totalTutors / resultsPerPage) }).map((_, index) => (
+      <button
+        key={index}
+        className={`notely-dot ${index + 1 === currentPage ? "active" : ""}`}
+        onClick={() => setCurrentPage(index + 1)}
+      />
+    ))}
+
+    {/* Next Arrow */}
+    {currentPage < Math.ceil(totalTutors / resultsPerPage) && (
+      <button
+        onClick={() => setCurrentPage(currentPage + 1)}
+        className="notely-arrow-btn"
+      >
+        <i className="bi bi-chevron-right"></i>
+      </button>
+    )}
+  </div>
+)}
+
+{/* Pagination Controls End */}
 
   </div>
   );

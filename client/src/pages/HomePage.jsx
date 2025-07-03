@@ -4,6 +4,7 @@ import "./HomePage.css";
 import NotelyRectangle from "../assets/images/NotelyRectangle.png";
 import TestimonialCarousel from "../components/TestimonialCarousel";
 import DoubleButtonNavBar from "../components/DoubleButtonNavBar";
+import ExploreTutorsButton from "../components/UI/ExploreTutorsButton";
 
 export default function HomePage() {
   const [activeBtn, setActiveBtns] = useState([]);
@@ -86,21 +87,7 @@ export default function HomePage() {
 
           {/* Our Tutors Button */}
           <div className="d-grid gap-2 mt-4 d-sm-flex justify-content-sm-center pt-2">
-            <Link
-              to="/tutors"
-              className="btn btn-notely-gold d-inline-flex align-items-center gap-2"
-            >
-              Explore Our Tutors
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                height="30px"
-                viewBox="0 -960 960 960"
-                width="30px"
-                fill="#000000"
-              >
-                <path d="M400-240q50 0 85-35t35-85v-280h120v-80H460v256q-14-8-29-12t-31-4q-50 0-85 35t-35 85q0 50 35 85t85 35Zm80 160q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z" />
-              </svg>
-            </Link>
+            <ExploreTutorsButton />
           </div>
 
           <div className="pt-4">
@@ -148,21 +135,7 @@ export default function HomePage() {
               <br />
               Built for musicians. Trusted by parents. Loved by learners.
             </p>
-            <Link
-              to="/tutors"
-              className="btn btn-notely-gold btn-lg d-inline-flex align-items-center gap-2"
-            >
-              Explore Our Tutors
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                height="24px"
-                viewBox="0 -960 960 960"
-                width="24px"
-                fill="currentColor"
-              >
-                <path d="M400-240q50 0 85-35t35-85v-280h120v-80H460v256q-14-8-29-12t-31-4q-50 0-85 35t-35 85q0 50 35 85t85 35Zm80 160q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z" />
-              </svg>
-            </Link>
+            <ExploreTutorsButton />
           </div>
 
           {/* Right column */}

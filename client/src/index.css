@@ -1,0 +1,67 @@
+/* Global CSS*/
+
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
+/* Font Imports */
+
+@import url("https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Oswald:wght@200..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    color: #202C33;
+  }
+  
+  p {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    line-height: 1.8;
+  }
+  
+/* Custom Notely Button CSS */
+
+.btn-notely-primary {
+    background-color: #8551E6;
+    color: white !important;
+    font-weight: 500;
+    padding: 0.45rem 1.2rem;
+    border: none;
+    border-radius: 0.375rem;
+    line-height: 1.25;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-decoration: none; /* remove underline */
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  .btn-notely-primary:hover {
+    background-color: #6b39c4;
+    color: white !important;
+    text-decoration: none;
+  }
+  
+  .btn-notely-outline {
+    background-color: transparent;
+    border: 2px solid #8551E6;
+    color: #8551E6;
+  }
+  
+  .btn-notely-outline:hover {
+    color: #6b39c4;
+    border-color: #6b39c4;
+  }
+
+  .btn-notely-primary,
+  .btn-notely-outline {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .btn-notely-primary:hover,
+  .btn-notely-outline:hover {
+    transform: scale(1.03);
+  }
+  

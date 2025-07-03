@@ -2,6 +2,7 @@ import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS features
+import 'bootstrap-icons/font/bootstrap-icons.css'; // Import Bootstrap Icons features
 import * as bootstrap from 'bootstrap'; // This enables all Bootstrap JS features
 
 
@@ -13,6 +14,7 @@ import HomePage from './pages/HomePage.jsx'
 import Profiles from './pages/Profiles.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import ProfilesPage from './pages/ProfilesPage.jsx';
+import SearchPage from './pages/SearchPage.jsx';
 
 
 // Creating a router
@@ -20,6 +22,11 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <HomePage />,
+    errorElement: <NotFoundPage />
+  },
+  {
+    path: '/tutors',
+    element: <SearchPage />,
     errorElement: <NotFoundPage />
   },
   {

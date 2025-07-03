@@ -1,0 +1,26 @@
+/* Journey CSS */
+
+.step-img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #f7b52d;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.notely-journey h5 {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.25rem;
+  color: #f7b52d;
+}
+
+.notely-journey p {
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.step-img:hover {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}

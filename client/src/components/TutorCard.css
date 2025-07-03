@@ -1,0 +1,35 @@
+.tutor-img {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+  }
+  
+  .border-gold {
+    border: 3px solid #F7B52D;
+  }
+  
+  .tutor-card .badge {
+    font-size: 0.75rem;
+    padding: 0.4em 0.6em;
+    border-radius: 1rem;
+  }
+  
+  .btn-notely-gold {
+    background-color: #F7B52D;
+    color: white;
+    border: none;
+  }
+  
+  .btn-notely-gold:hover {
+    background-color: #e0a622;
+    color: white;
+  }
+  
+  .tutor-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    transition: all 0.3s ease-in-out;
+  }
+
+
+  

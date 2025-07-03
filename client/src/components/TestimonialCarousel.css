@@ -1,0 +1,47 @@
+.testimonial-img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border: 4px solid #f0c14b; /* Notely gold */
+    transition: transform 0.3s ease;
+  }
+  
+  .testimonial-img:hover {
+    transform: scale(1.05);
+  }
+  
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    filter: invert(20%);
+    transition: transform 0.2s ease;
+  }
+  
+  .carousel-control-prev-icon:hover,
+  .carousel-control-next-icon:hover {
+    transform: scale(1.1);
+  }
+  
+  .carousel-indicators [data-bs-target] {
+    background-color: #f0c14b;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 0 5px;
+    opacity: 0.5;
+  }
+  
+  .carousel-indicators .active {
+    opacity: 1;
+  }
+  
+  .testimonial-card {
+    max-width: 620px;
+    margin: auto;
+  }
+  
+  @media (max-width: 768px) {
+    .testimonial-card {
+      padding: 2rem 1.2rem;
+    }
+  }
+  

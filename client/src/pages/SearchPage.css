@@ -107,3 +107,45 @@
   .scale-in {
     animation: scaleIn 0.3s ease-out;
   }
+
+  /* Pagination Styling */
+
+ /* Pagination container */
+.notely-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Dot buttons */
+.notely-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #f0c14b; /* subtle gold tint */
+  border: none;
+  transition: background-color 0.3s ease;
+  opacity: 0.5;
+}
+
+.notely-dot.active {
+  background-color: #f4b400; /* Notely gold */
+  opacity: 1;
+}
+
+/* Arrow buttons */
+.notely-arrow-btn {
+  background: none;
+  border: none;
+  color: #6c757d;
+  font-size: 1.25rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 50%;
+  transition: color 0.3s ease;
+}
+
+.notely-arrow-btn:hover {
+  color: #000;
+}

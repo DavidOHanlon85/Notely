@@ -17,12 +17,11 @@ exports.users = async (req, res) => {
 };
 
 exports.tutors = async (req, res) => {
-
   console.log("Incoming search query:", req.query);
 
   try {
     const {
-      instrument, 
+      instrument,
       level,
       tutorName,
       lessonType,
@@ -33,80 +32,60 @@ exports.tutors = async (req, res) => {
       sen,
       dbs,
       sortBy,
+      page = 1,
+      limit = 9,
     } = req.query;
 
+    const params = [];
     let selectSQL = "SELECT * FROM tutors WHERE 1 = 1";
-    const params =[];
+    let countSQL = "SELECT COUNT(*) as count FROM tutors WHERE 1 = 1";
 
-    if (instrument) {
-      selectSQL += " AND instrument = ?";
-      params.push(instrument);
+    const addFilter = (condition, value) => {
+      selectSQL += condition;
+      countSQL += condition;
+      params.push(value);
+    };
+
+    if (instrument) addFilter(" AND instrument = ?", instrument);
+    if (level) addFilter(" AND (FIND_IN_SET(?, level) > 0 OR level = 'all')", level);
+    if (tutorName) addFilter(" AND name LIKE ?", `%${tutorName}%`);
+    if (lessonType) addFilter(" AND (modality = ? OR modality = 'Hybrid')", lessonType);
+    if (price) addFilter(" AND price <= ?", price);
+    if (city) addFilter(" AND city = ?", city);
+    if (qualified) addFilter(" AND qualified = ?", qualified);
+    if (gender) addFilter(" AND gender = ?", gender);
+    if (sen) addFilter(" AND sen = ?", sen);
+    if (dbs) addFilter(" AND dbs = ?", dbs);
+
+    // Add sorting
+    switch (sortBy) {
+      case "priceLowHigh":
+        selectSQL += " ORDER BY price ASC";
+        break;
+      case "priceHighLow":
+        selectSQL += " ORDER BY price DESC";
+        break;
+      default:
+        selectSQL += " ORDER BY id DESC";
+        break;
     }
 
-    if (level) {
-      selectSQL += " AND (FIND_IN_SET(?, level) > 0 OR level = 'all')";
-      params.push(level);
-    }    
+    // Pagination logic
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+    selectSQL += " LIMIT ? OFFSET ?";
+    const finalParams = [...params, parseInt(limit), offset];
 
-    if (tutorName) {
-      selectSQL += " AND name LIKE ?"
-      params.push(`%${tutorName}%`);
-    }
+    // Run both queries
+    const [tutors] = await conn.query(selectSQL, finalParams);
+    const [countResult] = await conn.query(countSQL, params);
 
-    if (lessonType) {
-      selectSQL += " AND (modality = ? OR modality = 'Hybrid')"
-      params.push(lessonType);
-    }
-
-    if (price) {
-      selectSQL += " AND price <= ?"
-      params.push(price);
-    }
-
-    if (city) {
-      selectSQL += " AND city = ?"
-      params.push(city);
-    }
-
-    if (qualified) {
-      selectSQL += " AND qualified = ?"
-      params.push(qualified);
-    }
-
-    if (gender) {
-      selectSQL += " AND gender = ?"
-      params.push(gender);
-    }
-
-    if (sen) {
-      selectSQL += " AND sen = ?"
-      params.push(sen);
-    }
-
-    if (dbs) {
-      selectSQL += " AND dbs = ?"
-      params.push(dbs);
-    }
-
-    if (sortBy) {
-      switch (sortBy) {
-        case "priceLowHigh":
-          selectSQL += " ORDER BY price ASC";
-          break;
-        case "priceHighLow":
-          selectSQL += " ORDER BY price DESC";
-          break;
-        default:
-          selectSQL += " ORDER BY id DESC"; // or rating/experience
-          break;
-      }
-    }
-
-    const [results] = await conn.query(selectSQL, params)
-    res.json(results);
+    res.json({
+      tutors,
+      totalTutors: countResult[0].count,
+    });
   } catch (error) {
     console.error("Error fetching tutors:", error);
-    res.status(500).json({ error: "Internal server error "})
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 

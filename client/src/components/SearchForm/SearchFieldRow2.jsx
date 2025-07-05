@@ -12,12 +12,13 @@ export default function SearchFieldRow2({
     <div className="row g-3 justify-content-center mt-2">
       {/* Lesson Type */}
       <div className="col-md-4">
-        <label className="form-label">Lesson Type</label>
+      <label className="form-label" htmlFor="lessonType">Lesson Type</label>
         <div className="input-group notely-input-group">
           <span className="input-group-text bg-warning text-white border border-secondary rounded-start">
             <i className="bi bi-laptop"></i>
           </span>
           <select
+            id="lessonType"
             name="lessonType"
             value={formData.lessonType}
             onChange={handleChange}
@@ -33,12 +34,13 @@ export default function SearchFieldRow2({
 
       {/* Max Price */}
       <div className="col-md-4">
-        <label className="form-label">Max Price</label>
+        <label className="form-label" htmlFor="price">Max Price</label>
         <div className="input-group notely-input-group">
           <span className="input-group-text bg-warning text-white border border-secondary rounded-start">
             <i className="bi bi-currency-pound"></i>
           </span>
           <select
+            id="price"
             name="price"
             value={formData.price}
             onChange={handleChange}
@@ -59,12 +61,13 @@ export default function SearchFieldRow2({
 
       {/* City */}
       <div className="col-md-4">
-        <label className="form-label">City</label>
+        <label className="form-label" htmlFor="city">City</label>
         <div className="input-group notely-input-group">
           <span className="input-group-text bg-warning text-white border border-secondary rounded-start">
             <i className="bi bi-geo-alt-fill"></i>
           </span>
           <input
+            id="city"
             list="cityList"
             name="city"
             value={formData.city}

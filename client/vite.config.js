@@ -23,4 +23,10 @@ export default defineConfig({
     },
   },
   plugins: [react()],
-})
+
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './setupTests.js', // relative to src since root is 'src'
+  },
+});

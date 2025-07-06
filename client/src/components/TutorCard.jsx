@@ -22,7 +22,7 @@ export default function TutorCard({ tutor }) {
           </small>
           <span className="badge bg-light text-dark mt-1">
           {tutor.instrument && (
-  <span className="badge bg-light text-dark mt-1">{tutor.instrument}</span>
+  <span className="badge bg-secondary text-light mt-1">{tutor.instrument}</span>
 )}
 
           </span>

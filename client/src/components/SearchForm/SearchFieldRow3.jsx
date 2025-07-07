@@ -39,8 +39,8 @@ export default function SearchFieldRow3({ formData, handleChange }) {
             className="form-select border border-secondary rounded-end"
           >
             <option value="">Any</option>
-            <option value="female">Female</option>
-            <option value="male">Male</option>
+            <option value="0">Female</option>
+            <option value="1">Male</option>
           </select>
         </div>
       </div>

@@ -7,7 +7,8 @@ const conn = require("./../utils/dbconn");
 
 exports.users = async (req, res) => {
   try {
-    const selectSQL = "SELECT user_id, user_username, user_email_address FROM user";
+    const selectSQL =
+      "SELECT user_id, user_username, user_email_address FROM user";
     const [rows] = await conn.query(selectSQL);
     res.json(rows);
   } catch (err) {
@@ -37,47 +38,79 @@ exports.tutors = async (req, res) => {
     } = req.query;
 
     const params = [];
-    let selectSQL = "SELECT * FROM tutors WHERE 1 = 1";
-    let countSQL = "SELECT COUNT(*) as count FROM tutors WHERE 1 = 1";
+    let selectSQL = `
+      SELECT t.*, 
+        GROUP_CONCAT(DISTINCT i.instrument_name ORDER BY i.instrument_name SEPARATOR ', ') AS instruments
+      FROM tutor t
+      LEFT JOIN tutor_instrument ti ON t.tutor_id = ti.tutor_id
+      LEFT JOIN instrument i ON ti.instrument_id = i.instrument_id
+      LEFT JOIN tutor_level tl ON t.tutor_id = tl.tutor_id
+      LEFT JOIN level l ON tl.level_id = l.level_id
+      WHERE 1 = 1
+    `;
 
-    const addFilter = (condition, value) => {
+    let countSQL = `
+      SELECT COUNT(DISTINCT t.tutor_id) as count
+      FROM tutor t
+      LEFT JOIN tutor_instrument ti ON t.tutor_id = ti.tutor_id
+      LEFT JOIN instrument i ON ti.instrument_id = i.instrument_id
+      LEFT JOIN tutor_level tl ON t.tutor_id = tl.tutor_id
+      LEFT JOIN level l ON tl.level_id = l.level_id
+      WHERE 1 = 1
+    `;
+
+    const addFilter = (condition, ...values) => {
       selectSQL += condition;
       countSQL += condition;
-      params.push(value);
+      params.push(...values);
     };
 
-    if (instrument) addFilter(" AND instrument = ?", instrument);
-    if (level) addFilter(" AND (FIND_IN_SET(?, level) > 0 OR level = 'all')", level);
-    if (tutorName) addFilter(" AND name LIKE ?", `%${tutorName}%`);
-    if (lessonType) addFilter(" AND (modality = ? OR modality = 'Hybrid')", lessonType);
-    if (price) addFilter(" AND price <= ?", price);
-    if (city) addFilter(" AND city = ?", city);
-    if (qualified) addFilter(" AND qualified = ?", qualified);
-    if (gender) addFilter(" AND gender = ?", gender);
-    if (sen) addFilter(" AND sen = ?", sen);
-    if (dbs) addFilter(" AND dbs = ?", dbs);
+    if (instrument) addFilter(" AND i.instrument_name = ?", instrument);
+    if (level) addFilter(" AND l.level_label = ?", level);
+    if (tutorName) {
+      const likeTerm = `%${tutorName}%`;
+      addFilter(
+        " AND (t.tutor_first_name LIKE ? OR t.tutor_second_name LIKE ?)",
+        likeTerm,
+        likeTerm
+      );
+    }
+    if (lessonType)
+      addFilter(
+        " AND (t.tutor_modality = ? OR t.tutor_modality = 'Hybrid')",
+        lessonType
+      );
+    if (price) addFilter(" AND t.tutor_price <= ?", price);
+    if (city) addFilter(" AND t.tutor_city = ?", city);
+    if (qualified) addFilter(" AND t.tutor_qualified = ?", qualified);
+    if (gender) addFilter(" AND t.tutor_gender = ?", gender);
+    if (sen) addFilter(" AND t.tutor_sen = ?", sen);
+    if (dbs) addFilter(" AND t.tutor_dbs = ?", dbs);
 
-    // Add sorting
+    // GROUP BY must come before ORDER BY
+    selectSQL += " GROUP BY t.tutor_id";
+
+    // Sorting
     switch (sortBy) {
       case "priceLowHigh":
-        selectSQL += " ORDER BY price ASC";
+        selectSQL += " ORDER BY t.tutor_price ASC";
         break;
       case "priceHighLow":
-        selectSQL += " ORDER BY price DESC";
+        selectSQL += " ORDER BY t.tutor_price DESC";
         break;
       default:
-        selectSQL += " ORDER BY id DESC";
+        selectSQL += " ORDER BY t.tutor_id DESC";
         break;
     }
 
-    // Pagination logic
-    const offset = (parseInt(page) - 1) * parseInt(limit);
+    // Pagination
     selectSQL += " LIMIT ? OFFSET ?";
-    const finalParams = [...params, parseInt(limit), offset];
+    const finalParams = [...params, parseInt(limit), (parseInt(page) - 1) * parseInt(limit)];
 
-    // Run both queries
     const [tutors] = await conn.query(selectSQL, finalParams);
     const [countResult] = await conn.query(countSQL, params);
+
+    console.log(tutors);
 
     res.json({
       tutors,
@@ -91,12 +124,18 @@ exports.tutors = async (req, res) => {
 
 exports.distinctFields = async (req, res) => {
   try {
-    const [instruments] = await conn.query("SELECT DISTINCT instrument FROM tutors ORDER BY instrument ASC");
-    const [cities] = await conn.query("SELECT DISTINCT city FROM tutors ORDER BY city ASC");
-    res.json( { instruments, cities })
+    const [instruments] = await conn.query(
+      "SELECT DISTINCT instrument_name AS instrument FROM instrument WHERE instrument_active = 1 ORDER BY instrument_name ASC"
+    );
+
+    const [cities] = await conn.query(
+      "SELECT DISTINCT tutor_city AS city FROM tutor ORDER BY tutor_city ASC"
+    );
+
+    res.json({ instruments, cities });
   } catch (error) {
     console.error("Error fetching distinct fields:", error);
-    res.status(500).json({ error: "Internal server error "})
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 

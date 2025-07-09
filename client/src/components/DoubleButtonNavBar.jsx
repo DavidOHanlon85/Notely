@@ -28,7 +28,7 @@ export default function DoubleButtonNavBar() {
             </Link>
 
             <Link to="/register" className="btn btn-notely-primary">
-              Get Started
+              Register
             </Link>
           </div>
         </header>

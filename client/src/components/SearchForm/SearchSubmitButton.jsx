@@ -7,7 +7,7 @@ export default function SearchSubmitButton() {
         type="submit"
         className="btn btn-purple rounded-pill px-5 py-2 fw-semibold text-white"
       >
-        Find Your Teacher!
+        Find Your Music Tutor
       </button>
     </div>
   );

@@ -31,5 +31,7 @@
     transition: all 0.3s ease-in-out;
   }
 
-
+ .clock-colour{
+  color: #f7b52d;
+ }
   

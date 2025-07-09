@@ -3,7 +3,6 @@ import DoubleButtonNavBar from "../components/DoubleButtonNavBar";
 import SocialsFooter from "../components/SocialsFooter";
 import "./StaticProfilePage.css";
 
-
 export default function StaticProfilePage() {
   const availability = {
     Morning: [false, true, true, false, true, true, true],
@@ -19,15 +18,15 @@ export default function StaticProfilePage() {
       year: 2012,
     },
     {
-        degree: "PGCE Secondary Music",
-        institution: "Ulster University",
-        year: 2015,
+      degree: "PGCE Secondary Music",
+      institution: "Ulster University",
+      year: 2015,
     },
     {
-        degree: "MA Music Education",
-        institution: "Queen’s University Belfast",
-        year: 2020,
-    }
+      degree: "MA Music Education",
+      institution: "Queen’s University Belfast",
+      year: 2020,
+    },
   ];
 
   const certifications = [
@@ -72,9 +71,8 @@ export default function StaticProfilePage() {
     },
   ];
 
-    const address = "16A Malone Rd, Belfast BT9 5BN";
-    const mapQuery = encodeURIComponent(address);
-
+  const address = "16A Malone Rd, Belfast BT9 5BN";
+  const mapQuery = encodeURIComponent(address);
 
   return (
     <div className="container py-4">
@@ -190,23 +188,18 @@ export default function StaticProfilePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {["Morning", "Afternoon", "After School", "Evening"].map(
-                    (slot, rowIndex) => (
-                      <tr key={slot}>
-                        <td className="text-start fw-medium">{slot}</td>
-                        {Array(7)
-                          .fill(0)
-                          .map((_, colIndex) => (
-                            <td key={colIndex}>
-                              {/* Use this span only for available slots */}
-                              {(rowIndex + colIndex) % 2 === 0 && (
-                                <span className="notely-available-icon" />
-                              )}
-                            </td>
-                          ))}
-                      </tr>
-                    )
-                  )}
+                  {Object.entries(availability).map(([slot, values]) => (
+                    <tr key={slot}>
+                      <td className="text-start fw-medium">{slot}</td>
+                      {values.map((available, idx) => (
+                        <td key={idx}>
+                          {available && (
+                            <span className="notely-available-icon" />
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

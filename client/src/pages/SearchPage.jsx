@@ -108,7 +108,7 @@ export default function SearchPage() {
       try {
         const response = await fetchDistinctFields();
         setInstrumentOptions(
-          response?.instruments?.map((i) => i.instrument) || []
+          response?.instruments?.filter(i => i.instrument_active === 1).map(i => i.instrument) || []
         );
         setCityOptions(response?.cities?.map((c) => c.city) || []);
       } catch (error) {

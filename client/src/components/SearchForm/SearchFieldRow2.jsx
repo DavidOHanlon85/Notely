@@ -59,9 +59,9 @@ export default function SearchFieldRow2({
         </div>
       </div>
 
-      {/* City */}
+      {/* Location */}
       <div className="col-md-4">
-        <label className="form-label" htmlFor="city">City</label>
+        <label className="form-label" htmlFor="city">Location</label>
         <div className="input-group notely-input-group">
           <span className="input-group-text bg-warning text-white border border-secondary rounded-start">
             <i className="bi bi-geo-alt-fill"></i>

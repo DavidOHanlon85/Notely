@@ -16,7 +16,7 @@ export default function TutorCard({ tutor }) {
         <div>
           <h5 className="mb-1">
             <Link
-              to={`/tutors/${tutor.tutor_id}`}
+              to={`/tutor/${tutor.tutor_id}`}
               className="text-dark text-decoration-none"
             >
               {fullName}
@@ -42,6 +42,20 @@ export default function TutorCard({ tutor }) {
       <p className="mt-3 mb-1 fst-italic text-muted">
         “{tutor.tutor_tag_line}”
       </p>
+
+      <div className="d-flex flex-wrap gap-2 mt-0 mb-1">
+
+        {/* Stats badges */}
+        <span className="badge bg-light text-dark">
+          <i className="bi bi-star-fill text-warning me-1"></i>
+          <strong>{tutor.avg_rating || "N/A"}</strong> (
+          {tutor.review_count || 0} reviews)
+        </span>
+        <span className="badge bg-light text-dark">
+          <i className="bi bi-clock-fill me-1 clock-colour"></i>
+          {tutor.years_experience || 0}+ yrs experience
+        </span>
+      </div>
 
       <div
         className="d-flex flex-wrap gap-2 mt-1 mb-1"

@@ -34,23 +34,24 @@ export default function StaticProfilePage() {
   const [tutor, setTutor] = useState(null);
 
   useEffect(() => {
-    console.log("Tutor ID:", id);
-
     const fetchTutor = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:3002/api/tutor/${id}`
-        );
-        setTutor(response.data);
-        setTutor({
-          ...data,
-          availability: formatAvailability(data.availability),
+        const response = await axios.get(`http://localhost:3002/api/tutor/${id}`, {
+          params: {
+            feedbackLimit: 5,
+            feedbackPage: 1,
+            sort: "newest",
+          },
         });
+  
+        console.log("Tutor profile response:", response.data);
+        setTutor(response.data);
       } catch (error) {
-        console.log("Error fetching tutor:", error);
+        console.error("Error fetching tutor profile:", error.response?.data || error.message);
       }
     };
-    fetchTutor();
+  
+    if (id) fetchTutor();
   }, [id]);
 
   if (!tutor) return <div className="container py-5">Loading...</div>;
@@ -90,7 +91,7 @@ export default function StaticProfilePage() {
               {/* Information Section */}
               <div className="col-md-8 d-flex flex-column justify-content-between">
                 <div>
-                  <h1 className="h3">{fullName}</h1>
+                  <h1 className="h3 text-md-start text-center">{fullName}</h1>
                   {instruments.map((inst, index) => (
                     <span key={index} className="badge bg-secondary mb-2 me-1">
                       {inst}
@@ -120,13 +121,16 @@ export default function StaticProfilePage() {
                   <ul className="list-unstyled mb-3">
                     <li>
                       <i className="bi bi-star-fill svg-icon"></i>
-                      <strong> {tutor.stats.avg_rating || "N/A"}</strong> ({tutor.stats.review_count} reviews)
+                      <strong> {tutor.stats.avg_rating || "N/A"}</strong> (
+                      {tutor.stats.review_count} reviews)
                     </li>
                     <li>
-                      <i className="bi bi-clock-fill svg-icon"></i> {tutor.stats.years_experience}+ years teaching experience
+                      <i className="bi bi-clock-fill svg-icon"></i>{" "}
+                      {tutor.stats.years_experience}+ years teaching experience
                     </li>
                     <li>
-                      <i className="bi bi-person-circle svg-icon"></i> {tutor.stats.unique_students} Notely students
+                      <i className="bi bi-person-circle svg-icon"></i>{" "}
+                      {tutor.stats.unique_students} Notely students
                     </li>
                   </ul>
                 </div>

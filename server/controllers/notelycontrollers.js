@@ -114,13 +114,13 @@ exports.tutors = async (req, res) => {
         selectSQL += " ORDER BY t.tutor_price DESC";
         break;
       case "ratingHighLow":
-        selectSQL += " ORDER BY s.avg_rating DESC"
+        selectSQL += " ORDER BY s.avg_rating DESC";
         break;
       case "experienceHighLow":
-        selectSQL += " ORDER BY s.years_experience DESC"
+        selectSQL += " ORDER BY s.years_experience DESC";
         break;
       case "reviewsHighLow":
-        selectSQL += " ORDER BY s.review_count DESC"
+        selectSQL += " ORDER BY s.review_count DESC";
         break;
       default:
         selectSQL += " ORDER BY t.tutor_id DESC";
@@ -177,6 +177,34 @@ exports.getTutorById = async (req, res) => {
     const { id } = req.params;
     console.log("Fetching tutor with ID:", id);
 
+    // Pagination, Sorting, and Filtering
+    const feedbackLimit = parseInt(req.query.feedbackLimit) || 30;
+    const feedbackPage = parseInt(req.query.feedbackPage) || 1;
+    const feedbackOffset = (feedbackPage - 1) * feedbackLimit;
+
+    const sort = req.query.sort;
+    const minRating = req.query.minRating;
+    const maxRating = req.query.maxRating;
+
+    let feedbackSort = "f.feedback_date DESC";
+    if (sort === "highest") feedbackSort = "f.feedback_score DESC";
+    if (sort === "lowest") feedbackSort = "f.feedback_score ASC";
+    if (sort === "oldest") feedbackSort = "f.feedback_date ASC";
+    if (sort === "newest") feedbackSort = "f.feedback_date DESC";
+
+    // Dynamic WHERE clause for feedback filter
+    let feedbackWhere = "f.tutor_id = ?";
+    const feedbackParams = [id];
+
+    if (minRating) {
+      feedbackWhere += " AND f.feedback_score >= ?";
+      feedbackParams.push(Number(minRating));
+    }
+    if (maxRating) {
+      feedbackWhere += " AND f.feedback_score <= ?";
+      feedbackParams.push(Number(maxRating));
+    }
+
     // Fetch main tutor data and instruments
     const [tutor] = await conn.query(
       `SELECT
@@ -195,52 +223,75 @@ exports.getTutorById = async (req, res) => {
       return res.status(404).json({ error: "Tutor not found" });
     }
 
-    // Fetch main tutor education
+    // Fetch education
     const [education] = await conn.query(
       `SELECT qualification AS degree, institution, year
-        FROM education
-        WHERE tutor_id = ?
-        ORDER BY year DESC
-        `,
+       FROM education
+       WHERE tutor_id = ?
+       ORDER BY year DESC`,
       [id]
     );
 
-    // Fetch main tutor certificates
+    // Fetch certifications
     const [certifications] = await conn.query(
       `SELECT certification AS name, year
-        FROM certification
-        WHERE tutor_id = ?
-        ORDER BY year DESC
-        `,
+       FROM certification
+       WHERE tutor_id = ?
+       ORDER BY year DESC`,
       [id]
     );
 
-    // Fetch student feedback
+    // Fetch filtered, paginated feedback
     const [feedback] = await conn.query(
       `SELECT
-          f.feedback_text,
-          f.feedback_score,
-          f.feedback_date,
-          s.student_first_name AS student_name
-        FROM student_feedback f
-        JOIN student s ON f.student_id = s.student_id
-        WHERE f.tutor_id = ?
-        ORDER BY f.feedback_date DESC
-        LIMIT 5
-        `,
+        f.feedback_text,
+        f.feedback_score,
+        f.feedback_date,
+        s.student_first_name,
+        s.student_last_name
+      FROM student_feedback f
+      JOIN student s ON f.student_id = s.student_id
+      WHERE ${feedbackWhere}
+      ORDER BY ${feedbackSort}
+      LIMIT ? OFFSET ?`,
+      [...feedbackParams, feedbackLimit, feedbackOffset]
+    );
+
+    // Get total count for matching feedback
+    const [[feedbackTotal]] = await conn.query(
+      `SELECT COUNT(*) AS total
+       FROM student_feedback f
+       WHERE ${feedbackWhere}`,
+      feedbackParams
+    );
+
+    // Fetch feedback rating summary (for full chart)
+    const [ratingSummaryRows] = await conn.query(
+      `SELECT 
+     f.feedback_score AS stars,
+     COUNT(*) AS count
+   FROM student_feedback f
+   WHERE f.tutor_id = ?
+   GROUP BY f.feedback_score
+   ORDER BY f.feedback_score DESC`,
       [id]
     );
+
+    // Normalize to always include 1–5 stars, even if some are missing
+    const rating_summary = [5, 4, 3, 2, 1].map((star) => {
+      const match = ratingSummaryRows.find((r) => r.stars === star);
+      return { stars: star, count: match ? match.count : 0 };
+    });
 
     // Fetch availability
     const [availabilityRows] = await conn.query(
       `SELECT day_of_week, time_slot
-        FROM availability
-        WHERE tutor_id = ? AND is_available = 1
-        `,
+       FROM availability
+       WHERE tutor_id = ? AND is_available = 1`,
       [id]
     );
 
-    // Build structured availability object
+    // Structure availability
     const slots = ["Morning", "Afternoon", "After School", "Evening"];
     const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -253,7 +304,7 @@ exports.getTutorById = async (req, res) => {
       );
     });
 
-    // Fetch stats
+    // Fetch tutor stats
     const [stats] = await conn.query(
       `SELECT
         ROUND(AVG(f.feedback_score), 1) AS avg_rating,
@@ -262,21 +313,24 @@ exports.getTutorById = async (req, res) => {
         TIMESTAMPDIFF(YEAR, t.tutor_teaching_start_date, CURDATE()) AS years_experience
       FROM tutor t
       LEFT JOIN student_feedback f ON f.tutor_id = t.tutor_id
-      WHERE t.tutor_id = ?
-      `, [id]
+      WHERE t.tutor_id = ?`,
+      [id]
     );
 
+    // Respond with combined data
     res.json({
       ...tutor[0],
       education,
       certifications,
       feedback,
+      feedbackTotal: feedbackTotal.total,
       availability,
-      stats: stats[0]
+      stats: stats[0],
+      rating_summary 
     });
   } catch (error) {
     console.error("Error fetching tutor by ID:", error);
-    res.status(500).json({ error: "Internal server error " });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 

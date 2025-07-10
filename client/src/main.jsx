@@ -17,6 +17,7 @@ import ProfilesPage from './pages/ProfilesPage.jsx';
 import SearchPage from './pages/SearchPage.jsx';
 import StaticProfilePage from './pages/StaticProfilePage.jsx'
 import TutorProfilePage from './pages/TutorProfilePage.jsx'
+import FeedbackPage from './pages/FeedbackPage.jsx';
 
 
 // Creating a router
@@ -37,8 +38,14 @@ const router = createBrowserRouter([
     errorElement: <NotFoundPage />
   },
   {
+    path: '/feedback/:id',
+    element: <FeedbackPage />
+
+  },
+  {
     path: "/staticprofile",
-    element: <StaticProfilePage />
+    element: <StaticProfilePage />,
+    errorElement: <NotFoundPage />
   },
   {
     path: "/profiles",

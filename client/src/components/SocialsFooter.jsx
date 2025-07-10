@@ -5,7 +5,7 @@ import "./SocialsFooter.css";
 
 export default function Footer() {
   return (
-    <footer className="d-flex flex-wrap justify-content-between align-items-center py-3 my-34 border-top container mt-4">
+    <footer className="d-flex flex-wrap justify-content-between align-items-center py-4 my-34 border-top container mt-0">
       {/* Logo section */}
       <div className="col-md-4 d-flex align-items-center">
         <Link

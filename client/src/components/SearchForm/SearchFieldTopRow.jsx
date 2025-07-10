@@ -1,16 +1,17 @@
 import React from "react";
 
-export default function SearchFieldRow1({
+export default function SearchFieldTopRow({
   formData,
   formErrors,
   instrumentOptions,
+  cityOptions,
   handleChange,
   hasSearched,
 }) {
   return (
-    <div className="row g-3 justify-content-center">
+    <div className="row g-3 justify-content-center pb-0">
       {/* Instrument */}
-      <div className="col-md-4">
+      <div className="col-md-3">
         <label className="form-label">Instrument</label>
         <div className="input-group notely-input-group">
           <span className="input-group-text bg-warning text-white border border-secondary rounded-start">
@@ -31,14 +32,11 @@ export default function SearchFieldRow1({
               <option key={index} value={instrument} />
             ))}
           </datalist>
-          {formErrors.instrument && (
-            <div className="invalid-feedback">{formErrors.instrument}</div>
-          )}
         </div>
       </div>
 
       {/* Level */}
-      <div className="col-md-4">
+      <div className="col-md-3">
         <label className="form-label">Level</label>
         <div className="input-group notely-input-group">
           <span className="input-group-text bg-warning text-white border border-secondary rounded-start">
@@ -58,26 +56,49 @@ export default function SearchFieldRow1({
         </div>
       </div>
 
-      {/* Tutor Name */}
-      <div className="col-md-4">
-        <label className="form-label">Tutor Name</label>
+      {/* Max Price */}
+      <div className="col-md-3">
+        <label className="form-label">Max Price</label>
         <div className="input-group notely-input-group">
           <span className="input-group-text bg-warning text-white border border-secondary rounded-start">
-            <i className="bi bi-person-circle"></i>
+            <i className="bi bi-currency-pound"></i>
+          </span>
+          <select
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            className="form-select border border-secondary rounded-end"
+          >
+            <option value="">No Max</option>
+            {[20,30,40,50,60,70,80,90,100].map((p) => (
+              <option key={p} value={p}>{`£${p}`}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Location */}
+      <div className="col-md-3">
+        <label className="form-label">Location</label>
+        <div className="input-group notely-input-group">
+          <span className="input-group-text bg-warning text-white border border-secondary rounded-start">
+            <i className="bi bi-geo-alt-fill"></i>
           </span>
           <input
-            type="text"
-            name="tutorName"
-            value={formData.tutorName}
+            list="cityList"
+            name="city"
+            value={formData.city}
             onChange={handleChange}
-            placeholder="e.g. Sarah Palmer"
+            placeholder="e.g. Belfast"
             className={`form-control border border-secondary rounded-end ${
-              formErrors.tutorName ? "is-invalid" : ""
+              hasSearched && formErrors.city ? "is-invalid" : ""
             }`}
           />
-          {formErrors.tutorName && (
-            <div className="invalid-feedback">{formErrors.tutorName}</div>
-          )}
+          <datalist id="cityList">
+            {cityOptions.map((city, index) => (
+              <option key={index} value={city} />
+            ))}
+          </datalist>
         </div>
       </div>
     </div>

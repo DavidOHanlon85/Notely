@@ -1,11 +1,12 @@
 import React from "react";
+import "./SearchSubmitButton.css"
 
 export default function SearchSubmitButton() {
   return (
-    <div className="col-12 d-flex justify-content-center mt-4 pt-4">
+    <div className="col-12 d-flex justify-content-center mt-4 pt-3">
       <button
         type="submit"
-        className="btn btn-purple rounded-pill px-5 py-2 fw-semibold text-white"
+        className="btn btn-notely-purple btn-notely-cta"
       >
         Find Your Music Tutor
       </button>

@@ -337,7 +337,13 @@ export default function StaticProfilePage() {
           </div>
         </div>
       </div>
-      <SocialsFooter />
+      <div className="mt-4">
+        <SocialsFooter />
+      </div>
+
+
+
+      
     </div>
   );
 }

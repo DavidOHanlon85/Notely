@@ -18,6 +18,7 @@ import SearchPage from './pages/SearchPage.jsx';
 import StaticProfilePage from './pages/StaticProfilePage.jsx'
 import TutorProfilePage from './pages/TutorProfilePage.jsx'
 import FeedbackPage from './pages/FeedbackPage.jsx';
+import TutorBookingPage from './pages/TutorBookingPage.jsx';
 
 
 // Creating a router
@@ -40,7 +41,10 @@ const router = createBrowserRouter([
   {
     path: '/feedback/:id',
     element: <FeedbackPage />
-
+  },
+  {
+    path: '/booking/:id',
+    element: <TutorBookingPage />
   },
   {
     path: "/staticprofile",

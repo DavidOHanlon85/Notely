@@ -1,0 +1,111 @@
+/* Date Picker Styles */
+
+.react-datepicker {
+    border: none;
+    font-family: inherit;
+  }
+  
+  .react-datepicker__day--selected {
+    background-color: #8551E6 !important; /* Notely Purple */
+    color: #fff !important;
+  }
+  
+  .notely-available-date {
+    background-color: #ffc107 !important; /* Notely Yellow */
+    color: #000 !important;
+    border-radius: 50% !important;
+  }
+  
+  .react-datepicker__day {
+    border-radius: 50% !important;
+  }
+
+  .react-datepicker__day.notely-available-date {
+    background-color: #ffc107 !important; /* Yellow */
+    color: black;
+    border-radius: 0.3rem;
+  }
+  
+  .react-datepicker__day.notely-selected-date {
+    background-color: #8551e6 !important; /* Notely purple */
+    color: white;
+    border-radius: 0.3rem;
+  }
+
+  /* Time Picker Buttons */
+
+  .btn-outline-secondary-1 {
+    border: 2px solid #ffc107;         /* Notely Gold border */
+    border-radius: 12px;
+    padding: 0.6rem 1.2rem;
+    font-weight: 600;
+    background-color: white;
+    color: #ffc107;
+    transition: all 0.2s ease-in-out;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .btn-outline-secondary-1:hover {
+    background-color: #ffc107;
+    color: black;
+    border-color: #ffc107;
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
+  }
+  
+  .btn-outline-secondary-1:active {
+    background-color: #e6b800;
+    border-color: #e6b800;
+    color: white;
+  }
+
+  .btn-notely-gold-1 {
+    background-color: #ffc107;
+    color: #000;
+    font-weight: 600;
+    border: 2px solid #ffc107;
+    border-radius: 12px;
+    padding: 0.6rem 1rem;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 0 0 2px #ffd54f; /* subtle glow */
+  }
+  
+  .btn-notely-gold-1:hover {
+    background-color: #ffb300;
+    color: #000;
+    box-shadow: 0 0 0 3px #ffe082;
+  }
+
+  .btn-outline-secondary-1,
+.btn-notely-gold-1 {
+  min-width: 100px;
+  max-width: 120px;
+  padding: 0.5rem 1rem;
+  text-align: center;
+  white-space: nowrap;
+  font-weight: 600;
+  border-radius: 12px;
+}
+
+/* Button Spacing */
+
+.time-slot-col {
+    width: 50%; /* Default: 2 per row */
+  }
+  
+  @media (min-width: 576px) {
+    .time-slot-col {
+      width: 33.3333%; /* Small devices: 3 per row */
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .time-slot-col {
+      width: 25%; /* Medium devices: 4 per row */
+    }
+  }
+  
+  @media (min-width: 1200px) {
+    .time-slot-col {
+      width: 20%; /* Large screens: 5 per row */
+    }
+  }

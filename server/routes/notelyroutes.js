@@ -12,5 +12,7 @@ router.get('/api/booking/availability', controller.getAvailability);
 router.get('/api/booking/available-dates', controller.getAvailableDates);
 
 router.post("/api/booking/create", controller.createBooking);
+router.post("/api/create-checkout-session", controller.createCheckoutSession)
+router.post("/api/stripe/webhook", express.raw({ type: "application/json" }), controller.stripeWebhook);
 
 module.exports = router;

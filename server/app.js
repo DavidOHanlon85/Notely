@@ -15,6 +15,9 @@ const corsOptions = {
 // Accepting requests from React frontend
 app.use(cors(corsOptions));
 
+// Stripe requires raw body for webhook signature validation
+app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
+
 app.use(morgan('tiny')); // Logger - tiny selected - format logs only the essential information
 app.use(express.urlencoded({ extended: true })); // Allowing access to form data from the body of the HTTP post request
 

@@ -121,7 +121,7 @@ export default function TutorBookingPage() {
     /* Confirming Booking */
   }
 
-  const handleConfirmBooking = async () => {
+/*   const handleConfirmBooking = async () => {
     try {
       const response = await axios.post(
         "http://localhost:3002/api/booking/create",
@@ -145,7 +145,28 @@ export default function TutorBookingPage() {
       console.error("Booking error:", err);
       alert("Failed to book. Try again.");
     }
+  }; */
+
+  { /* Stripe Additions */ }
+
+  const handleConfirmBooking = async () => {
+    try {
+      const response = await axios.post("http://localhost:3002/api/create-checkout-session", {
+        tutor_id: parseInt(id), // from URL param
+        student_id: 1, // TEMP: Replace with actual user ID when JWT is set up
+        booking_date: selectedDate.toLocaleDateString("en-CA"), // format: YYYY-MM-DD
+        booking_time: selectedSlot,
+        booking_notes: bookingNotes.trim(),
+        return_url: window.location.href,
+      });
+  
+      window.location.href = response.data.url;
+    } catch (err) {
+      console.error("Error creating checkout session:", err);
+      alert("Failed to initiate payment. Please try again.");
+    }
   };
+
 
   return (
     <div className="container py-4">
@@ -325,12 +346,29 @@ export default function TutorBookingPage() {
                 </label>
                 <textarea
                   id="bookingNotes"
-                  className="form-control"
+                  className={`form-control ${
+                    bookingNotes.length > 200 ? "is-invalid" : ""
+                  }`}
                   rows="3"
                   value={bookingNotes}
                   onChange={(e) => setBookingNotes(e.target.value)}
+                  maxLength="200"
                   placeholder="E.g. Looking for help with Grade 5 theory..."
                 />
+
+                {/* Right-aligned character counter */}
+                <div className="d-flex justify-content-end">
+                  <small className="form-text text-muted">
+                    {bookingNotes.length}/200 characters
+                  </small>
+                </div>
+
+                {/* Bootstrap error message - Fail safe as theoretically max length should stop student going beyond 200 characters */}
+                {bookingNotes.length > 200 && (
+                  <div className="invalid-feedback d-block">
+                    Booking notes must be 200 characters or fewer.
+                  </div>
+                )}
               </div>
 
               <button

@@ -32,6 +32,18 @@
     border-radius: 0.3rem;
   }
 
+  .react-datepicker .react-datepicker__header {
+    background-color: #ffc107 !important; /* Notely Gold */
+    color: #000 !important;
+    font-weight: 600 !important;
+  }
+
+  .react-datepicker__navigation-icon::before {
+    border-color: #8551E6 !important; /* Notely Purple */
+  }
+
+ 
+
   /* Time Picker Buttons */
 
   .btn-outline-secondary-1 {

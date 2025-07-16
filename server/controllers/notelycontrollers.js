@@ -2,6 +2,7 @@
 
 const bcrypt = require("bcrypt");
 const conn = require("./../utils/dbconn");
+const stripe = require("./../lib/stripe");
 
 // GET requests
 
@@ -356,15 +357,18 @@ exports.getAvailability = async (req, res) => {
       FROM availability
       WHERE tutor_id = ? AND day_of_week = ? AND is_available = 1
     `;
-    const [defaultAvailability] = await conn.query(selectAvailabilitySQL, [tutor_id, dayOfWeek]);
+    const [defaultAvailability] = await conn.query(selectAvailabilitySQL, [
+      tutor_id,
+      dayOfWeek,
+    ]);
     const slotLabels = defaultAvailability.map((row) => row.time_slot);
 
     // Step 3: Map slot labels to actual times
     const slotMap = {
-      "Morning": ["07:00:00", "08:00:00", "09:00:00", "10:00:00", "11:00:00"],
-      "Afternoon": ["12:00:00", "13:00:00", "14:00:00"],
+      Morning: ["07:00:00", "08:00:00", "09:00:00", "10:00:00", "11:00:00"],
+      Afternoon: ["12:00:00", "13:00:00", "14:00:00"],
       "After School": ["15:00:00", "16:00:00", "17:00:00"],
-      "Evening": ["18:00:00", "19:00:00", "20:00:00", "21:00:00", "22:00:00"],
+      Evening: ["18:00:00", "19:00:00", "20:00:00", "21:00:00", "22:00:00"],
     };
 
     let mappedSlots = [];
@@ -382,7 +386,9 @@ exports.getAvailability = async (req, res) => {
     `;
     const [overrides] = await conn.query(selectOverridesSQL, [tutor_id, date]);
     const overriddenTimes = overrides.map((row) =>
-      new Date(`1970-01-01T${row.override_time_slot}`).toTimeString().slice(0, 8)
+      new Date(`1970-01-01T${row.override_time_slot}`)
+        .toTimeString()
+        .slice(0, 8)
     );
 
     // Step 5: Fetch booked slots for that date
@@ -423,7 +429,9 @@ exports.getAvailableDates = async (req, res) => {
       FROM availability
       WHERE tutor_id = ? AND is_available = 1
     `;
-    const [weeklyAvailability] = await conn.query(selectWeeklyAvailabilitySQL, [tutor_id]);
+    const [weeklyAvailability] = await conn.query(selectWeeklyAvailabilitySQL, [
+      tutor_id,
+    ]);
 
     if (weeklyAvailability.length === 0) {
       return res.json({ available_dates: [] });
@@ -462,9 +470,14 @@ exports.getAvailableDates = async (req, res) => {
         FROM tutor_availability_override
         WHERE tutor_id = ? AND override_date = ? AND override_is_available = 0
       `;
-      const [overrides] = await conn.query(selectOverridesSQL, [tutor_id, yyyyMmDd]);
-      const overriddenTimes = overrides.map(row =>
-        new Date(`1970-01-01T${row.override_time_slot}`).toTimeString().slice(0, 8)
+      const [overrides] = await conn.query(selectOverridesSQL, [
+        tutor_id,
+        yyyyMmDd,
+      ]);
+      const overriddenTimes = overrides.map((row) =>
+        new Date(`1970-01-01T${row.override_time_slot}`)
+          .toTimeString()
+          .slice(0, 8)
       );
 
       // Step 3: Get hourly slots
@@ -487,7 +500,10 @@ exports.getAvailableDates = async (req, res) => {
         FROM booking
         WHERE tutor_id = ? AND booking_date = ? AND booking_status != 3
       `;
-      const [bookings] = await conn.query(selectBookingsSQL, [tutor_id, yyyyMmDd]);
+      const [bookings] = await conn.query(selectBookingsSQL, [
+        tutor_id,
+        yyyyMmDd,
+      ]);
 
       const bookedTimes = bookings.map((b) =>
         new Date(`1970-01-01T${b.booking_time}`).toTimeString().slice(0, 8)
@@ -515,33 +531,51 @@ exports.getAvailableDates = async (req, res) => {
 // Creates a booking for a student
 
 exports.createBooking = async (req, res) => {
-
   try {
-    const {
-      tutor_id,
-      student_id,
-      booking_date,
-      booking_time,
-      booking_notes
-    } = req.body;
+    const { tutor_id, student_id, booking_date, booking_time, booking_notes } =
+      req.body;
 
     console.log(req.body);
 
-    if(!tutor_id || !student_id || !booking_date || !booking_time) {
-      return res.status(400).json({ error: "Missing required fields" })
+    // Notes validation and cleanup
+    let cleanedNotes = "";
+
+    // If booking_notes exists, validate type and length
+    if (booking_notes !== undefined) {
+      if (typeof booking_notes !== "string") {
+        return res
+          .status(400)
+          .json({ error: "booking_notes must be a string" });
+      }
+
+      if (booking_notes.length > 200) {
+        return res
+          .status(400)
+          .json({ error: "booking_notes must be 200 characters or fewer" });
+      }
+
+      cleanedNotes = booking_notes.trim();
     }
 
-    // Preventing double booking 
-    const checkSQL =`
+    if (!tutor_id || !student_id || !booking_date || !booking_time) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Preventing double booking
+    const checkSQL = `
     SELECT * FROM booking
     WHERE tutor_id = ? AND booking_date = ? AND booking_time = ? AND booking_status IN (1, 2)
     `;
-    const [existing] = await conn.query(checkSQL, [tutor_id, booking_date, booking_time])
+    const [existing] = await conn.query(checkSQL, [
+      tutor_id,
+      booking_date,
+      booking_time,
+    ]);
 
     console.log(existing);
 
     if (existing.length > 0) {
-      return res.status(409).json({ error: "Time slot already booked" })
+      return res.status(409).json({ error: "Time slot already booked" });
     }
 
     // Insert new booking
@@ -551,16 +585,201 @@ exports.createBooking = async (req, res) => {
     `;
 
     await conn.query(insertSQL, [
-      tutor_id, 
-      student_id, 
-      booking_date, 
-      booking_time, 
-      booking_notes || ""
+      tutor_id,
+      student_id,
+      booking_date,
+      booking_time,
+      cleanedNotes,
     ]);
 
-    res.status(201).json({ message: "Booking created successfully" })
+    res.status(201).json({ message: "Booking created successfully" });
   } catch (error) {
-    console.log ("Error creating booking:", error);
-    res.status(500).json({ error: "Internal server error"});
+    console.log("Error creating booking:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
+};
+
+// Creates a checkout session for a student
+
+exports.createCheckoutSession = async (req, res) => {
+  try {
+    const {
+      tutor_id,
+      student_id,
+      booking_date,
+      booking_time,
+      booking_notes,
+      return_url,
+    } = req.body;
+
+    const cancelUrl =
+      return_url || `${process.env.FRONTEND_URL}/booking-cancelled`;
+
+    if (!tutor_id || !student_id || !booking_date || !booking_time) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Validate notes (optional)
+    let cleanedNotes = "";
+    if (booking_notes !== undefined) {
+      if (typeof booking_notes !== "string") {
+        return res
+          .status(400)
+          .json({ error: "booking_notes must be a string" });
+      }
+      if (booking_notes.length > 200) {
+        return res
+          .status(400)
+          .json({ error: "booking_notes must be 200 characters or fewer" });
+      }
+      cleanedNotes = booking_notes.trim();
+    }
+
+    // Check for existing confirmed or pending booking
+    const [existing] = await conn.query(
+      `SELECT * FROM booking
+       WHERE tutor_id = ? AND booking_date = ? AND booking_time = ?
+       AND booking_status IN (1, 2)`,
+      [tutor_id, booking_date, booking_time]
+    );
+
+    if (existing.length > 0) {
+      return res.status(409).json({ error: "Time slot already booked" });
+    }
+
+    // Insert pending booking (status = 1)
+    const [insertResult] = await conn.query(
+      `INSERT INTO booking (tutor_id, student_id, booking_date, booking_time, booking_notes, booking_status, booking_created_at, booking_updated_at)
+       VALUES (?, ?, ?, ?, ?, 1, NOW(), NOW())`,
+      [tutor_id, student_id, booking_date, booking_time, cleanedNotes]
+    );
+
+    const booking_id = insertResult.insertId;
+
+    console.log("Insert id:", booking_id);
+
+    // Get tutor price
+    const [rows] = await conn.query(
+      `SELECT tutor_price FROM tutor WHERE tutor_id = ?`,
+      [tutor_id]
+    );
+    if (!rows.length) {
+      return res.status(404).json({ error: "Tutor not found" });
+    }
+
+    const tutor_price = rows[0].tutor_price;
+    const priceInPence = tutor_price * 100;
+
+    // Create Stripe Checkout session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+      currency: "gbp",
+      line_items: [
+        {
+          price_data: {
+            currency: "gbp",
+            product_data: {
+              name: `Music lesson with tutor #${tutor_id}`,
+            },
+            unit_amount: priceInPence,
+          },
+          quantity: 1,
+        },
+        {
+          price_data: {
+            currency: "gbp",
+            product_data: { name: "Notely booking fee" },
+            unit_amount: 99,
+          },
+          quantity: 1,
+        },
+      ],
+      metadata: {
+        booking_id: String(booking_id)
+      },
+      payment_intent_data: {
+        metadata: {
+          booking_id: String(booking_id),
+        },
+      },
+      success_url: `${process.env.FRONTEND_URL}/booking-success?tutor_id=${tutor_id}&booking_date=${booking_date}&booking_time=${booking_time}`,
+      cancel_url: cancelUrl,
+    });
+
+    res.status(200).json({ url: session.url });
+  } catch (error) {
+    console.error("Error creating Stripe session:", error);
+    res.status(500).json({ error: "Stripe session creation failed" });
+  }
+};
+
+exports.stripeWebhook = async (req, res) => {
+  const sig = req.headers["stripe-signature"];
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch (err) {
+    console.error("Webhook signature verification failed:", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle successful payment
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object;
+    console.log("Full session object:", session);
+    const metadata = session.metadata;
+    const booking_id = parseInt(metadata.booking_id, 10);
+
+    if (isNaN(booking_id)) {
+      console.error("Missing or invalid booking_id in metadata (success)");
+      return res.status(400).send("Invalid or missing booking ID");
+    }
+
+    try {
+      await conn.query(
+        `UPDATE booking SET booking_status = 2, booking_updated_at = NOW() WHERE booking_id = ?`,
+        [booking_id]
+      );
+      console.log(`Booking #${booking_id} confirmed via Stripe`);
+      return res.status(200).send("Booking confirmed");
+    } catch (err) {
+      console.error("Error updating booking after Stripe payment:", err);
+      return res.status(500).send("Failed to confirm booking");
+    }
+  }
+
+  // Handle failed or expired payments
+  if (
+    event.type === "checkout.session.expired" ||
+    (event.type === "payment_intent.payment_failed" &&
+      event.data.object.metadata?.booking_id)
+  ) {
+    const booking_id = parseInt(event.data.object.metadata.booking_id, 10);
+
+    if (isNaN(booking_id)) {
+      console.error("Missing or invalid booking_id in metadata (failure)");
+      return res.status(400).send("Invalid or missing booking ID");
+    }
+
+    try {
+      await conn.query(
+        `UPDATE booking SET booking_status = 3, booking_updated_at = NOW() WHERE booking_id = ?`,
+        [booking_id]
+      );
+      console.log(`Booking #${booking_id} marked as cancelled (payment failed)`);
+      return res.status(200).send("Booking cancelled");
+    } catch (err) {
+      console.error("Error marking booking as cancelled:", err);
+      return res.status(500).send("Failed to cancel booking");
+    }
+  }
+
+  // Default response for unhandled event types
+  res.status(200).json({ received: true });
 };

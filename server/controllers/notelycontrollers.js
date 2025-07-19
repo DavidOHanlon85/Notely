@@ -3,6 +3,7 @@
 const bcrypt = require("bcrypt");
 const conn = require("./../utils/dbconn");
 const stripe = require("./../lib/stripe");
+const sendEmail = require("../utils/email");
 
 // GET requests
 
@@ -696,7 +697,7 @@ exports.createCheckoutSession = async (req, res) => {
         },
       ],
       metadata: {
-        booking_id: String(booking_id)
+        booking_id: String(booking_id),
       },
       payment_intent_data: {
         metadata: {
@@ -742,11 +743,76 @@ exports.stripeWebhook = async (req, res) => {
     }
 
     try {
-      await conn.query(
-        `UPDATE booking SET booking_status = 2, booking_updated_at = NOW() WHERE booking_id = ?`,
-        [booking_id]
-      );
+      // Update booking to confirmed
+      const updateSQL = `
+        UPDATE booking
+        SET booking_status = 2, booking_updated_at = NOW()
+        WHERE booking_id = ?
+      `;
+      await conn.query(updateSQL, [booking_id]);
+
+      // Confirmation to console
       console.log(`Booking #${booking_id} confirmed via Stripe`);
+
+      // Fetch student and tutor details for email
+      const bookingRowsSQL = `
+         SELECT b.booking_date, b.booking_time, s.student_first_name, s.student_email, t.tutor_first_name, t.tutor_second_name, t.tutor_email
+         FROM booking b
+         JOIN student s ON b.student_id = s.student_id
+         JOIN tutor t ON b.tutor_id = t.tutor_id
+         WHERE b.booking_id = ?
+      `;
+      const [bookingRows] = await conn.query(bookingRowsSQL, [booking_id]);
+
+      if (!bookingRows.length) {
+        console.error("Booking not found for email data");
+        return res.status(404).send("Booking not found");
+      }
+
+      const booking = bookingRows[0];
+      const {
+        booking_date,
+        booking_time,
+        student_first_name,
+        student_email,
+        tutor_first_name,
+        tutor_second_name,
+        tutor_email,
+      } = booking;
+
+      // Convert and format booking_date and booking_time
+      const formattedDate = new Date(booking_date).toLocaleDateString("en-GB", {
+        weekday: "long", // e.g. Monday
+        year: "numeric",
+        month: "long", // e.g. July
+        day: "numeric",
+      });
+
+      const formattedTime = booking_time.slice(0, 5); // e.g. '08:00' (HH:mm)
+
+      // Email to student
+      await sendEmail({
+        to: "davidohanlon85@googlemail.com", //student_email,
+        subject: "🎵 Booking Confirmed — Your Notely Lesson",
+        html: `
+          <p>Hi ${student_first_name},</p>
+          <p>Your lesson with ${tutor_first_name} ${tutor_second_name} has been confirmed for <strong>${formattedDate}</strong> at <strong>${formattedTime}</strong>.</p>
+          <p>Thanks for using Notely!</p>
+        `,
+      });
+
+      // Email to tutor
+      await sendEmail({
+        to: "davidohanlon85@googlemail.com", //tutor_email,
+        subject: "🎵 New Student Booking via Notely",
+        html: `
+          <p>Hi ${tutor_first_name},</p>
+          <p>A new student has booked a lesson with you for <strong>${formattedDate}</strong> at <strong>${formattedTime}</strong>.</p>
+          <p>You can view your updated schedule in the dashboard.</p>
+          <p>Team Notely!</p>
+        `,
+      });
+
       return res.status(200).send("Booking confirmed");
     } catch (err) {
       console.error("Error updating booking after Stripe payment:", err);
@@ -772,7 +838,9 @@ exports.stripeWebhook = async (req, res) => {
         `UPDATE booking SET booking_status = 3, booking_updated_at = NOW() WHERE booking_id = ?`,
         [booking_id]
       );
-      console.log(`Booking #${booking_id} marked as cancelled (payment failed)`);
+      console.log(
+        `Booking #${booking_id} marked as cancelled (payment failed)`
+      );
       return res.status(200).send("Booking cancelled");
     } catch (err) {
       console.error("Error marking booking as cancelled:", err);
@@ -781,5 +849,6 @@ exports.stripeWebhook = async (req, res) => {
   }
 
   // Default response for unhandled event types
+  console.log(`Unhandled Stripe event type: ${event.type}`);
   res.status(200).json({ received: true });
 };

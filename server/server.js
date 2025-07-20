@@ -21,6 +21,9 @@
 const dotenv = require('dotenv').config({ path: './config.env'}); // dotenv module loaded - loaded before the app object is created to allow access to env vars within the project without needing to be further required
 const app = require('./app');
 
+// Load the reminder scheduler (runs in background)
+require('./reminderScheduler');
+
 
 // App object used to bind the server to HTTP requests on the specified port using the app object's listen() method.
 app.listen(process.env.PORT, (err) => {

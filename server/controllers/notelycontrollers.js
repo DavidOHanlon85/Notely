@@ -715,6 +715,8 @@ exports.createCheckoutSession = async (req, res) => {
   }
 };
 
+// Stripe webhook to complete purchase - logic to deal with race conditions and to send email confirmations of successful bookings
+
 exports.stripeWebhook = async (req, res) => {
   const sig = req.headers["stripe-signature"];
   let event;
@@ -851,4 +853,143 @@ exports.stripeWebhook = async (req, res) => {
   // Default response for unhandled event types
   console.log(`Unhandled Stripe event type: ${event.type}`);
   res.status(200).json({ received: true });
+};
+
+// Register a new student - BCrypt in use to hash passwords
+
+exports.registerStudent = async (req, res) => {
+  try {
+    const {
+      student_first_name,
+      student_last_name,
+      student_username,
+      student_email,
+      student_phone,
+      student_password,
+      confirmPassword
+    } = req.body;
+
+    const errors = {};
+
+    // Server-side validation (match frontend)
+    if (!student_first_name || student_first_name.trim().length === 0) {
+      errors.student_first_name = "First name is required.";
+    } else if (student_first_name.length > 35) {
+      errors.student_first_name = "First name must be 35 characters or less.";
+    }
+
+    if (!student_last_name || student_last_name.trim().length === 0) {
+      errors.student_last_name = "Last name is required.";
+    } else if (student_last_name.length > 35) {
+      errors.student_last_name = "Last name must be 35 characters or less.";
+    }
+
+    if (!student_username || student_username.trim().length === 0) {
+      errors.student_username = "Username is required.";
+    } else if (student_username.length > 30) {
+      errors.student_username = "Username must be 30 characters or less.";
+    }
+
+    if (!student_email || student_email.trim().length === 0) {
+      errors.student_email = "Email is required.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(student_email)) {
+      errors.student_email = "Invalid email format.";
+    }
+
+    if (!student_phone || student_phone.trim().length === 0) {
+      errors.student_phone = "Phone number is required.";
+    } else if (!/^\d{11}$/.test(student_phone)) {
+      errors.student_phone = "Phone number must be exactly 11 digits.";
+    }
+
+    if (!student_password) {
+      errors.student_password = "Password is required.";
+    } else if (
+      student_password.length < 8 ||
+      !/[A-Z]/.test(student_password) ||
+      !/[a-z]/.test(student_password) ||
+      !/[0-9]/.test(student_password) ||
+      !/[!@#$%^&*]/.test(student_password)
+    ) {
+      errors.student_password =
+        "Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.";
+    }
+
+    if (student_password !== confirmPassword) {
+      errors.confirmPassword = "Passwords do not match.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).json({ status: "failure", errors });
+    }
+
+    // Check for existing email and username
+    const [[emailExists]] = await conn.query(
+      "SELECT student_id FROM student WHERE student_email = ?",
+      [student_email]
+    );
+    if (emailExists) {
+      errors.student_email = "Email is already registered.";
+    }
+
+    const [[usernameExists]] = await conn.query(
+      "SELECT student_id FROM student WHERE student_username = ?",
+      [student_username]
+    );
+    if (usernameExists) {
+      errors.student_username = "Username already taken.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      return res.status(409).json({ status: "failure", errors });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(student_password, 12);
+
+    // Insert new student
+    const [result] = await conn.query(
+      `INSERT INTO student (
+        student_first_name,
+        student_last_name,
+        student_username,
+        student_email,
+        student_password,
+        student_phone,
+        student_verified_email,
+        student_registration_date
+      ) VALUES (?, ?, ?, ?, ?, ?, 0, CURDATE())`,
+      [
+        student_first_name,
+        student_last_name,
+        student_username,
+        student_email,
+        hashedPassword,
+        student_phone,
+      ]
+    );
+
+    await sendEmail({
+      from: '"Notely 🎵" <notelymusictuition@gmail.com>',
+      to: student_email,
+      subject: "Welcome to Notely!",
+      html: `
+        <p>Welcome to Notely, ${student_first_name}!</p>
+        <p>We're thrilled to have you on board. You can now log in and book lessons with our top-rated tutors.</p>
+        <p style="margin-top:16px;"> <a href="https://notely.app/login" style="background:#ffc107; padding:10px 20px; color:#000; text-decoration:none; border-radius:6px;">Login to Your Account</a></p>
+        <p>Thanks,<br/>The Notely Team</p>
+      `,
+    });
+
+    return res.status(201).json({
+      status: "success",
+      message: `Student registered with ID ${result.insertId}`,
+    });
+  } catch (err) {
+    console.error("Registration Error:", err);
+    return res.status(500).json({
+      status: "failure",
+      message: "An internal server error occurred.",
+    });
+  }
 };

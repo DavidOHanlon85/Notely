@@ -21,6 +21,7 @@ import FeedbackPage from './pages/FeedbackPage.jsx';
 import TutorBookingPage from './pages/TutorBookingPage.jsx';
 import BookingSuccessPage from './pages/BookingSuccessPage.jsx';
 import BookingSuccessPage2 from './pages/BookingSuccessPage2.jsx'
+import StudentRegistrationPage from './pages/StudentRegistrationPage.jsx';
 
 
 // Creating a router
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
   {
     path: '/feedback/:id',
     element: <FeedbackPage />
+  },
+  {
+    path: '/student/register',
+    element: <StudentRegistrationPage />
   },
   {
     path: '/booking/:id',

@@ -1,8 +1,11 @@
 // Creating the router object that will be exported and loaded within app.js
 
 const express = require('express');
-const controller = require('./../controllers/notelycontrollers');
 const router = express.Router();
+const registerLimiter = require('../middlewares/rateLimiter')
+const controller = require('./../controllers/notelycontrollers');
+
+
 
 router.get('/users', controller.users);
 router.get('/api/tutors', controller.tutors);
@@ -14,5 +17,6 @@ router.get('/api/booking/available-dates', controller.getAvailableDates);
 router.post("/api/booking/create", controller.createBooking);
 router.post("/api/create-checkout-session", controller.createCheckoutSession)
 router.post("/api/stripe/webhook", express.raw({ type: "application/json" }), controller.stripeWebhook);
+router.post("/api/student/register", registerLimiter, controller.registerStudent);
 
 module.exports = router;

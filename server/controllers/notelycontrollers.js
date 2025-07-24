@@ -1072,8 +1072,8 @@ exports.loginStudent = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true, // can't access with JS
-      secure: false, // switch to process.env.NODE_ENV === "production", // HTTPS only in production
-      sameSite: "Lax", // switch to Strict in production
+      secure: process.env.NODE_ENV === "production", // HTTPS only in production
+      sameSite: "Strict",
       maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 60 * 60 * 1000, // ms
     });
 
@@ -1107,7 +1107,7 @@ exports.logoutStudent = (req, res) => {
     .json({ status: "success", message: "Logged out successfully." });
 };
 
-// Student reset email
+// Student reset password email
 
 exports.forgotPasswordStudent = async (req, res) => {
   const { email } = req.body;
@@ -1183,6 +1183,8 @@ exports.forgotPasswordStudent = async (req, res) => {
   }
 };
 
+// Student reset password
+
 exports.resetPasswordStudent = async (req, res) => {
   const { token } = req.params;
   const { password, confirmPassword } = req.body;
@@ -1227,7 +1229,7 @@ exports.resetPasswordStudent = async (req, res) => {
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    console.log("New hash:", hashedPassword)
+    console.log("New hash:", hashedPassword);
 
     // Update DB with new password, clear reset token fields
     const updateSQL = `
@@ -1238,9 +1240,15 @@ exports.resetPasswordStudent = async (req, res) => {
       WHERE student_id = ?
     `;
 
-    const [result] = await conn.query(updateSQL, [hashedPassword, student.student_id]);
+    const [result] = await conn.query(updateSQL, [
+      hashedPassword,
+      student.student_id,
+    ]);
     console.log("Password update result:", result);
-    console.log("Password successfully updated for student_id:", student.student_id);
+    console.log(
+      "Password successfully updated for student_id:",
+      student.student_id
+    );
 
     return res.status(200).json({
       status: "success",
@@ -1252,5 +1260,301 @@ exports.resetPasswordStudent = async (req, res) => {
       status: "failure",
       message: "An internal server error occurred.",
     });
+  }
+};
+
+// Gets initial Student Dashboard data
+
+exports.getStudentDashboard = async (req, res) => {
+  try {
+    const { student_id, student_first_name } = req.user;
+
+    // May need addtional DB call depending on required data
+
+    return res.status(200).json({
+      student_id,
+      student_first_name,
+      message: "Welcome to your dashboard!",
+    });
+  } catch (err) {
+    console.error("Student dashboard error:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Logs in tutor with email or username - sets JWT token live - server side validation of inputs
+
+exports.loginTutor = async (req, res) => {
+  const { identifier, password, rememberMe } = req.body;
+
+  // Server side validation
+
+  const errors = {};
+
+  if (!identifier || !identifier.trim()) {
+    errors.identifier = "Email or username is required.";
+  } else {
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+    const isUsername = /^[a-zA-Z0-9_]+$/.test(identifier);
+    if (!isEmail && !isUsername) {
+      errors.identifier = "Enter a valid email or username.";
+    }
+  }
+
+  if (!password || password.length === 0) {
+    errors.password = "Password is required.";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return res.status(400).json({ status: "failure", errors });
+  }
+
+  try {
+    // Find tutor by email or username
+    const findTutorSQL = `
+      SELECT tutor_id, tutor_username, tutor_first_name, tutor_email, tutor_password
+      FROM tutor
+      WHERE tutor_email = ? OR tutor_username = ?
+      LIMIT 1
+    `;
+
+    const [[tutor]] = await conn.query(findTutorSQL, [identifier, identifier]);
+
+    if (!tutor) {
+      return res.status(401).json({
+        status: "failure",
+        message: "Account not found.",
+      });
+    }
+
+    // Compare passwords
+    const isMatch = await bcrypt.compare(password, tutor.tutor_password);
+    if (!isMatch) {
+      return res.status(401).json({
+        status: "failure",
+        message: "Incorrect password.",
+      });
+    }
+
+    // Generate JWT
+    const token = jwt.sign(
+      {
+        tutor_id: tutor.tutor_id,
+        tutor_first_name: tutor.tutor_first_name,
+        userType: "tutor",
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: rememberMe ? "7d" : "1d" }
+    );
+
+    // Set cookie
+    res.cookie("tutor_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: rememberMe ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Tutor login successful",
+      tutor_id: tutor.tutor_id,
+    });
+  } catch (error) {
+    console.error("Tutor login error:", error);
+    return res.status(500).json({
+      status: "failure",
+      message: "An internal server error occurred.",
+    });
+  }
+};
+
+// Tutor Logout
+
+exports.logoutTutor = (req, res) => {
+  res.clearCookie("tutor_token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Strict",
+  });
+
+  return res
+    .status(200)
+    .json({ status: "success", message: "Tutor logged out successfully." });
+};
+
+// Tutor reset password email
+
+exports.forgotPasswordTutor = async (req, res) => {
+  const { email } = req.body;
+
+  // Validate email format
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({
+      status: "failure",
+      message: "Please provide a valid email address.",
+    });
+  }
+
+  if (!email || !email.trim()) {
+    return res.status(400).json({
+      status: "failure",
+      message: "Email is required.",
+    });
+  }
+
+  try {
+    // Find tutor by email
+    const selectSQL = `
+      SELECT tutor_id, tutor_first_name
+      FROM tutor
+      WHERE tutor_email = ?
+    `;
+    const [[tutor]] = await conn.query(selectSQL, [email]);
+
+    if (!tutor) {
+      return res.status(404).json({
+        status: "failure",
+        message: "No account found with that email.",
+      });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    // Save hashed token + expiry
+    const updateSQL = `
+      UPDATE tutor
+      SET tutor_password_reset_token = ?, tutor_password_reset_expires = DATE_ADD(NOW(), INTERVAL 1 HOUR)
+      WHERE tutor_id = ?
+    `;
+    await conn.query(updateSQL, [hashedToken, tutor.tutor_id]);
+
+    // Construct reset link (frontend route)
+    const resetLink = `http://localhost:5173/tutor/reset-password/${resetToken}`;
+
+    // Send email
+    await sendEmail({
+      from: "Notely <notelymusictuition@gmail.com>",
+      to: email,
+      subject: "Reset your Notely tutor password",
+      html: `
+        <p>Hi ${tutor.tutor_first_name},</p>
+        <p>Click the button below to reset your password:</p>
+        <p style="margin-top:16px;">
+          <a href="${resetLink}" style="background:#8551E6; padding:10px 20px; color:#fff; text-decoration:none; border-radius:6px;">
+            Reset Password
+          </a>
+        </p>
+        <p>This link will expire in 1 hour.</p>
+        <p>Thanks,<br/>The Notely Team</p>
+      `,
+    });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Password reset link has been sent to your email.",
+    });
+  } catch (error) {
+    console.error("Tutor forgot password error:", error);
+    return res.status(500).json({
+      status: "failure",
+      message: "An internal server error occurred.",
+    });
+  }
+};
+
+// Tutor reset password
+
+exports.resetPasswordTutor = async (req, res) => {
+  const { token } = req.params;
+  const { password, confirmPassword } = req.body;
+
+  // Basic password checks
+  if (!password || !confirmPassword) {
+    return res.status(400).json({
+      status: "failure",
+      message: "Both password fields are required.",
+    });
+  }
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({
+      status: "failure",
+      message: "Passwords do not match.",
+    });
+  }
+
+  // Password strength check
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
+
+  if (!passwordRegex.test(password)) {
+    return res.status(400).json({
+      status: "failure",
+      message:
+        "Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.",
+    });
+  }
+
+  try {
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const selectSQL = `
+      SELECT tutor_id FROM tutor
+      WHERE tutor_password_reset_token = ?
+      AND tutor_password_reset_expires > NOW()
+      LIMIT 1
+    `;
+    const [[tutor]] = await conn.query(selectSQL, [hashedToken]);
+
+    if (!tutor) {
+      return res.status(400).json({
+        status: "failure",
+        message: "Invalid or expired reset token.",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    const updateSQL = `
+      UPDATE tutor
+      SET tutor_password = ?, tutor_password_reset_token = NULL, tutor_password_reset_expires = NULL
+      WHERE tutor_id = ?
+    `;
+    await conn.query(updateSQL, [hashedPassword, tutor.tutor_id]);
+
+    return res.status(200).json({
+      status: "success",
+      message: "Password has been successfully reset. You may now log in.",
+    });
+  } catch (error) {
+    console.error("Reset password error:", error);
+    return res.status(500).json({
+      status: "failure",
+      message: "Internal server error.",
+    });
+  }
+};
+
+// Gets initial Tutor Dashboard data
+
+exports.getTutorDashboard = async (req, res) => {
+  try {
+    const { tutor_id, tutor_first_name } = req.user;
+
+    // May need addtional DB call depending on required data
+
+    return res.status(200).json({
+      tutor_id,
+      tutor_first_name,
+      message: "Welcome to your dashboard!",
+    });
+  } catch (error) {
+    console.error("Dashboard error:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };

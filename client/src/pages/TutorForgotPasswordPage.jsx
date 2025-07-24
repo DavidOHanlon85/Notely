@@ -4,9 +4,9 @@ import NotelyRectangle from "../assets/images/NotelyRectangle.png";
 import heroImage from "../assets/images/LoginAndRegistration/StudentForgotPassword.jpg";
 import axios from "axios";
 
-import "./StudentForgotPasswordPage.css";
+import "./TutorForgotPasswordPage.css";
 
-export default function StudentForgotPasswordPage() {
+export default function TutorForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [formError, setFormError] = useState("");
   const [serverMessage, setServerMessage] = useState(null);
@@ -16,7 +16,6 @@ export default function StudentForgotPasswordPage() {
     setFormError("");
     setServerMessage(null);
 
-    // Simple client validation
     if (!email.trim()) {
       setFormError("Email is required.");
       return;
@@ -26,42 +25,39 @@ export default function StudentForgotPasswordPage() {
     }
 
     try {
-        const response = await axios.post("http://localhost:3002/api/student/forgot-password", 
-            { email},
-            { withCredentials: true }
-        );
-      
-        if (response.data.status === "success") {
-          setServerMessage({
-            type: "success",
-            text: response.data.message,
-          });
-        }
-      } catch (error) {
-        if (error.response?.data?.message) {
-          setServerMessage({
-            type: "danger",
-            text: error.response.data.message,
-          });
-        } else {
-          setServerMessage({
-            type: "danger",
-            text: "Something went wrong. Please try again.",
-          });
-        }
+      const response = await axios.post(
+        "http://localhost:3002/api/tutor/forgot-password",
+        { email },
+        { withCredentials: true }
+      );
+
+      if (response.data.status === "success") {
+        setServerMessage({
+          type: "success",
+          text: response.data.message,
+        });
       }
+    } catch (error) {
+      if (error.response?.data?.message) {
+        setServerMessage({
+          type: "danger",
+          text: error.response.data.message,
+        });
+      } else {
+        setServerMessage({
+          type: "danger",
+          text: "Something went wrong. Please try again.",
+        });
+      }
+    }
   };
 
   return (
-    <div className="login-page container-fluid">
+    <div className="login-page tutor-reset-page container-fluid">
       <div className="row min-vh-100">
         {/* LEFT: Form */}
         <div className="col-md-6 d-flex flex-column justify-content-center align-items-center form-section px-4">
-          <img
-            src={NotelyRectangle}
-            alt="Notely Logo"
-            className="notely-logo mb-3"
-          />
+          <img src={NotelyRectangle} alt="Notely Logo" className="notely-logo mb-3" />
           <h1 className="login-header pb-2">Reset Your Password</h1>
 
           {serverMessage && (
@@ -74,14 +70,10 @@ export default function StudentForgotPasswordPage() {
             </div>
           )}
 
-          <form
-            className="w-100"
-            style={{ maxWidth: "400px" }}
-            onSubmit={handleSubmit}
-          >
+          <form className="w-100" style={{ maxWidth: "400px" }} onSubmit={handleSubmit}>
             <div className="mb-3">
               <div className="input-group notely-input-group">
-                <span className="input-group-text bg-warning text-white border border-secondary rounded-start">
+                <span className="input-group-text bg-purple text-white border border-secondary rounded-start">
                   <i className="bi-envelope-at-fill"></i>
                 </span>
                 <input
@@ -93,14 +85,12 @@ export default function StudentForgotPasswordPage() {
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
-              {formError && (
-                <div className="text-danger small mt-1">{formError}</div>
-              )}
+              {formError && <div className="text-danger small mt-1">{formError}</div>}
             </div>
 
             <button
               type="submit"
-              className="btn btn-notely-gold w-100 d-inline-flex align-items-center justify-content-center gap-2"
+              className="btn btn-notely-purple w-100 d-inline-flex align-items-center justify-content-center gap-2"
             >
               Send Reset Link
               <svg
@@ -115,7 +105,7 @@ export default function StudentForgotPasswordPage() {
             </button>
 
             <p className="text-center mt-3">
-              <Link to="/student/login" className="text-warning fw-semibold">
+              <Link to="/tutor/login" className="text-purple fw-semibold">
                 Back to Login
               </Link>
             </p>

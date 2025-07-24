@@ -27,6 +27,9 @@ import DashboardDemo from './pages/DashboardDemo.jsx';
 import StudentForgotPasswordPage from './pages/StudentForgotPasswordPage.jsx';
 import StudentResetPasswordPage from './pages/StudentResetPasswordPage.jsx';
 import TutorLoginPage from './pages/TutorLoginPage.jsx';
+import TutorDemoDashboard from './pages/TutorDemoDashboard.jsx';
+import TutorForgotPasswordPage from './pages/TutorForgotPasswordPage.jsx';
+import TutorResetPasswordPage from './pages/TutorResetPasswordPage.jsx';
 
 
 // Creating a router
@@ -73,6 +76,18 @@ const router = createBrowserRouter([
   {
     path: '/tutor/login',
     element: <TutorLoginPage />
+  },
+  {
+    path: "/tutor/dashboard/:tutorId",
+    element: <TutorDemoDashboard />
+  },
+  {
+    path: '/tutor/forgot-password',
+    element: <TutorForgotPasswordPage />
+  },
+  {
+    path: '/tutor/reset-password/:token',
+    element: <TutorResetPasswordPage />
   },
   {
     path: '/booking/:id',

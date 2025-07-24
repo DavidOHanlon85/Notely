@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const registerLimiter = require('../middlewares/rateLimiter')
-const{ verifyStudent } = require('../middlewares/authMiddleware')
+const{ verifyStudent, verifyTutor } = require('../middlewares/authMiddleware')
 const controller = require('./../controllers/notelycontrollers');
 
 router.get('/users', controller.users);
@@ -12,11 +12,8 @@ router.get('/api/tutors/distinct-fields', controller.distinctFields);
 router.get('/api/tutor/:id', controller.getTutorById);
 router.get('/api/booking/availability', controller.getAvailability);
 router.get('/api/booking/available-dates', controller.getAvailableDates);
-router.get('/api/student/dashboard/:id', verifyStudent, (req, res) => { res.status(200).json({
-    message: `Welcome to your dashboard, ${req.user.student_first_name}`,
-    student_id: req.user.student_id
-    })
-}); 
+router.get('/api/student/dashboard/:id', verifyStudent, controller.getStudentDashboard); 
+router.get("/api/tutor/dashboard/:id", verifyTutor, controller.getTutorDashboard);
 
 
 router.post('/api/booking/create', controller.createBooking);
@@ -27,5 +24,9 @@ router.post('/api/student/login', controller.loginStudent);
 router.post('/api/student/logout', controller.logoutStudent);
 router.post('/api/student/forgot-password', controller.forgotPasswordStudent);
 router.post('/api/student/reset-password/:token', controller.resetPasswordStudent);
+router.post('/api/tutor/login', controller.loginTutor);
+router.post('/api/tutor/logout', controller.logoutTutor);
+router.post('/api/tutor/forgot-password', controller.forgotPasswordTutor);
+router.post('/api/tutor/reset-password/:token', controller.resetPasswordTutor);
 
 module.exports = router;

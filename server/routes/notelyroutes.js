@@ -19,11 +19,13 @@ router.get("/api/tutor/dashboard/:id", verifyTutor, controller.getTutorDashboard
 router.post('/api/booking/create', controller.createBooking);
 router.post('/api/create-checkout-session', controller.createCheckoutSession)
 router.post('/api/stripe/webhook', express.raw({ type: "application/json" }), controller.stripeWebhook);
+
 router.post('/api/student/register', registerLimiter, controller.registerStudent);
 router.post('/api/student/login', controller.loginStudent);
 router.post('/api/student/logout', controller.logoutStudent);
 router.post('/api/student/forgot-password', controller.forgotPasswordStudent);
 router.post('/api/student/reset-password/:token', controller.resetPasswordStudent);
+
 router.post('/api/tutor/login', controller.loginTutor);
 router.post('/api/tutor/logout', controller.logoutTutor);
 router.post('/api/tutor/forgot-password', controller.forgotPasswordTutor);

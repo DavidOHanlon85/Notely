@@ -3,6 +3,8 @@
 const bcrypt = require("bcrypt");
 const conn = require("./../utils/dbconn");
 const stripe = require("./../lib/stripe");
+const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const sendEmail = require("../utils/email");
 
 // GET requests
@@ -866,7 +868,7 @@ exports.registerStudent = async (req, res) => {
       student_email,
       student_phone,
       student_password,
-      confirmPassword
+      confirmPassword,
     } = req.body;
 
     const errors = {};
@@ -987,6 +989,265 @@ exports.registerStudent = async (req, res) => {
     });
   } catch (err) {
     console.error("Registration Error:", err);
+    return res.status(500).json({
+      status: "failure",
+      message: "An internal server error occurred.",
+    });
+  }
+};
+
+// Logs in student with email or username - sets JWT token live - server side validation of inputs
+
+exports.loginStudent = async (req, res) => {
+  try {
+    const { identifier, password, rememberMe } = req.body; //identifier = email or username
+
+    console.log("Login attempt body:", req.body);
+
+    if (!identifier || !password) {
+      return res.status(400).json({
+        status: "failure",
+        message: "Please eneter your email/ username and password.",
+      });
+    }
+
+    // Server side validation
+
+    const errors = {};
+
+    if (!identifier || identifier.trim().length === 0) {
+      errors.identifier = "Email or username is required.";
+    } else if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier) &&
+      !/^[a-zA-Z0-9_]+$/.test(identifier)
+    ) {
+      errors.identifier = "Enter a valid email or username.";
+    }
+
+    if (!password || password.length === 0 || password.trim() === "") {
+      errors.password = "Password is required.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).json({ status: "failure", errors });
+    }
+
+    const selectSQL = `
+      SELECT student_id, student_first_name, student_password
+      FROM student
+      WHERE student_email = ? OR student_username = ?
+    `;
+
+    const [[student]] = await conn.query(selectSQL, [identifier, identifier]);
+
+    if (!student) {
+      return res.status(401).json({
+        status: "failure",
+        message: "Account not found. Please check your credentials",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, student.student_password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        status: "failure",
+        message: "Incorrect password.",
+      });
+    }
+
+    // SET token her for 'remember me if active
+
+    const token = jwt.sign(
+      {
+        student_id: student.student_id,
+        student_first_name: student.student_first_name,
+        userType: "student",
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: rememberMe ? "30d" : "1h" }
+    );
+
+    // Set secure cookie (can only be read by server)
+
+    res.cookie("token", token, {
+      httpOnly: true, // can't access with JS
+      secure: false, // switch to process.env.NODE_ENV === "production", // HTTPS only in production
+      sameSite: "Lax", // switch to Strict in production
+      maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 60 * 60 * 1000, // ms
+    });
+
+    console.log("Login successful:", student.student_first_name);
+
+    return res.status(200).json({
+      status: "success",
+      message: `Welcome back, ${student.student_first_name}.`,
+      student_id: student.student_id,
+    });
+  } catch (error) {
+    console.error("Login Error:", error);
+    return res.status(500).json({
+      status: "failure",
+      message: "An internal server error occurred",
+    });
+  }
+};
+
+// Student Logout
+
+exports.logoutStudent = (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Strict",
+  });
+
+  return res
+    .status(200)
+    .json({ status: "success", message: "Logged out successfully." });
+};
+
+// Student reset email
+
+exports.forgotPasswordStudent = async (req, res) => {
+  const { email } = req.body;
+
+  // Email validation
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({
+      status: "failure",
+      message: "Please provide a valid email address.",
+    });
+  }
+
+  try {
+    const selectSQL = `
+      SELECT student_id, student_first_name
+      FROM student
+      WHERE student_email = ?
+      `;
+
+    const [[student]] = await conn.query(selectSQL, [email]);
+
+    if (!student) {
+      return res.status(404).json({
+        status: "failure",
+        message: "No account found with that email.",
+      });
+    }
+
+    // Generate a secure token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    // Store in DB
+    const updateSQL = `
+      UPDATE student 
+      SET student_password_reset_token = ?, student_password_reset_expires = DATE_ADD(NOW(), INTERVAL 1 HOUR)
+      WHERE student_id = ?
+    `;
+    await conn.query(updateSQL, [hashedToken, student.student_id]);
+
+    // Create reset link
+    const resetLink = `http://localhost:5173/student/reset-password/${resetToken}`;
+
+    // Send email
+
+    await sendEmail({
+      from: "Notely <notelymusictuition@gmail.com>",
+      to: email,
+      subject: "Reset your Notely password",
+      html: `
+        <p>Hi ${student.student_first_name},</p>
+        <p>Click the button below to reset your password:</p>
+        <p style="margin-top:16px;"> <a href="${resetLink}" style="background:#ffc107; padding:10px 20px; color:#000; text-decoration:none; border-radius:6px;">Reset Button</a></p>
+        <p>This link will expire in 1 hour.</p>
+        <p>Thanks,<br/>The Notely Team</p>
+      `,
+    });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Password reset link has been sent to your email.",
+    });
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    return res.status(500).json({
+      status: "failure",
+      message: "An internal server error occurred.",
+    });
+  }
+};
+
+exports.resetPasswordStudent = async (req, res) => {
+  const { token } = req.params;
+  const { password, confirmPassword } = req.body;
+
+  if (!token || !password || !confirmPassword) {
+    return res.status(400).json({
+      status: "failure",
+      message: "Token and new password are required",
+    });
+  }
+
+  // Validate password match
+  if (password !== confirmPassword) {
+    return res.status(400).json({
+      status: "failure",
+      message: "Passwords do not match.",
+    });
+  }
+
+  try {
+    // Hash the token to compare with stored hashed version
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    // Look up student by token and check expiry
+    const selectSQL = `
+      SELECT student_id 
+      FROM student 
+      WHERE student_password_reset_token = ? 
+      AND student_password_reset_expires > NOW()
+    `;
+
+    const [[student]] = await conn.query(selectSQL, [hashedToken]);
+
+    if (!student) {
+      return res.status(400).json({
+        status: "failure",
+        message: "Invalid or expired token",
+      });
+    }
+
+    // Hash new password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    console.log("New hash:", hashedPassword)
+
+    // Update DB with new password, clear reset token fields
+    const updateSQL = `
+      UPDATE student 
+      SET student_password = ?, 
+          student_password_reset_token = NULL, 
+          student_password_reset_expires = NULL 
+      WHERE student_id = ?
+    `;
+
+    const [result] = await conn.query(updateSQL, [hashedPassword, student.student_id]);
+    console.log("Password update result:", result);
+    console.log("Password successfully updated for student_id:", student.student_id);
+
+    return res.status(200).json({
+      status: "success",
+      message: "Your password has been successfully reset.",
+    });
+  } catch (error) {
+    console.error("Reset password error:", error);
     return res.status(500).json({
       status: "failure",
       message: "An internal server error occurred.",

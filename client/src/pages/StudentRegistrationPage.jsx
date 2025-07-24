@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import NotelyRectangle from "../assets/images/NotelyRectangle.png";
-import heroImage from "../assets/images/student-guitar.jpg";
+import heroImage from "../assets/images/LoginAndRegistration/StudentRegistration.jpg";
 import axios from "axios";
 import "./StudentRegistrationPage.css";
 
@@ -96,7 +96,7 @@ export default function StudentRegistrationPage() {
         if (response.data.status === "success") {
           setShowToast(true);
           setTimeout(() => {
-            navigate("/login");
+            navigate("/student/login");
           }, 2500); // 2.5 second delay
         }
       } catch (error) {
@@ -279,7 +279,7 @@ export default function StudentRegistrationPage() {
             <p className="text-center mt-3">
               Already have an account?
               <br />
-              <Link to="/login">Login</Link>
+              <Link to="/student/login">Login</Link>
             </p>
           </form>
         </div>

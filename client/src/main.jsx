@@ -22,6 +22,11 @@ import TutorBookingPage from './pages/TutorBookingPage.jsx';
 import BookingSuccessPage from './pages/BookingSuccessPage.jsx';
 import BookingSuccessPage2 from './pages/BookingSuccessPage2.jsx'
 import StudentRegistrationPage from './pages/StudentRegistrationPage.jsx';
+import StudentLoginPage from './pages/StudentLoginPage.jsx';
+import DashboardDemo from './pages/DashboardDemo.jsx';
+import StudentForgotPasswordPage from './pages/StudentForgotPasswordPage.jsx';
+import StudentResetPasswordPage from './pages/StudentResetPasswordPage.jsx';
+import TutorLoginPage from './pages/TutorLoginPage.jsx';
 
 
 // Creating a router
@@ -48,6 +53,26 @@ const router = createBrowserRouter([
   {
     path: '/student/register',
     element: <StudentRegistrationPage />
+  },
+  {
+    path: '/student/login',
+    element: <StudentLoginPage />
+  },
+  {
+    path: '/student/dashboard/:id',
+    element: <DashboardDemo />
+  },
+  {
+    path: '/student/forgot-password',
+    element: <StudentForgotPasswordPage />
+  },
+  {
+    path: '/student/reset-password/:token',
+    element: <StudentResetPasswordPage />
+  },
+  {
+    path: '/tutor/login',
+    element: <TutorLoginPage />
   },
   {
     path: '/booking/:id',

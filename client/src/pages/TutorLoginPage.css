@@ -1,0 +1,120 @@
+/* Tutor Login Page CSS */
+
+.login-page {
+    color: #212121;
+  }
+  
+  .tutor-login-page .notely-logo {
+    max-width: 180px;
+  }
+  
+  .tutor-login-page .login-header {
+    font-weight: 500;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* Form Layout */
+  .tutor-login-page .form-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+  }
+  
+  .tutor-login-page .form-section form {
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  /* Input Group Styling */
+  .tutor-login-page .input-group.notely-input-group input.form-control {
+    height: 45px;
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .tutor-login-page .input-group-text {
+    background-color: #8551E6;
+    color: white;
+    border: 1px solid #ced4da;
+  }
+  
+  .tutor-login-page .input-group-text i {
+    font-size: 1.3rem;
+  }
+  
+  /* Button Styling */
+  .btn-notely-purple {
+    background-color: #8551E6;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 0.75rem;
+    height: 45px;
+    transition: background-color 0.2s ease;
+  }
+  
+  .btn-notely-purple:hover {
+    background-color: #713dc7;
+  }
+  
+  /* Text Link Styling */
+  .tutor-login-page .form-section a {
+    color: #8551E6;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .tutor-login-page .form-section a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Checkbox Styling */
+  .tutor-login-page .form-check-input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #8551E6;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    background-color: #fff;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+  
+  .tutor-login-page .form-check-input:checked {
+    background-color: #F7B52D;
+    border-color: #F7B52D;
+  }
+  
+  .tutor-login-page .form-check-input:checked::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  
+  /* Responsive */
+  @media (max-width: 1300px) {
+    .tutor-login-page .col-md-6.d-none.d-md-block {
+      display: none !important;
+    }
+  
+    .tutor-login-page .form-section {
+      width: 100%;
+      min-height: 100vh;
+      justify-content: center;
+      align-items: center;
+    }
+  
+    .tutor-login-page .login-header {
+      text-align: center;
+    }
+  }

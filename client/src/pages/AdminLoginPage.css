@@ -1,0 +1,128 @@
+/* Admin Login Page CSS */
+
+.admin-login-page {
+    color: #212121;
+  }
+  
+  .admin-login-page .notely-logo {
+    max-width: 180px;
+  }
+  
+  .admin-login-page .login-header {
+    font-weight: 500;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* Form Layout */
+  .admin-login-page .form-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+  }
+  
+  .admin-login-page .form-section form {
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  /* Input Group Styling */
+  .admin-login-page .input-group.admin-input-group input.form-control {
+    height: 45px;
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0 0.375rem 0.375rem 0;
+  }
+  
+  .admin-login-page .input-group-text {
+    background-color: #002147; /* Deep navy */
+    color: white;
+    border: 1px solid #ced4da;
+    height: 45px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.75rem;
+    font-size: 1.2rem;
+  }
+  
+  .admin-login-page .input-group-text i {
+    margin-top: 1px;
+  }
+  
+  /* Button Styling */
+  .btn-notely-navy {
+    background-color: #002147;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 0.75rem;
+    height: 45px;
+    transition: background-color 0.2s ease;
+  }
+  
+  .btn-notely-navy:hover {
+    background-color: #00152e;
+    color: #fff;
+  }
+  
+  /* Text Link Styling */
+  .admin-login-page .form-section a {
+    color: #002147;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .admin-login-page .form-section a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Checkbox Styling */
+  .admin-login-page .form-check-input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #002147;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    background-color: #fff;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+  
+  .admin-login-page .form-check-input:checked {
+    background-color: #212121;
+    border-color: #212121;
+  }
+  
+  .admin-login-page .form-check-input:checked::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  
+  /* Responsive */
+  @media (max-width: 1300px) {
+    .admin-login-page .col-md-6.d-none.d-md-block {
+      display: none !important;
+    }
+  
+    .admin-login-page .form-section {
+      width: 100%;
+      min-height: 100vh;
+      justify-content: center;
+      align-items: center;
+    }
+  
+    .admin-login-page .login-header {
+      text-align: center;
+    }
+  }

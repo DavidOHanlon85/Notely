@@ -30,6 +30,10 @@ import TutorLoginPage from './pages/TutorLoginPage.jsx';
 import TutorDemoDashboard from './pages/TutorDemoDashboard.jsx';
 import TutorForgotPasswordPage from './pages/TutorForgotPasswordPage.jsx';
 import TutorResetPasswordPage from './pages/TutorResetPasswordPage.jsx';
+import AdminLoginPage from './pages/AdminLoginPage.jsx';
+import AdminDemoDashboard from './pages/AdminDemoDashboard.jsx';
+import AdminForgotPasswordPage from './pages/AdminForgotPasswordPage.jsx';
+import AdminResetPasswordPage from './pages/AdminResetPasswordPage.jsx';
 
 
 // Creating a router
@@ -88,6 +92,22 @@ const router = createBrowserRouter([
   {
     path: '/tutor/reset-password/:token',
     element: <TutorResetPasswordPage />
+  },
+  {
+    path: '/admin/login',
+    element: <AdminLoginPage />
+  },
+  {
+    path: "/admin/dashboard/:id",
+    element: <AdminDemoDashboard />
+  },
+  {
+    path: '/admin/forgot-password',
+    element: <AdminForgotPasswordPage />
+  },
+  {
+    path: '/admin/reset-password/:token',
+    element: <AdminResetPasswordPage />
   },
   {
     path: '/booking/:id',

@@ -1558,3 +1558,256 @@ exports.getTutorDashboard = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+// Logs in admin with email or username - sets JWT token live - server side validation of inputs
+
+exports.loginAdmin = async (req, res) => {
+  const { identifier, password, rememberMe } = req.body;
+
+  // Server-side validation
+  const errors = [];
+
+  if (
+    !identifier ||
+    typeof identifier !== "string" ||
+    identifier.trim().length === 0
+  ) {
+    errors.push("Missing identifier");
+  } else if (
+    identifier.includes("@") &&
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier.trim())
+  ) {
+    errors.push("Invalid email format");
+  } else if (identifier.length > 50) {
+    errors.push("Identifier too long");
+  }
+  
+  if (!password || typeof password !== "string") {
+    errors.push("Missing or invalid password");
+  }
+  
+  // Generic error message for client, detailed logs for server
+  if (errors.length > 0) {
+    console.warn(
+      `Login validation failed for IP ${req.ip}. Reason(s): ${errors.join(", ")}`
+    );
+    return res.status(400).json({
+      status: "failure",
+      message: "Invalid username or password.",
+    });
+  }
+
+  try {
+    const selectSQL = `
+      SELECT admin_id, admin_first_name, admin_email, admin_username, admin_password, admin_first_name
+      FROM admin
+      WHERE admin_email = ? OR admin_username = ?
+    `;
+    const [[admin]] = await conn.query(selectSQL, [identifier, identifier]);
+
+    if (!admin) {
+      return res.status(404).json({
+        status: "failure",
+        message: "No admin found with that email or username.",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, admin.admin_password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        status: "failure",
+        message: "Incorrect password.",
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        admin_id: admin.admin_id,
+        admin_first_name: admin.admin_first_name,
+        admin_email: admin.admin_email,
+        userType: "admin",
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: rememberMe ? "30d" : "1d",
+      }
+    );
+
+    res.cookie("admin_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      status: "success",
+      message: `Welcome back, ${admin.admin_first_name}!`,
+      admin_id: admin.admin_id,
+    });
+  } catch (err) {
+    console.error("Admin login error:", err);
+    return res.status(500).json({
+      status: "failure",
+      message: "Internal server error.",
+    });
+  }
+};
+
+// Gets initial Admin Dashboard data
+
+exports.getAdminDashboard = (req, res) => {
+  const { admin_id, admin_first_name } = req.user;
+  return res.status(200).json({
+    admin_id,
+    admin_first_name,
+    message: "Welcome to your admin dashboard!",
+  });
+};
+
+// Admin Logout
+
+exports.logoutAdmin = (req, res) => {
+  res.clearCookie("admin_token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Strict",
+  });
+
+  return res.status(200).json({ status: "success", message: "Logged out successfully." });
+};
+
+// Admin reset password email
+
+exports.forgotPasswordAdmin = async (req, res) => {
+  const { email } = req.body;
+
+  // Basic validation
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({
+      status: "failure",
+      message: "Please provide a valid email address.",
+    });
+  }
+
+  try {
+    // Check if admin exists
+    const selectSQL = `
+      SELECT admin_id, admin_first_name
+      FROM admin
+      WHERE admin_email = ?
+    `;
+    const [[admin]] = await conn.query(selectSQL, [email]);
+
+    if (!admin) {
+      return res.status(404).json({
+        status: "failure",
+        message: "No admin account found with that email.",
+      });
+    }
+
+    // Generate token and hash it
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    // Store token + expiry in DB
+    const updateSQL = `
+      UPDATE admin
+      SET admin_password_reset_token = ?, admin_password_reset_expires = DATE_ADD(NOW(), INTERVAL 1 HOUR)
+      WHERE admin_id = ?
+    `;
+    await conn.query(updateSQL, [hashedToken, admin.admin_id]);
+
+    // Construct reset link
+    const resetLink = `http://localhost:5173/admin/reset-password/${resetToken}`;
+
+    // Send email
+    await sendEmail({
+      from: "Notely <notelymusictuition@gmail.com>",
+      to: email,
+      subject: "Reset your Notely Admin password",
+      html: `
+        <p>Hi ${admin.admin_first_name},</p>
+        <p>Click the button below to reset your password:</p>
+        <p style="margin-top:16px;">
+          <a href="${resetLink}" style="background:#002147; padding:10px 20px; color:#fff; text-decoration:none; border-radius:6px;">Reset Password</a>
+        </p>
+        <p>This link will expire in 1 hour.</p>
+        <p>Thanks,<br/>The Notely Team</p>
+      `,
+    });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Password reset link has been sent to your email.",
+    });
+  } catch (err) {
+    console.error("Admin forgot password error:", err);
+    return res.status(500).json({
+      status: "failure",
+      message: "An internal server error occurred.",
+    });
+  }
+};
+
+// Admin reset password
+
+exports.resetPasswordAdmin = async (req, res) => {
+  const { token } = req.params;
+  const { password, confirmPassword } = req.body;
+
+  // Basic checks
+  if (!password || !confirmPassword) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  // Password complexity validation
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+  if (!passwordRegex.test(password)) {
+    return res.status(400).json({
+      message:
+        "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.",
+    });
+  }
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({ message: "Passwords do not match." });
+  }
+
+  try {
+    // Hash token
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    // Find matching admin
+    const [adminRows] = await conn.query(
+      `SELECT * FROM admin WHERE admin_password_reset_token = ? AND admin_password_reset_expires > NOW()`,
+      [hashedToken]
+    );
+
+    if (adminRows.length === 0) {
+      return res.status(400).json({ message: "Token is invalid or has expired." });
+    }
+
+    const admin = adminRows[0];
+
+    // Hash and update password
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    await conn.query(
+      `UPDATE admin SET admin_password = ?, admin_password_reset_token = NULL, admin_password_reset_expires = NULL WHERE admin_id = ?`,
+      [hashedPassword, admin.admin_id]
+    );
+
+    return res.status(200).json({
+      status: "success",
+      message: "Password has been reset successfully.",
+    });
+  } catch (error) {
+    console.error("Reset Password Error:", error);
+    return res.status(500).json({ message: "Server error. Please try again later." });
+  }
+};

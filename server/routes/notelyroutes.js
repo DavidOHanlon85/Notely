@@ -2,8 +2,11 @@
 
 const express = require('express');
 const router = express.Router();
+const multer = require("multer");
+const path = require("path");
 const { registerLimiter, authLimiter, loginLimiter } = require('../middlewares/rateLimiter')
 const{ verifyStudent, verifyTutor, verifyAdmin } = require('../middlewares/authMiddleware')
+const upload = require('../utils/multerConfig');
 const controller = require('./../controllers/notelycontrollers');
 
 router.get('/users', controller.users);
@@ -37,5 +40,8 @@ router.post('/api/admin/login', loginLimiter, controller.loginAdmin);
 router.post('/api/admin/logout', controller.logoutAdmin);
 router.post('/api/admin/forgot-password', authLimiter, controller.forgotPasswordAdmin);
 router.post('/api/admin/reset-password/:token', authLimiter, controller.resetPasswordAdmin);
+
+router.post("/api/tutor/upload-image", upload.single("image"), controller.handleTutorImageUpload);
+
 
 module.exports = router;

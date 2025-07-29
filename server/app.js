@@ -4,6 +4,7 @@ const morgan = require('morgan'); // Morgan module loaded
 const router = require('./routes/notelyroutes'); // Requiring the router object
 const cookieParser = require("cookie-parser");
 const app = express(); 
+const path = require("path");
 
 const cors = require("cors");
 
@@ -18,6 +19,8 @@ app.use(cors(corsOptions));
 
 // Stripe requires raw body for webhook signature validation
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(morgan('tiny')); // Logger - tiny selected - format logs only the essential information
 

@@ -354,6 +354,7 @@ export default function TutorBookingPage() {
                   onChange={(e) => setBookingNotes(e.target.value)}
                   maxLength="200"
                   placeholder="E.g. Looking for help with Grade 5 theory..."
+                  style={{ minHeight: "120px" }}
                 />
 
                 {/* Right-aligned character counter */}

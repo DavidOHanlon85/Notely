@@ -174,6 +174,23 @@ exports.distinctFields = async (req, res) => {
   }
 };
 
+// Get all instruments for tutor registration dataset
+
+exports.getAllInstruments = async (req, res) => {
+  try {
+    const [instruments] = await conn.query(
+      `SELECT DISTINCT instrument_name AS instrument, instrument_active 
+       FROM instrument
+       ORDER BY instrument_name ASC`
+    );
+
+    res.json({ instruments });
+  } catch (err) {
+    console.error("Error fetching distinct instruments:", err);
+    res.status(500).json({ error: "Server error fetching instruments" });
+  }
+};
+
 // Get data to for an individual tutor using tutor_id
 
 exports.getTutorById = async (req, res) => {
@@ -528,6 +545,8 @@ exports.getAvailableDates = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+
 
 // POST requests
 
@@ -1282,6 +1301,282 @@ exports.getStudentDashboard = async (req, res) => {
   }
 };
 
+// Register a new tutor - BCrypt in use to hash passwords
+
+exports.registerTutor = async (req, res) => {
+  const db = await conn.getConnection();
+  try {
+    await db.beginTransaction();
+
+    const {
+      tutor_username,
+      tutor_email,
+      tutor_phone,
+      tutor_first_name,
+      tutor_second_name,
+      tutor_password,
+      tutor_address_line_1,
+      tutor_address_line_2,
+      tutor_city,
+      tutor_postcode,
+      tutor_country,
+      tutor_modality,
+      tutor_price,
+      tutor_teaching_start_date,
+      tutor_tagline,
+      tutor_bio_paragraph_1,
+      tutor_bio_paragraph_2,
+      tutor_dbs,
+      tutor_qualified,
+      tutor_gender,
+      tutor_sen,
+      tutor_instruments = [],
+      tutor_level = [],
+    } = req.body;
+
+    const imageFileName = "default.jpg"; // to sort still
+
+    // Server-side validation
+
+    const validationErrors = [];
+
+    // Required string fields
+    const requiredFields = [
+      ["tutor_username", tutor_username],
+      ["tutor_email", tutor_email],
+      ["tutor_first_name", tutor_first_name],
+      ["tutor_second_name", tutor_second_name],
+      ["tutor_password", tutor_password],
+      ["tutor_address_line_1", tutor_address_line_1],
+      ["tutor_city", tutor_city],
+      ["tutor_postcode", tutor_postcode],
+      ["tutor_country", tutor_country],
+      ["tutor_modality", tutor_modality],
+      ["tutor_teaching_start_date", tutor_teaching_start_date],
+      ["tutor_tagline", tutor_tagline],
+      ["tutor_bio_paragraph_1", tutor_bio_paragraph_1],
+    ];
+
+    for (const [field, value] of requiredFields) {
+      if (!value || value.trim() === "") {
+        validationErrors.push(`${field} is required.`);
+      }
+    }
+
+    // Email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (tutor_email && !emailRegex.test(tutor_email)) {
+      validationErrors.push("Invalid email format.");
+    }
+
+    // Numeric checks
+    if (isNaN(tutor_price) || tutor_price <= 0) {
+      validationErrors.push("Tutor price must be a positive number.");
+    }
+
+    if (!Array.isArray(tutor_instruments) || tutor_instruments.length === 0) {
+      validationErrors.push("At least one instrument is required.");
+    }
+
+    if (!Array.isArray(tutor_level) || tutor_level.length === 0) {
+      validationErrors.push("At least one level is required.");
+    }
+
+    // Categorical checks (must be 0 or 1)
+    const binaryFields = [
+      ["tutor_dbs", tutor_dbs],
+      ["tutor_qualified", tutor_qualified],
+      ["tutor_gender", tutor_gender],
+      ["tutor_sen", tutor_sen],
+    ];
+    for (const [field, value] of binaryFields) {
+      if (value !== 0 && value !== 1) {
+        validationErrors.push(`${field} must be 0 or 1.`);
+      }
+    }
+
+    // Tagline length
+    if (tutor_tagline && tutor_tagline.length > 45) {
+      validationErrors.push("Tagline must be 45 characters or fewer.");
+    }
+
+    // Paragraphs length
+    if (tutor_bio_paragraph_1?.length > 500) {
+      validationErrors.push(
+        "First bio paragraph must be 500 characters or fewer."
+      );
+    }
+    if (tutor_bio_paragraph_2?.length > 500) {
+      validationErrors.push(
+        "Second bio paragraph must be 500 characters or fewer."
+      );
+    }
+
+    if (validationErrors.length > 0) {
+      await db.rollback();
+      return res.status(400).json({ errors: validationErrors });
+    }
+
+    // Duplicate check
+    const [existing] = await db.execute(
+      `SELECT 1 FROM tutor WHERE tutor_email = ? OR tutor_username = ?`,
+      [tutor_email, tutor_username]
+    );
+    if (existing.length > 0) {
+      await db.rollback();
+      return res
+        .status(400)
+        .json({ errors: ["Email or username already exists."] });
+    }
+
+    // Hash password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(tutor_password, saltRounds);
+
+    // Insert into tutor table
+    const [result] = await db.execute(
+      `INSERT INTO tutor (
+        tutor_username, tutor_email, tutor_verified_email,
+        tutor_phone, tutor_first_name, tutor_second_name, tutor_image,
+        tutor_address_line_1, tutor_address_line_2, tutor_city,
+        tutor_postcode, tutor_country, tutor_modality, tutor_price,
+        tutor_teaching_start_date, tutor_tag_line,
+        tutor_bio_paragraph_1, tutor_bio_paragraph_2,
+        tutor_registration_date, tutor_password,
+        tutor_dbs, tutor_qualified, tutor_gender, tutor_sen
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?)`,
+      [
+        tutor_username,
+        tutor_email,
+        0, // verified email = false
+        tutor_phone,
+        tutor_first_name,
+        tutor_second_name,
+        imageFileName,
+        tutor_address_line_1,
+        tutor_address_line_2 || null,
+        tutor_city,
+        tutor_postcode,
+        tutor_country,
+        tutor_modality,
+        tutor_price,
+        tutor_teaching_start_date,
+        tutor_tagline,
+        tutor_bio_paragraph_1,
+        tutor_bio_paragraph_2,
+        hashedPassword,
+        tutor_dbs,
+        tutor_qualified,
+        tutor_gender,
+        tutor_sen,
+      ]
+    );
+
+    const insertedTutorId = result.insertId;
+
+    // Insert tutor instruments + mark as active
+    for (const instrumentName of tutor_instruments) {
+      // Get the instrument_id for the given name
+      const [instrumentRows] = await db.execute(
+        "SELECT instrument_id FROM instrument WHERE instrument_name = ?",
+        [instrumentName]
+      );
+
+      if (instrumentRows.length === 0) {
+        console.warn(`Instrument not found: ${instrumentName}`);
+        continue;
+      }
+
+      const instrumentId = instrumentRows[0].instrument_id;
+
+      // Insert into tutor_instrument with instrument_id
+      await db.execute(
+        "INSERT INTO tutor_instrument (tutor_id, instrument_id) VALUES (?, ?)",
+        [insertedTutorId, instrumentId]
+      );
+
+      // Mark instrument as active
+      await db.execute(
+        "UPDATE instrument SET instrument_active = 1 WHERE instrument_id = ?",
+        [instrumentId]
+      );
+    }
+
+    // Insert tutor levels
+    for (const level of tutor_level) {
+      await db.execute(
+        "INSERT INTO tutor_level (tutor_id, level_id) VALUES (?, ?)",
+        [insertedTutorId, level]
+      );
+    }
+
+    // Insert education entries
+    if (req.body.education?.length > 0) {
+      for (const edu of req.body.education) {
+        const { qualification, institution, year } = edu;
+        await db.execute(
+          "INSERT INTO education (qualification, institution, year, tutor_id) VALUES (?, ?, ?, ?)",
+          [qualification, institution, year, insertedTutorId]
+        );
+      }
+    }
+
+    // Insert certifications
+    if (req.body.certifications?.length > 0) {
+      for (const cert of req.body.certifications) {
+        const { certification, year } = cert;
+        await db.execute(
+          "INSERT INTO certification (certification, year, tutor_id) VALUES (?, ?, ?)",
+          [certification, year, insertedTutorId]
+        );
+      }
+    }
+
+    // Insert availability slots
+    if (req.body.availability?.length > 0) {
+      for (const slot of req.body.availability) {
+        const { day_of_week, time_slot, is_available } = slot;
+        await db.execute(
+          "INSERT INTO availability (tutor_id, day_of_week, time_slot, is_available) VALUES (?, ?, ?, ?)",
+          [insertedTutorId, day_of_week, time_slot, is_available ? 1 : 0]
+        );
+      }
+    }
+
+    await db.commit();
+
+    try {
+      // Send welcome email
+      await sendEmail({
+        from: '"Notely 🎵" <notelymusictuition@gmail.com>',
+        to: tutor_email,
+        subject: "Welcome to Notely – Let’s Get Teaching!",
+        html: `
+    <p>🎵 Welcome to Notely, ${tutor_first_name}!</p>
+    <p>Your tutor account has been successfully created. Parents and students can now discover your profile, explore your teaching style, and book lessons.</p>
+    <p style="margin-top:16px;"> 
+      <a href="https://notely.app/tutor/login" style="background:#6f42c1; padding:10px 20px; color:#fff; text-decoration:none; border-radius:6px;">
+        Login to Your Tutor Dashboard
+      </a>
+    </p>
+    <p>Thanks for joining us on this musical journey.<br/>The Notely Team</p>
+  `,
+      });
+    } catch (emailErr) {
+      console.error("Failed to send welcome email:", emailErr.message);
+    }
+
+    res.status(201).json({ message: "Tutor registered successfully" });
+  } catch (err) {
+    await db.rollback();
+    console.error("Registration error:", err);
+    res.status(500).json({ error: "Server error during registration" });
+  } finally {
+    db.release();
+  }
+};
+
 // Logs in tutor with email or username - sets JWT token live - server side validation of inputs
 
 exports.loginTutor = async (req, res) => {
@@ -1581,15 +1876,17 @@ exports.loginAdmin = async (req, res) => {
   } else if (identifier.length > 50) {
     errors.push("Identifier too long");
   }
-  
+
   if (!password || typeof password !== "string") {
     errors.push("Missing or invalid password");
   }
-  
+
   // Generic error message for client, detailed logs for server
   if (errors.length > 0) {
     console.warn(
-      `Login validation failed for IP ${req.ip}. Reason(s): ${errors.join(", ")}`
+      `Login validation failed for IP ${req.ip}. Reason(s): ${errors.join(
+        ", "
+      )}`
     );
     return res.status(400).json({
       status: "failure",
@@ -1675,7 +1972,9 @@ exports.logoutAdmin = (req, res) => {
     sameSite: "Strict",
   });
 
-  return res.status(200).json({ status: "success", message: "Logged out successfully." });
+  return res
+    .status(200)
+    .json({ status: "success", message: "Logged out successfully." });
 };
 
 // Admin reset password email
@@ -1766,7 +2065,8 @@ exports.resetPasswordAdmin = async (req, res) => {
   }
 
   // Password complexity validation
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
   if (!passwordRegex.test(password)) {
     return res.status(400).json({
       message:
@@ -1789,7 +2089,9 @@ exports.resetPasswordAdmin = async (req, res) => {
     );
 
     if (adminRows.length === 0) {
-      return res.status(400).json({ message: "Token is invalid or has expired." });
+      return res
+        .status(400)
+        .json({ message: "Token is invalid or has expired." });
     }
 
     const admin = adminRows[0];
@@ -1808,6 +2110,8 @@ exports.resetPasswordAdmin = async (req, res) => {
     });
   } catch (error) {
     console.error("Reset Password Error:", error);
-    return res.status(500).json({ message: "Server error. Please try again later." });
+    return res
+      .status(500)
+      .json({ message: "Server error. Please try again later." });
   }
 };

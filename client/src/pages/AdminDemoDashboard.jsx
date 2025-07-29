@@ -5,8 +5,12 @@ import axios from "axios";
 export default function AdminDemoDashboard() {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [adminName, setAdminName] = useState(null);
+  const [adminId, setAdminId] = useState(null);
   const [message, setMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -16,15 +20,24 @@ export default function AdminDemoDashboard() {
         });
 
         setAdminName(res.data.admin_first_name);
+        setAdminId(res.data.admin_id);
         setMessage(res.data.message);
       } catch (err) {
-        setMessage("Access denied or session expired.");
-        console.error(err.response?.data || err.message);
+        if (err.response?.status === 401) {
+          setErrorMessage("You are not logged in.");
+          navigate("/admin/login");
+        } else if (err.response?.status === 403) {
+          setErrorMessage("Access denied.");
+        } else {
+          setErrorMessage("Something went wrong.");
+        }
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchDashboard();
-  }, [id]);
+  }, [id, navigate]);
 
   const handleLogout = async () => {
     try {
@@ -36,13 +49,20 @@ export default function AdminDemoDashboard() {
   };
 
   return (
-    <div className="container mt-5">
-      <h1 className="mb-3">Admin Dashboard</h1>
-      {message && <p>{message}</p>}
-      {adminName && <p>Welcome, {adminName}!</p>}
-      <button className="btn btn-notely-navy mt-3" onClick={handleLogout}>
-        Log Out
-      </button>
+    <div className="container py-5">
+      {loading ? (
+        <p>Loading...</p>
+      ) : errorMessage ? (
+        <p className="text-danger">{errorMessage}</p>
+      ) : (
+        <>
+          <h1>Welcome, {adminName}!</h1>
+          <p>{message} You're logged in as admin #{adminId}.</p>
+          <button className="btn btn-notely-navy mt-3" onClick={handleLogout}>
+            Log Out
+          </button>
+        </>
+      )}
     </div>
   );
 }

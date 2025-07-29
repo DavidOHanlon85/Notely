@@ -34,6 +34,7 @@ import AdminLoginPage from './pages/AdminLoginPage.jsx';
 import AdminDemoDashboard from './pages/AdminDemoDashboard.jsx';
 import AdminForgotPasswordPage from './pages/AdminForgotPasswordPage.jsx';
 import AdminResetPasswordPage from './pages/AdminResetPasswordPage.jsx';
+import TutorRegistrationPage from './pages/TutorRegistration/TutorRegistrationPage.jsx';
 
 
 // Creating a router
@@ -76,6 +77,10 @@ const router = createBrowserRouter([
   {
     path: '/student/reset-password/:token',
     element: <StudentResetPasswordPage />
+  },
+  {
+    path: '/tutor/register',
+    element: <TutorRegistrationPage />
   },
   {
     path: '/tutor/login',

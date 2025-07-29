@@ -50,9 +50,9 @@ export default function TutorCard({ tutor }) {
           <i className="bi bi-star-fill text-warning me-1"></i>
           <strong>{tutor.avg_rating || "N/A"}</strong> (
           {tutor.review_count || 0} reviews)
-        </span>
-        <span className="badge bg-light text-dark">
-          <i className="bi bi-clock-fill me-1 clock-colour"></i>
+        
+        
+          <i className="bi bi-clock-fill ms-3 me-1 clock-colour"></i>
           {tutor.years_experience || 0}+ yrs experience
         </span>
       </div>

@@ -190,7 +190,7 @@
 @media (min-width: 768px) {
   .notely-input-group input:not([id="sortBy"]),
   .notely-input-group select:not([id="sortBy"]) {
-    height: 55px;
+    height: 45px;
     font-size: 1.1rem;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
@@ -213,7 +213,7 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 1rem;
+  border-radius: 0.5rem;
   padding: 2rem;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
@@ -228,8 +228,8 @@
     #d9c6f4 40%,     /* Soft pastel purple */
     #b78ff0 100%     /* Vibrant Notely-like purple */
   );
-  padding: 2rem;
-  border-radius: 1.5rem;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
 }
 
 /* Input Button CSS */

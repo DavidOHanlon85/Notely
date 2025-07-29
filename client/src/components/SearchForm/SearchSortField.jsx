@@ -6,7 +6,7 @@ export default function SearchSortField({ formData, handleChange }) {
         <span
           className="input-group-text text-white border border-secondary rounded-start"
           style={{
-            backgroundColor: "#a259ff", // Notely purple
+            backgroundColor: "#8b40f4", // Notely purple
             fontWeight: "600",
             borderRadius: "0.5rem 0 0 0.5rem"
           }}
@@ -21,7 +21,7 @@ export default function SearchSortField({ formData, handleChange }) {
           className="form-select border border-secondary rounded-end"
         >
           <option value="" disabled>
-            Select a sort option...
+            Sort by...
           </option>
           <option value="priceLowHigh">Price: Low to High</option>
           <option value="priceHighLow">Price: High to Low</option>

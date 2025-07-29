@@ -1,0 +1,132 @@
+/* Scoped CSS for Tutor Registration - Step 1 */
+
+.tutor-register-page .notely-logo {
+  max-width: 180px;
+}
+
+.tutor-register-page .register-header {
+  font-weight: 600;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* Form Section */
+.tutor-register-page .form-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.tutor-register-page .form-section form {
+  width: 100%;
+  max-width: 450px;
+}
+
+/* Input Groups */
+.tutor-register-page .input-group input.form-control {
+  height: 45px;
+  font-size: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0 0.375rem 0.375rem 0;
+}
+
+.tutor-register-page .input-group-text {
+  background-color: #8551e6;
+  color: white;
+  border: 1px solid #ced4da;
+  height: 45px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.75rem;
+  font-size: 1.2rem;
+}
+
+/* Error Text */
+.tutor-register-page .text-danger {
+  font-size: 0.875rem;
+}
+
+/* Purple Button */
+.tutor-register-page .btn-notely-purple {
+  background-color: #8551e6;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  height: 45px;
+  transition: background-color 0.2s ease;
+}
+
+.tutor-register-page .btn-notely-purple:hover {
+  background-color: #6b3bcc;
+}
+
+/* Right Side Image */
+.tutor-register-page .right-image img {
+  height: 100vh;
+  width: 100%;
+  object-fit: cover;
+}
+
+/* Responsive */
+@media (max-width: 1300px) {
+  .tutor-register-page .col-md-6.d-none.d-md-block {
+    display: none !important;
+  }
+
+  .tutor-register-page .form-section {
+    width: 100%;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .tutor-register-page .register-header {
+    text-align: center;
+  }
+}
+
+.profile-preview {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #ffc107; /* Notely Gold */
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Availability Table */
+
+.availability-table th,
+.availability-table td {
+  vertical-align: middle;
+  padding: 0.6rem 0.6rem;
+  font-size: 0.95rem;
+  min-width: 48px;
+  height: 50px; /* Prevents jumpiness */
+}
+
+/* Base icon */
+.notely-available-icon {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 60%;
+}
+
+/* Unselected: grey note */
+.notely-available-icon.unselected {
+  background-color: #ccc;
+  background-image: url("../assets/images/svg/MusicNoteGrey.svg"); 
+}
+
+/* Selected: gold note */
+.notely-available-icon.selected {
+  background-color: #fbc02d;
+  background-image: url("../assets/images/svg/MusicNote.svg");
+}

@@ -173,7 +173,7 @@ export default function SearchPage() {
   const [showMoreFilters, setShowMoreFilters] = useState(false);
 
   return (
-    <div>
+    <div className="search-page">
       <DoubleButtonNavBar />
       <SearchHero />
 
@@ -183,8 +183,15 @@ export default function SearchPage() {
             {/* More Filters Toggle Button */}
             <div className="d-flex justify-content-end mb-2">
               <button
-                type="button" //Preventing auto-search
+                type="button"
                 className="btn btn-notely-purple d-flex align-items-center gap-2"
+                style={{
+                  fontSize: "0.875rem", // Smaller font
+                  height: "35px",
+                  padding: "0.4rem 0.75rem", // Smaller padding
+                  lineHeight: "1.2", // Tighter vertical spacing
+                  borderRadius: "0.5rem", 
+                }}
                 onClick={() => setShowMoreFilters((prev) => !prev)}
               >
                 More Filters

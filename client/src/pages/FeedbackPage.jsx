@@ -15,7 +15,7 @@ export default function FeedbackPage() {
   const [loading, setLoading] = useState(true);
   const [minRating, setMinRating] = useState(null);
   const [maxRating, setMaxRating] = useState(null);
-  const [sortOption, setSortOption] = useState("newest");
+  const [sortOption, setSortOption] = useState("sortReviews");
   
 
   {
@@ -321,14 +321,14 @@ export default function FeedbackPage() {
                     setCurrentPage(1); //Reset pagination
                   }}
                   style={{
-                    height: "42px",
+                    height: "45px",
                     fontSize: "1rem",
                     fontWeight: 400,
                     padding: "0.25rem 0.75rem",
                     borderRadius: "0 0.5rem 0.5rem 0",
                   }}
                 >
-                  <option value="" disabled>
+                  <option value="sortReviews" disabled hidden>
                     Sort reviews...
                   </option>
                   <option value="newest">Newest First</option>

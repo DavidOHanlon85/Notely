@@ -6,3 +6,6 @@ server/node_modules/
 # Environment variables
 .env
 config.env
+
+# Ignore Tutor Uploads
+/server/uploads

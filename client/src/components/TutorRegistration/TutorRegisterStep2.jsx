@@ -1,16 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import "./TutorRegister.css";
 
-export default function TutorRegisterStep2({ formData, setFormData, onNext, onBack }) {
+export default function TutorRegisterStep2({
+  formData,
+  setFormData,
+  onNext,
+  onBack,
+}) {
   const [formErrors, setFormErrors] = useState({});
+  const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const imageObjectUrl = useRef(null);
 
   useEffect(() => {
-    if (formData.tutor_image) {
-      const objectUrl = URL.createObjectURL(formData.tutor_image);
-      imageObjectUrl.current = objectUrl;
-      setImagePreview(objectUrl);
+    if (formData.tutor_image?.startsWith("/uploads")) {
+      setImagePreview(`http://localhost:3002${formData.tutor_image}`);
     }
 
     return () => {
@@ -21,19 +26,55 @@ export default function TutorRegisterStep2({ formData, setFormData, onNext, onBa
     };
   }, [formData.tutor_image]);
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value, files } = e.target;
 
     if (name === "tutor_image") {
-      const file = files[0];
-      if (file) {
-        if (imageObjectUrl.current) {
-          URL.revokeObjectURL(imageObjectUrl.current);
-        }
-        const newUrl = URL.createObjectURL(file);
-        imageObjectUrl.current = newUrl;
-        setImagePreview(newUrl);
-        setFormData((prev) => ({ ...prev, [name]: file }));
+      const file = files?.[0];
+      if (!file) return;
+
+      // Revoke previous preview URL if present
+      if (imageObjectUrl.current) {
+        URL.revokeObjectURL(imageObjectUrl.current);
+      }
+
+      // Set local preview
+      const localPreview = URL.createObjectURL(file);
+      imageObjectUrl.current = localPreview;
+      setImagePreview(localPreview);
+
+      setUploading(true);
+
+      try {
+        const formDataObj = new FormData();
+        formDataObj.append("image", file);
+
+        const res = await axios.post(
+          "http://localhost:3002/api/tutor/upload-image",
+          formDataObj,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+
+        const filePath = res.data?.filePath;
+        if (!filePath) throw new Error("No file path returned");
+
+        // Store path to uploaded image in formData
+        setFormData((prev) => ({
+          ...prev,
+          tutor_image: filePath, // This should be a string like /uploads/tutor_images/xxx.jpg
+        }));
+      } catch (err) {
+        console.error("Image upload failed:", err);
+        alert("Image upload failed. Please try again.");
+        setImagePreview(null); // Clear preview if failed
+        setFormData((prev) => ({
+          ...prev,
+          tutor_image: "", // Clear invalid filePath
+        }));
+      } finally {
+        setUploading(false);
       }
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
@@ -126,12 +167,7 @@ export default function TutorRegisterStep2({ formData, setFormData, onNext, onBa
         <div className="input-group notely-input-group">
           <span
             className="input-group-text bg-purple text-white border border-secondary rounded-start"
-            style={{
-              height: "38px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+            style={{ height: "38px" }}
           >
             <i className="bi bi-image-fill"></i>
           </span>
@@ -144,16 +180,20 @@ export default function TutorRegisterStep2({ formData, setFormData, onNext, onBa
             style={{ height: "45px", lineHeight: "2", paddingTop: "6px" }}
           />
         </div>
+        {uploading && <div className="text-muted mt-2">Uploading...</div>}
         {formErrors.tutor_image && (
-          <div className="text-danger small mt-1">
-            {formErrors.tutor_image}
-          </div>
+          <div className="text-danger small mt-1">{formErrors.tutor_image}</div>
         )}
       </div>
 
       {imagePreview && (
         <div className="text-center mt-3">
-          <img src={imagePreview} alt="Preview" className="profile-preview" />
+          <img
+            src={imagePreview}
+            alt="Preview"
+            className="profile-preview border border-warning rounded-circle"
+            style={{ width: "120px", height: "120px", objectFit: "cover" }}
+          />
         </div>
       )}
 

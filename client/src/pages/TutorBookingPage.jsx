@@ -181,7 +181,7 @@ export default function TutorBookingPage() {
               <div className="col-md-4 text-center">
                 <div className="tutor-profile-photo mx-auto mb-4">
                   <img
-                    src={tutor.tutor_image}
+                    src={`http://localhost:3002${tutor.tutor_image}`}
                     alt={fullName}
                     className="img-fluid rounded-circle border border-warning"
                     style={{

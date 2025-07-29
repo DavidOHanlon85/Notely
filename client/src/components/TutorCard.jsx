@@ -9,7 +9,7 @@ export default function TutorCard({ tutor }) {
     <div className="card shadow-sm tutor-card rounded-4 p-3">
       <div className="d-flex align-items-center">
         <img
-          src={tutor.tutor_image}
+          src={`http://localhost:3002${tutor.tutor_image}`}
           alt={fullName}
           className="rounded-circle tutor-img me-3 border-gold"
         />

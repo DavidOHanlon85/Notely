@@ -1314,6 +1314,7 @@ exports.registerTutor = async (req, res) => {
       tutor_phone,
       tutor_first_name,
       tutor_second_name,
+      tutor_image,
       tutor_password,
       tutor_address_line_1,
       tutor_address_line_2,
@@ -1334,7 +1335,7 @@ exports.registerTutor = async (req, res) => {
       tutor_level = [],
     } = req.body;
 
-    const imageFileName = "default.jpg"; // to sort still
+    const imageFileName = tutor_image || "/uploads/tutor_images/default.jpg";
 
     // Server-side validation
 
@@ -2114,4 +2115,17 @@ exports.resetPasswordAdmin = async (req, res) => {
       .status(500)
       .json({ message: "Server error. Please try again later." });
   }
+};
+
+// Post Image to local storage
+
+exports.handleTutorImageUpload = (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: "No file uploaded" });
+  }
+
+  res.json({
+    message: "Image uploaded successfully",
+    filePath: `/uploads/tutor_images/${req.file.filename}`,
+  });
 };

@@ -122,11 +122,11 @@
 /* Unselected: grey note */
 .notely-available-icon.unselected {
   background-color: #ccc;
-  background-image: url("../assets/images/svg/MusicNoteGrey.svg"); 
+  background-image: url("../../assets/images/svg/MusicNoteGrey.svg"); 
 }
 
 /* Selected: gold note */
 .notely-available-icon.selected {
   background-color: #fbc02d;
-  background-image: url("../assets/images/svg/MusicNote.svg");
+  background-image: url("../../assets/images/svg/MusicNote.svg");
 }

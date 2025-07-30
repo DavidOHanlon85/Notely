@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./TutorRegister.css";
 
-export default function TutorRegisterStep6({ formData, setFormData, onNext, onBack }) {
+export default function TutorRegisterStep6({
+  formData,
+  setFormData,
+  onNext,
+  onBack,
+}) {
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const slots = ["Morning", "Afternoon", "After School", "Evening"];
 
@@ -60,7 +65,11 @@ export default function TutorRegisterStep6({ formData, setFormData, onNext, onBa
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-100" style={{ maxWidth: "700px" }}>
+    <form
+      onSubmit={handleSubmit}
+      className="w-100"
+      style={{ maxWidth: "700px" }}
+    >
       <div className="card p-4 mt-4">
         <h2 className="h5 mb-3">Availability</h2>
         {formErrors.availability && (
@@ -107,15 +116,15 @@ export default function TutorRegisterStep6({ formData, setFormData, onNext, onBa
       {/* Stripe Connect Placeholder */}
       <div className="card p-4 mt-4">
         <h2 className="h5 mb-3">Stripe Setup</h2>
-        <p>To receive payments through Notely, you'll need to connect a Stripe account.</p>
-        <button
-          type="button"
-          className="btn btn-notely-purple"
-          disabled
-          title="Stripe setup coming soon"
-        >
-          Connect with Stripe (Coming Soon)
-        </button>
+        <p>
+          You’ll be able to connect your Stripe account from your Tutor
+          Dashboard once registration is complete. This is required in order to
+          receive payments for lessons booked through Notely.
+        </p>
+        <p className="text-muted fst-italic">
+          Don’t worry — we’ll guide you through it step by step from your
+          dashboard.
+        </p>
       </div>
 
       {/* Navigation Buttons */}

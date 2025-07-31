@@ -1,0 +1,109 @@
+.dashboard-welcome {
+    border-bottom: 1px solid #e4e2e2;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+  }
+  
+  .dashboard-welcome h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .dashboard-stats {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-card {
+    flex: 1 1 calc(25% - 1.5rem);
+    background-color: rgb(255, 231, 197);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    min-width: 200px;
+  }
+  
+  .stat-card-header {
+    background-color: #ffc107; /* Notely Gold */
+    color: #000;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    text-align: center;
+  }
+  
+  .stat-card-body {
+    padding: 1.5rem;
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    color: #333;
+  }
+
+  .notely-gold-name {
+    color: #ffc107;
+    font-weight: 700;
+  }
+
+  .dashboard-charts {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+  
+  .chart-container {
+    flex: 1 1 45%;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    padding: 1.5rem;
+  }
+  
+  .chart-title {
+    font-weight: 600;
+    font-size: 1.3rem;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+
+  .chart-container {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    margin-top: 2rem;
+  }
+  
+  .chart-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+
+  .dashboard-charts {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+  }
+  
+  .chart-container {
+    flex: 1 1 48%;
+    background: #fff;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+  
+  /* Responsive layout for mobile */
+  @media (max-width: 768px) {
+    .chart-container {
+      flex: 1 1 100%;
+    }
+  }

@@ -1,0 +1,133 @@
+
+::after,
+::before {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    text-decoration: none;
+}
+
+li {
+    list-style: none;
+}
+
+h1 {
+    font-weight: 600;
+    font-size: 2.5rem;
+}
+
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.main {
+    flex-grow: 1;
+    min-height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    transition: all 0.35s ease-in-out;
+    background-color: #fafbfe;
+    padding: 0.8rem 2rem;
+    height: 100%;
+}
+
+.student-sidebar {
+    width: 70px;
+    min-width: 70px;
+    z-index: 1000;
+    transition: all .25s ease-in-out;
+    background-color: #ffc107; /* Notely Yellow */
+    display: flex;
+    flex-direction: column;
+    color: #000000; /* Black text */
+    height: 100vh;
+    height: auto;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+.student-sidebar.expand {
+    width: 220px;
+    min-width: 220px;
+}
+
+.toggle-btn {
+    background-color: transparent;
+    cursor: pointer;
+    border: 0;
+    padding: 1rem 1.5rem;
+}
+
+.sidebar-logo {
+    margin: auto 0;
+    padding-left: 0;
+}
+
+.sidebar-logo a {
+    color: #000;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.student-sidebar:not(.expand) .sidebar-logo,
+.student-sidebar:not(.expand) a.sidebar-link span {
+    display: none;
+}
+
+.sidebar-nav {
+    padding: 2rem 0;
+    flex: 1 1 auto;
+}
+
+a.sidebar-link {
+    padding: .75rem 1.625rem;
+    color: #000000;
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    white-space: nowrap;
+    border-left: 3px solid transparent;
+    gap: 10px;
+}
+
+a.sidebar-link:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-left: 3px solid #000000;
+    border-radius: 5px;
+}
+
+.sidebar-footer {
+    padding: 1rem 1.5rem;
+}
+
+.sidebar-footer .sidebar-link {
+    font-size: 1rem;
+    color: #000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-footer .sidebar-link:hover {
+    color: #333;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+}
+
+  .notely-brand-text {
+    font-size: larger;
+    font-weight: 600;
+  }
+
+  .sidebar-icon {
+    font-size: 1.2rem; /* or 1.5rem for slightly larger */
+    min-width: 24px;   /* prevents shrinkage */
+    display: inline-flex;
+    justify-content: center;
+  }
+
+ 

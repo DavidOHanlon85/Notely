@@ -1,29 +1,25 @@
 const jwt = require("jsonwebtoken");
 
+// Middleware to verify that the student is authenticated and authorized to access certain pages
 exports.verifyStudent = (req, res, next) => {
   console.log("Cookies received in middleware:", req.cookies);
 
   const token = req.cookies.token;
 
   if (!token) {
-    return res.status(401).json({ message: "Not suthenticated" });
+    return res.status(401).json({ message: "Not authenticated" });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // check if user is a student
     if (decoded.userType !== "student") {
       return res.status(403).json({ message: "Access denied: not a student" });
     }
 
-    // check if token matches the requesred ID
-    const requestedId = parseInt(req.params.id);
-    if (decoded.student_id !== requestedId) {
+    if (req.params.id && decoded.student_id !== parseInt(req.params.id)) {
       return res.status(403).json({ message: "Access denied: ID mismatch" });
     }
-
-    // Store user info for future use
 
     req.user = decoded;
     next();
@@ -32,6 +28,7 @@ exports.verifyStudent = (req, res, next) => {
   }
 };
 
+// Middleware to verify that the tutor is authenticated and authorized to access certain pages
 exports.verifyTutor = (req, res, next) => {
   console.log("Cookies received in tutor middleware:", req.cookies);
 
@@ -63,6 +60,7 @@ exports.verifyTutor = (req, res, next) => {
   }
 };
 
+// Middleware to verify that the admin is authenticated and authorized to access certain pages
 exports.verifyAdmin = (req, res, next) => {
   console.log("Cookies received in admin middleware:", req.cookies);
 
@@ -94,3 +92,5 @@ exports.verifyAdmin = (req, res, next) => {
     return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
+
+

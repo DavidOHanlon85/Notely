@@ -40,6 +40,7 @@ import StudentOverview from './pages/StudentDashboard/StudentOverview.jsx';
 import StudentBookings from './pages/StudentDashboard/StudentBookings.jsx';
 import StudentFeedback from './pages/StudentDashboard/StudentFeedback.jsx';
 import StudentProfile from './pages/StudentDashboard/StudentProfile.jsx';
+import StudentFeedbackForm from './pages/StudentFeedbackPage.jsx';
 
 // Creating a router
 const router = createBrowserRouter([
@@ -152,6 +153,10 @@ const router = createBrowserRouter([
       { path: 'feedback', element: <StudentFeedback /> },
       { path: 'profile', element: <StudentProfile /> }
     ]
+  },
+  {
+    path: '/student/feedback/:booking_id',
+    element: <StudentFeedbackForm />
   }
 ]);
 

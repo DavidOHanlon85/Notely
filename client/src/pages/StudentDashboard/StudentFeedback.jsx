@@ -1,25 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import DataTable from "react-data-table-component";
 import "./StudentFeedback.css";
-
-const mockFeedback = [
-  {
-    id: 1,
-    date: "2025-07-15",
-    tutor: "Alice Smith",
-    performance: 5,
-    homework: "Scales practice",
-    notes: "Excellent progress!",
-  },
-  {
-    id: 2,
-    date: "2025-07-10",
-    tutor: "Bob Johnson",
-    performance: 3,
-    homework: "Work on timing",
-    notes: "Struggled a bit with rhythm.",
-  },
-];
 
 const columns = [
   {
@@ -31,6 +13,15 @@ const columns = [
     name: "Tutor",
     selector: (row) => row.tutor,
     sortable: true,
+    cell: (row) => (
+      <a
+        href={`/tutor/${row.tutor_id}`}
+        className="tutor-link"
+        style={{ textDecoration: "none", color: "inherit" }}
+      >
+        {row.tutor}
+      </a>
+    ),
   },
   {
     name: "Performance",
@@ -56,14 +47,30 @@ const columns = [
 ];
 
 export default function StudentFeedback() {
+  const [feedback, setFeedback] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredFeedback = mockFeedback.filter(
+  useEffect(() => {
+    const fetchFeedback = async () => {
+      try {
+        const res = await axios.get("http://localhost:3002/api/student/feedback", {
+          withCredentials: true,
+        });
+        setFeedback(res.data);
+      } catch (err) {
+        console.error("Failed to load feedback", err);
+      }
+    };
+
+    fetchFeedback();
+  }, []);
+
+  const filteredFeedback = feedback.filter(
     (row) =>
       row.tutor.toLowerCase().includes(searchTerm.toLowerCase()) ||
       row.date.includes(searchTerm) ||
-      row.homework.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.notes.toLowerCase().includes(searchTerm.toLowerCase())
+      row.homework?.toLowerCase().includes(searchTerm) ||
+      row.notes?.toLowerCase().includes(searchTerm)
   );
 
   return (

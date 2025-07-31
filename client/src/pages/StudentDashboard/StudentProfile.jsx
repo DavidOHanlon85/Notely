@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import NotelyRectangle from "../../assets/images/NotelyRectangle.png";
+import axios from "axios"
 import "./StudentProfile.css";
 
 export default function StudentProfilePage() {
@@ -16,29 +17,43 @@ export default function StudentProfilePage() {
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
-    // Simulated fetch to prepopulate (replace with actual GET request later)
-    const fetchData = async () => {
-      const response = {
-        student_first_name: "David",
-        student_last_name: "O'Hanlon",
-        student_username: "daveydev",
-        student_email: "david@example.com",
-        student_phone: "07123456789"
-      };
-      setFormData(response);
+    const fetchStudentProfile = async () => {
+      try {
+        const res = await axios.get("http://localhost:3002/api/student/profile", { withCredentials: true });
+        console.log("Student Profile Response:", res.data);
+        setFormData(res.data);
+      } catch (err) {
+        console.error("Error fetching student profile", err);
+      }
     };
-    fetchData();
+    fetchStudentProfile();
   }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Replace with PATCH later
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
+    setFormErrors({});
+    setServerMessage(null);
+  
+    try {
+      const res = await axios.patch("http://localhost:3002/api/student/profile", formData, {
+        withCredentials: true,
+      });
+  
+      if (res.data.status === "success") {
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
+      }
+    } catch (error) {
+      if (error.response && error.response.data.errors) {
+        setFormErrors(error.response.data.errors);
+      } else {
+        setServerMessage("An unexpected error occurred.");
+      }
+    }
   };
 
   const fields = [

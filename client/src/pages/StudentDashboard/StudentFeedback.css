@@ -1,0 +1,69 @@
+.student-feedback {
+  padding: 0rem rem;
+}
+
+.feedback-heading {
+  border-bottom: 1px solid #e4e2e2;
+  margin-bottom: 1.5rem;
+  margin-top: 1.5rem;
+  padding-bottom: 1rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Star styling */
+.stars {
+  color: #ffc107;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+/* Scroll wrapper (same as bookings) */
+.table-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-scroll-wrapper .rdt_Table {
+  min-width: 900px; /* adjust based on column content */
+}
+
+.feedback-search {
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+}
+
+.feedback-search:focus {
+  border-color: #ffc107;
+  box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.2);
+}
+
+.feedback-search-wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.feedback-search {
+  padding: 0.3rem 1rem;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 220px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.2s ease;
+  margin-bottom: 5px
+}
+
+.feedback-search:focus {
+  border-color: #ffc107;
+  box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.2);
+}

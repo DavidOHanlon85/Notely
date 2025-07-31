@@ -35,7 +35,11 @@ import AdminDemoDashboard from './pages/AdminDemoDashboard.jsx';
 import AdminForgotPasswordPage from './pages/AdminForgotPasswordPage.jsx';
 import AdminResetPasswordPage from './pages/AdminResetPasswordPage.jsx';
 import TutorRegistrationPage from './pages/TutorRegistration/TutorRegistrationPage.jsx';
-
+import StudentDashboardLayout from './pages/StudentDashboard/StudentDashboardLayout.jsx';
+import StudentOverview from './pages/StudentDashboard/StudentOverview.jsx';
+import StudentBookings from './pages/StudentDashboard/StudentBookings.jsx';
+import StudentFeedback from './pages/StudentDashboard/StudentFeedback.jsx';
+import StudentProfile from './pages/StudentDashboard/StudentProfile.jsx';
 
 // Creating a router
 const router = createBrowserRouter([
@@ -138,6 +142,16 @@ const router = createBrowserRouter([
   {
     path: "/profiles/:profileId",
     element: <ProfilesPage />
+  },
+  {
+    path: '/student/dashboard',
+    element: <StudentDashboardLayout />,
+    children: [
+      { index: true, element: <StudentOverview /> },
+      { path: 'bookings', element: <StudentBookings /> },
+      { path: 'feedback', element: <StudentFeedback /> },
+      { path: 'profile', element: <StudentProfile /> }
+    ]
   }
 ]);
 

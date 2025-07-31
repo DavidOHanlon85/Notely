@@ -583,9 +583,11 @@ exports.getStudentBookings = async (req, res) => {
         b.booking_link,
         t.tutor_id,
         t.tutor_first_name,
-        t.tutor_second_name
+        t.tutor_second_name,
+        CASE WHEN sf.booking_id IS NOT NULL THEN 1 ELSE 0 END AS feedback_given
       FROM booking b
       JOIN tutor t ON b.tutor_id = t.tutor_id
+      LEFT JOIN student_feedback sf ON b.booking_id = sf.booking_id
       WHERE b.student_id = ? AND b.booking_status = 2
       ORDER BY b.booking_date DESC, b.booking_time DESC`,
       [studentId]
@@ -669,33 +671,40 @@ exports.getStudentDashboardSummary = async (req, res) => {
 
   try {
     // 1. Total, Upcoming, Completed lessons
-    const [lessonStats] = await conn.query(`
+    const [lessonStats] = await conn.query(
+      `
       SELECT 
         COUNT(*) AS total,
         SUM(booking_date >= CURDATE()) AS upcoming,
         SUM(booking_date < CURDATE()) AS completed
       FROM booking
       WHERE student_id = ? AND booking_status = 2
-    `, [studentId]);
+    `,
+      [studentId]
+    );
 
     // 2. Tutor Feedback Given
-    const [feedbackCount] = await conn.query(`
+    const [feedbackCount] = await conn.query(
+      `
       SELECT COUNT(*) AS feedback_given
       FROM tutor_feedback
       WHERE student_id = ?
-    `, [studentId]);
+    `,
+      [studentId]
+    );
 
     // 3. Lessons in Last 6 Months
     const months = [];
     const now = new Date();
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const label = d.toLocaleString('default', { month: 'short' });
+      const label = d.toLocaleString("default", { month: "short" });
       const key = d.toISOString().slice(0, 7); // YYYY-MM
       months.push({ key, label, lesson_count: 0 });
     }
 
-    const [monthlyLessons] = await conn.query(`
+    const [monthlyLessons] = await conn.query(
+      `
       SELECT 
         DATE_FORMAT(booking_date, '%Y-%m') AS month,
         COUNT(*) AS lesson_count
@@ -705,7 +714,9 @@ exports.getStudentDashboardSummary = async (req, res) => {
         AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
       GROUP BY month
       ORDER BY month ASC
-    `, [studentId]);
+    `,
+      [studentId]
+    );
 
     const lessonsPerMonth = months.map((m) => {
       const match = monthlyLessons.find((ml) => ml.month === m.key);
@@ -716,7 +727,8 @@ exports.getStudentDashboardSummary = async (req, res) => {
     });
 
     // 4. Star Rating Distribution
-    const [starRatings] = await conn.query(`
+    const [starRatings] = await conn.query(
+      `
       SELECT 
         performance_score AS score,
         COUNT(*) AS count
@@ -724,7 +736,9 @@ exports.getStudentDashboardSummary = async (req, res) => {
       WHERE student_id = ?
       GROUP BY score
       ORDER BY score DESC
-    `, [studentId]);
+    `,
+      [studentId]
+    );
 
     const feedbackStars = [5, 4, 3, 2, 1].map((s) => {
       const match = starRatings.find((r) => r.score === s);
@@ -742,7 +756,6 @@ exports.getStudentDashboardSummary = async (req, res) => {
       lessonsPerMonth,
       feedbackStars,
     });
-
   } catch (error) {
     console.error("Error fetching student dashboard data:", error);
     res.status(500).json({ message: "Server error fetching dashboard data" });
@@ -2459,7 +2472,7 @@ exports.cancelBooking = async (req, res) => {
       SET booking_status = 3, booking_updated_at = NOW() 
       WHERE booking_id = ?
       `;
-    await conn.query(sql, [id]);  
+    await conn.query(sql, [id]);
 
     res.status(200).json({ message: "Booking cancelled successfully." });
   } catch (err) {
@@ -2471,7 +2484,8 @@ exports.cancelBooking = async (req, res) => {
 // Allows student to provide feedback for tutor
 
 exports.submitFeedback = async (req, res) => {
-  const { feedback_text, feedback_score, feedback_date, tutor_id, booking_id } = req.body;
+  const { feedback_text, feedback_score, feedback_date, tutor_id, booking_id } =
+    req.body;
   const token = req.cookies.token;
 
   console.log(req.body);
@@ -2483,8 +2497,16 @@ exports.submitFeedback = async (req, res) => {
     const student_id = decoded.student_id;
 
     // Guard clause: ensure required fields exist
-    if (!tutor_id || !student_id || !feedback_text || !feedback_score || !feedback_date) {
-      return res.status(400).json({ message: "Missing required feedback fields" });
+    if (
+      !tutor_id ||
+      !student_id ||
+      !feedback_text ||
+      !feedback_score ||
+      !feedback_date
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Missing required feedback fields" });
     }
 
     // Optional: prevent duplicate feedback on the same booking (if booking_id is provided)
@@ -2495,21 +2517,22 @@ exports.submitFeedback = async (req, res) => {
       );
 
       if (duplicate.length > 0) {
-        return res.status(409).json({ message: "Feedback already submitted for this session" });
+        return res
+          .status(409)
+          .json({ message: "Feedback already submitted for this session" });
       }
     }
 
     // Insert feedback into the database
     const sql = `
-      INSERT INTO student_feedback (feedback_text, feedback_score, feedback_date, tutor_id, student_id)
-      VALUES (?, ?, ?, ?, ?)
-    `;
+    INSERT INTO student_feedback (feedback_text, feedback_score, feedback_date, tutor_id, student_id, booking_id) VALUES (?, ?, ?, ?, ?, ?)`;
     await conn.query(sql, [
       feedback_text.trim(),
       feedback_score,
       feedback_date,
       tutor_id,
       student_id,
+      booking_id
     ]);
 
     res.status(201).json({ message: "Feedback submitted successfully." });

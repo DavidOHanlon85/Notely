@@ -37,7 +37,8 @@ export default function StudentBookings() {
             tutor: `${booking.tutor_first_name} ${booking.tutor_second_name}`,
             tutor_id: booking.tutor_id,
             status: bookingDateTime > now ? "Upcoming" : "Completed",
-            canLeaveFeedback: bookingDateTime < now,
+            feedback_given: booking.feedback_given === 1,
+            canLeaveFeedback: bookingDateTime < now && !booking.feedback_given,
             canJoin:
               bookingDateTime.toDateString() === now.toDateString() &&
               bookingDateTime > now,

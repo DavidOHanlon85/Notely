@@ -546,7 +546,208 @@ exports.getAvailableDates = async (req, res) => {
   }
 };
 
+// Gets student details to for Profile Update Form
 
+exports.getStudentById = async (req, res) => {
+  const studentId = req.user.student_id; // from decoded JWT
+
+  try {
+    const [rows] = await conn.query(
+      "SELECT student_first_name, student_last_name, student_username, student_email, student_phone FROM student WHERE student_id = ?",
+      [studentId]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    return res.json(rows[0]);
+  } catch (err) {
+    console.error("Error fetching student:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Gets Booking information for Student
+
+exports.getStudentBookings = async (req, res) => {
+  const studentId = req.user.student_id;
+
+  try {
+    const [rows] = await conn.query(
+      `SELECT 
+        b.booking_id,
+        b.booking_date,
+        b.booking_time,
+        b.booking_status,
+        b.booking_link,
+        t.tutor_id,
+        t.tutor_first_name,
+        t.tutor_second_name
+      FROM booking b
+      JOIN tutor t ON b.tutor_id = t.tutor_id
+      WHERE b.student_id = ? AND b.booking_status = 2
+      ORDER BY b.booking_date DESC, b.booking_time DESC`,
+      [studentId]
+    );
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching student bookings:", error);
+    res.status(500).json({ message: "Server error fetching bookings" });
+  }
+};
+
+// Gets booking information to allow student feedback
+
+exports.getBookingDetails = async (req, res) => {
+  const { bookingId } = req.params;
+
+  try {
+    const [rows] = await conn.query(
+      `
+      SELECT t.tutor_id, t.tutor_first_name, t.tutor_second_name
+      FROM booking b
+      JOIN tutor t ON b.tutor_id = t.tutor_id
+      WHERE b.booking_id = ?
+      `,
+      [bookingId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    res.status(200).json({ tutor: rows[0] });
+  } catch (error) {
+    console.error("Error fetching booking details:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Get Students feedback from tutors
+
+exports.getStudentFeedback = async (req, res) => {
+  const studentId = req.user.student_id;
+  try {
+    const [rows] = await conn.query(
+      `SELECT 
+         f.feedback_date,
+         f.performance_score,
+         f.homework,
+         f.notes,
+         t.tutor_id,
+         t.tutor_first_name,
+         t.tutor_second_name
+       FROM tutor_feedback f
+       JOIN tutor t ON f.tutor_id = t.tutor_id
+       WHERE f.student_id = ?
+       ORDER BY f.feedback_date DESC`,
+      [studentId]
+    );
+
+    const result = rows.map((row) => ({
+      date: new Date(row.feedback_date).toLocaleDateString("en-GB"),
+      performance: row.performance_score,
+      homework: row.homework,
+      notes: row.notes,
+      tutor: `${row.tutor_first_name} ${row.tutor_second_name}`,
+      tutor_id: row.tutor_id,
+    }));
+
+    res.json(result);
+  } catch (err) {
+    console.error("Error fetching student feedback:", err);
+    res.status(500).json({ message: "Server error loading feedback" });
+  }
+};
+
+// Get data for Student Dashboard
+
+exports.getStudentDashboardSummary = async (req, res) => {
+  const studentId = req.user.student_id;
+
+  try {
+    // 1. Total, Upcoming, Completed lessons
+    const [lessonStats] = await conn.query(`
+      SELECT 
+        COUNT(*) AS total,
+        SUM(booking_date >= CURDATE()) AS upcoming,
+        SUM(booking_date < CURDATE()) AS completed
+      FROM booking
+      WHERE student_id = ? AND booking_status = 2
+    `, [studentId]);
+
+    // 2. Tutor Feedback Given
+    const [feedbackCount] = await conn.query(`
+      SELECT COUNT(*) AS feedback_given
+      FROM tutor_feedback
+      WHERE student_id = ?
+    `, [studentId]);
+
+    // 3. Lessons in Last 6 Months
+    const months = [];
+    const now = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const label = d.toLocaleString('default', { month: 'short' });
+      const key = d.toISOString().slice(0, 7); // YYYY-MM
+      months.push({ key, label, lesson_count: 0 });
+    }
+
+    const [monthlyLessons] = await conn.query(`
+      SELECT 
+        DATE_FORMAT(booking_date, '%Y-%m') AS month,
+        COUNT(*) AS lesson_count
+      FROM booking
+      WHERE student_id = ? 
+        AND booking_status = 2
+        AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+      GROUP BY month
+      ORDER BY month ASC
+    `, [studentId]);
+
+    const lessonsPerMonth = months.map((m) => {
+      const match = monthlyLessons.find((ml) => ml.month === m.key);
+      return {
+        date: m.label,
+        totalLessons: match ? match.lesson_count : 0,
+      };
+    });
+
+    // 4. Star Rating Distribution
+    const [starRatings] = await conn.query(`
+      SELECT 
+        performance_score AS score,
+        COUNT(*) AS count
+      FROM tutor_feedback
+      WHERE student_id = ?
+      GROUP BY score
+      ORDER BY score DESC
+    `, [studentId]);
+
+    const feedbackStars = [5, 4, 3, 2, 1].map((s) => {
+      const match = starRatings.find((r) => r.score === s);
+      return {
+        label: `${s} Stars`,
+        count: match ? match.count : 0,
+      };
+    });
+
+    res.json({
+      totalLessons: lessonStats[0].total,
+      upcomingLessons: lessonStats[0].upcoming,
+      completedLessons: lessonStats[0].completed,
+      feedbackGiven: feedbackCount[0].feedback_given,
+      lessonsPerMonth,
+      feedbackStars,
+    });
+
+  } catch (error) {
+    console.error("Error fetching student dashboard data:", error);
+    res.status(500).json({ message: "Server error fetching dashboard data" });
+  }
+};
 
 // POST requests
 
@@ -2128,4 +2329,192 @@ exports.handleTutorImageUpload = (req, res) => {
     message: "Image uploaded successfully",
     filePath: `/uploads/tutor_images/${req.file.filename}`,
   });
+};
+
+// Patches My Profile on Student Dashboard
+
+exports.updateStudentProfile = async (req, res) => {
+  const studentId = req.user.student_id;
+
+  const {
+    student_first_name,
+    student_last_name,
+    student_username,
+    student_email,
+    student_phone,
+  } = req.body;
+
+  const errors = {};
+
+  // Server-side validation
+  if (!student_first_name || student_first_name.trim() === "") {
+    errors.student_first_name = "First name is required.";
+  }
+
+  if (!student_last_name || student_last_name.trim() === "") {
+    errors.student_last_name = "Last name is required.";
+  }
+
+  if (!student_username || student_username.trim() === "") {
+    errors.student_username = "Username is required.";
+  }
+
+  if (!student_email || student_email.trim() === "") {
+    errors.student_email = "Email is required.";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(student_email)) {
+    errors.student_email = "Enter a valid email.";
+  }
+
+  if (!student_phone || student_phone.trim() === "") {
+    errors.student_phone = "Phone number is required.";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return res.status(400).json({ errors });
+  }
+
+  try {
+    // Check if email or username is already taken by another student
+    const [duplicates] = await conn.execute(
+      `SELECT student_id FROM student 
+       WHERE (student_email = ? OR student_username = ?) AND student_id != ?`,
+      [student_email, student_username, studentId]
+    );
+
+    if (duplicates.length > 0) {
+      if (duplicates.some((row) => row.student_email === student_email)) {
+        errors.student_email = "This email is already in use.";
+      }
+
+      if (duplicates.some((row) => row.student_username === student_username)) {
+        errors.student_username = "This username is already taken.";
+      }
+
+      return res.status(400).json({ errors });
+    }
+
+    // Proceed with update
+    await conn.execute(
+      `UPDATE student SET student_first_name = ?, student_last_name = ?, student_username = ?, 
+       student_email = ?, student_phone = ? WHERE student_id = ?`,
+      [
+        student_first_name,
+        student_last_name,
+        student_username,
+        student_email,
+        student_phone,
+        studentId,
+      ]
+    );
+
+    return res.json({
+      status: "success",
+      message: "Profile updated successfully",
+    });
+  } catch (error) {
+    console.error("Update error:", error);
+    return res.status(500).json({ message: "Update failed" });
+  }
+};
+
+// Cancels booking fo student
+
+exports.cancelBooking = async (req, res) => {
+  const { id } = req.params;
+  const token = req.cookies.token;
+
+  if (!token) {
+    return res.status(401).json({ error: "Not authenticated" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const studentId = decoded.student_id;
+
+    // Confirm booking belongs to the authenticated student
+    const [result] = await conn.query(
+      "SELECT student_id FROM booking WHERE booking_id = ?",
+      [id]
+    );
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+
+    console.log(
+      "Booking belongs to student:",
+      result[0].student_id,
+      "| Logged-in student:",
+      studentId
+    );
+    if (result[0].student_id !== studentId) {
+      return res
+        .status(403)
+        .json({ error: "You are not allowed to cancel this booking" });
+    }
+
+    // Update booking status to 'cancelled' (3) and set updated_at timestamp
+    const sql = `
+      UPDATE booking 
+      SET booking_status = 3, booking_updated_at = NOW() 
+      WHERE booking_id = ?
+      `;
+    await conn.query(sql, [id]);  
+
+    res.status(200).json({ message: "Booking cancelled successfully." });
+  } catch (err) {
+    console.error("Error cancelling booking:", err);
+    res.status(500).json({ error: "Failed to cancel booking." });
+  }
+};
+
+// Allows student to provide feedback for tutor
+
+exports.submitFeedback = async (req, res) => {
+  const { feedback_text, feedback_score, feedback_date, tutor_id, booking_id } = req.body;
+  const token = req.cookies.token;
+
+  console.log(req.body);
+
+  if (!token) return res.status(401).json({ message: "Not authenticated" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const student_id = decoded.student_id;
+
+    // Guard clause: ensure required fields exist
+    if (!tutor_id || !student_id || !feedback_text || !feedback_score || !feedback_date) {
+      return res.status(400).json({ message: "Missing required feedback fields" });
+    }
+
+    // Optional: prevent duplicate feedback on the same booking (if booking_id is provided)
+    if (booking_id) {
+      const [duplicate] = await conn.query(
+        "SELECT * FROM student_feedback WHERE tutor_id = ? AND student_id = ? AND feedback_date = ?",
+        [tutor_id, student_id, feedback_date]
+      );
+
+      if (duplicate.length > 0) {
+        return res.status(409).json({ message: "Feedback already submitted for this session" });
+      }
+    }
+
+    // Insert feedback into the database
+    const sql = `
+      INSERT INTO student_feedback (feedback_text, feedback_score, feedback_date, tutor_id, student_id)
+      VALUES (?, ?, ?, ?, ?)
+    `;
+    await conn.query(sql, [
+      feedback_text.trim(),
+      feedback_score,
+      feedback_date,
+      tutor_id,
+      student_id,
+    ]);
+
+    res.status(201).json({ message: "Feedback submitted successfully." });
+  } catch (err) {
+    console.error("Error submitting feedback:", err);
+    res.status(500).json({ message: "Server error submitting feedback" });
+  }
 };

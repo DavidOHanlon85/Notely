@@ -5,7 +5,7 @@ const router = express.Router();
 const multer = require("multer");
 const path = require("path");
 const { registerLimiter, authLimiter, loginLimiter } = require('../middlewares/rateLimiter')
-const{ verifyStudent, verifyTutor, verifyAdmin } = require('../middlewares/authMiddleware')
+const{ verifyStudent, verifyTutor, verifyAdmin, } = require('../middlewares/authMiddleware')
 const upload = require('../utils/multerConfig');
 const controller = require('./../controllers/notelycontrollers');
 
@@ -41,7 +41,31 @@ router.post('/api/admin/logout', controller.logoutAdmin);
 router.post('/api/admin/forgot-password', authLimiter, controller.forgotPasswordAdmin);
 router.post('/api/admin/reset-password/:token', authLimiter, controller.resetPasswordAdmin);
 
-router.post("/api/tutor/upload-image", upload.single("image"), controller.handleTutorImageUpload);
+router.post('/api/tutor/upload-image', upload.single("image"), controller.handleTutorImageUpload);
+
+// Student Dashboard
+
+// Bookings
+router.get('/api/student/bookings', verifyStudent, controller.getStudentBookings);
+router.patch('/api/booking/:id/cancel', controller.cancelBooking);
+
+// My Profile
+router.get('/api/student/profile', verifyStudent, controller.getStudentById);
+router.patch('/api/student/profile', verifyStudent, controller.updateStudentProfile);
+
+// Submit Feedback for Tutor
+
+router.get('/api/booking/:bookingId/details', controller.getBookingDetails);
+router.post('/api/feedback', verifyStudent, controller.submitFeedback);
+
+// Get Personal Feedback
+
+router.get('/api/student/feedback', verifyStudent, controller.getStudentFeedback);
+
+// Get dashboard overview
+
+router.get('/api/student/overview', verifyStudent, controller.getStudentDashboardSummary)
+
 
 
 module.exports = router;

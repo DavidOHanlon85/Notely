@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./StudentOverview.css";
 import {
   LineChart,
@@ -13,121 +14,112 @@ import {
 } from "recharts";
 
 export default function StudentOverview() {
-  const lessonsData = [
-    { date: "Jan", totalLessons: 1 },
-    { date: "Feb", totalLessons: 3 },
-    { date: "Mar", totalLessons: 5 },
-    { date: "Apr", totalLessons: 7 },
-    { date: "May", totalLessons: 10 },
-    { date: "Jun", totalLessons: 12 },
-  ];
+  const [summary, setSummary] = useState(null);
 
-  const feedbackData = [
-    { label: '5 Stars', count: 12 },
-    { label: '4 Stars', count: 6 },
-    { label: '3 Stars', count: 2 },
-    { label: '2 Stars', count: 1 },
-    { label: '1 Star', count: 0 },
-  ];
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:3002/api/student/overview",
+          {
+            withCredentials: true,
+          }
+        );
+        setSummary(res.data);
+      } catch (err) {
+        console.error("Dashboard fetch failed:", err);
+      }
+    };
+    fetchDashboard();
+  }, []);
+
+  console.log("Lessons per month:", summary);
+
+  if (!summary) return <p>Loading...</p>;
+
+  // Make the chart cumulative
+
+  const cumulativeLessonsData = summary.lessonsPerMonth.reduce(
+    (acc, curr, index) => {
+      const prevTotal = index === 0 ? 0 : acc[index - 1].totalLessons;
+      acc.push({
+        date: curr.date,
+        totalLessons: prevTotal + curr.totalLessons,
+      });
+      return acc;
+    },
+    []
+  );
 
   return (
     <div className="student-overview-container">
-      {/* Welcome Message */}
       <div className="dashboard-welcome mt-4">
         <h2>
           Welcome back, <span className="notely-gold-name">David!</span>
         </h2>
       </div>
 
-      {/* Statistics */}
+      {/* Stat Cards */}
       <div className="dashboard-stats">
         <div className="stat-card">
           <div className="stat-card-header">Total Lessons</div>
-          <div className="stat-card-body">12</div>
+          <div className="stat-card-body">{summary.totalLessons}</div>
         </div>
         <div className="stat-card">
           <div className="stat-card-header">Upcoming</div>
-          <div className="stat-card-body">3</div>
+          <div className="stat-card-body">{summary.upcomingLessons}</div>
         </div>
         <div className="stat-card">
           <div className="stat-card-header">Completed</div>
-          <div className="stat-card-body">9</div>
+          <div className="stat-card-body">{summary.completedLessons}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-card-header">Feedback Given</div>
-          <div className="stat-card-body">4</div>
+          <div className="stat-card-header">Tutor Feedback</div>
+          <div className="stat-card-body">{summary.feedbackGiven}</div>
         </div>
       </div>
 
-      {/* Chart 1 */}
+      {/* Charts */}
       <div className="dashboard-charts">
+        {/* Lessons Chart */}
         <div className="chart-container">
           <h5 className="chart-title">Lessons Over Last 6 Months</h5>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart
-              data={lessonsData}
-              margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-              <XAxis dataKey="date" stroke="#666" />
-              <YAxis stroke="#666" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#fff",
-                  borderColor: "#ffc107",
-                }}
-                labelStyle={{ color: "#333" }}
-                itemStyle={{ color: "#ffc107" }}
+            <LineChart data={cumulativeLessonsData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis
+                allowDecimals={false}
+                domain={[0, "dataMax"]}
+                tickFormatter={(tick) => (Number.isInteger(tick) ? tick : "")}
               />
+              <Tooltip />
               <Line
                 type="monotone"
                 dataKey="totalLessons"
                 stroke="#ffc107"
                 strokeWidth={3}
-                dot={{ r: 4, stroke: "#000", strokeWidth: 1, fill: "#ffc107" }}
-                activeDot={{ r: 6 }}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Chart 2 */}
+        {/* Feedback Summary Chart */}
         <div className="chart-container">
           <h5 className="chart-title">Feedback Summary</h5>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart
-              layout="vertical"
-              data={[...feedbackData].sort((a, b) => b.label - a.label)} // ensure 5 → 1
-              margin={{ top: 20, right: 40, left: 40, bottom: 20 }}
-            >
-              <CartesianGrid
-                strokeDasharray="4"
-                horizontal={false}
-                stroke="#ddd"
-              />
-              <XAxis
-                type="number"
-                stroke="#444"
-                tick={{ fontSize: 12 }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                type="category"
-                dataKey="label"
-                stroke="#444"
-                tick={{ fontSize: 14 }}
-                axisLine={false}
-                tickLine={false}
-              />
+            <BarChart layout="vertical" data={summary.feedbackStars}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis type="number" />
+              <YAxis type="category" dataKey="label" />
               <Tooltip
-                cursor={{ fill: "#f0f0f0" }}
-                contentStyle={{ borderRadius: 10, borderColor: "#ddd" }}
+                cursor={false}
+                contentStyle={{ border: "none", backgroundColor: "#fff" }}
               />
               <Bar
                 dataKey="count"
                 fill="#ffc107"
-                barSize={32}
+                barSize={30}
                 radius={[0, 10, 10, 0]}
               />
             </BarChart>

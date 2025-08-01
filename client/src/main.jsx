@@ -40,7 +40,11 @@ import StudentOverview from './pages/StudentDashboard/StudentOverview.jsx';
 import StudentBookings from './pages/StudentDashboard/StudentBookings.jsx';
 import StudentFeedback from './pages/StudentDashboard/StudentFeedback.jsx';
 import StudentProfile from './pages/StudentDashboard/StudentProfile.jsx';
+import StudentMessages from './pages/StudentDashboard/StudentMessages.jsx'
+
 import StudentFeedbackForm from './pages/StudentFeedbackPage.jsx';
+
+import MessagePage from './pages/MessagePage.jsx';
 
 // Creating a router
 const router = createBrowserRouter([
@@ -151,13 +155,18 @@ const router = createBrowserRouter([
       { index: true, element: <StudentOverview /> },
       { path: 'bookings', element: <StudentBookings /> },
       { path: 'feedback', element: <StudentFeedback /> },
-      { path: 'profile', element: <StudentProfile /> }
+      { path: 'profile', element: <StudentProfile /> },
+      { path: 'messages', element: <StudentMessages /> }
     ]
   },
   {
     path: '/student/feedback/:booking_id',
     element: <StudentFeedbackForm />
-  }
+  },
+  {
+    path: '/student/messages/:tutorId',
+    element: <MessagePage />
+  },
 ]);
 
 // Render pages via router

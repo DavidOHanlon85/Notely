@@ -762,6 +762,80 @@ exports.getStudentDashboardSummary = async (req, res) => {
   }
 };
 
+// Get messages for tutor (with student JWT)
+
+exports.getMessagesForTutor = async (req, res) => {
+  const studentId = req.user?.student_id;
+  const tutorId = req.params.tutorId;
+
+  try {
+    const [rows] = await conn.query(
+      `SELECT message_id, message_text, sender_role, timestamp
+       FROM messages
+       WHERE (student_id = ? AND tutor_id = ?)
+       ORDER BY timestamp ASC`,
+      [studentId, tutorId]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error("Error fetching messages:", err);
+    res.status(500).json({ error: "Server error fetching messages" });
+  }
+};
+
+// Get logged in student
+
+exports.getLoggedInStudent = async (req, res) => {
+  try {
+    const studentId = req.user?.student_id;
+    const studentUsername = req.user?.student_username;
+
+    if (!studentId) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    res.json({
+      student_id: studentId,
+      student_username: studentUsername,
+    });
+  } catch (err) {
+    console.error("Error fetching student details:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Get student conversations
+
+exports.getStudentConversations = async (req, res) => {
+  try {
+    const student_id = req.user.student_id;
+
+    const sql = `
+      SELECT
+        m.tutor_id,
+        t.tutor_first_name,
+        t.tutor_second_name,
+        t.tutor_image,
+        MAX(m.timestamp) AS last_message_time,
+        SUBSTRING_INDEX(GROUP_CONCAT(m.message_text ORDER BY m.timestamp DESC), ',', 1) AS last_message_text,
+        SUM(CASE WHEN m.sender_role = 'tutor' AND m.message_read = 0 THEN 1 ELSE 0 END) AS unread_count
+      FROM messages m
+      JOIN tutor t ON m.tutor_id = t.tutor_id
+      WHERE m.student_id = ?
+      GROUP BY m.tutor_id
+      ORDER BY last_message_time DESC
+    `;
+
+    const [rows] = await conn.query(sql, [student_id]);
+
+    res.status(200).json(rows);
+  } catch (err) {
+    console.error("Error fetching student conversations:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 // POST requests
 
 // Creates a booking for a student
@@ -2539,5 +2613,35 @@ exports.submitFeedback = async (req, res) => {
   } catch (err) {
     console.error("Error submitting feedback:", err);
     res.status(500).json({ message: "Server error submitting feedback" });
+  }
+};
+
+// Sends message to tutor
+
+exports.sendMessage = async (req, res) => {
+  try {
+    const studentId = req.user?.student_id;
+    const { tutor_id, message_text, sender_role } = req.body;
+
+    if (!studentId || !tutor_id || !message_text || !sender_role) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    const [result] = await conn.query(
+      `INSERT INTO messages (student_id, tutor_id, message_text, sender_role)
+       VALUES (?, ?, ?, ?)`,
+      [studentId, tutor_id, message_text, sender_role]
+    );
+
+    const [inserted] = await conn.query(
+      `SELECT message_id, student_id, tutor_id, message_text, sender_role, timestamp 
+       FROM messages WHERE message_id = ?`,
+      [result.insertId]
+    );
+
+    res.status(201).json(inserted[0]);
+  } catch (err) {
+    console.error("Error sending message:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };

@@ -1,6 +1,7 @@
 // src/pages/StudentDashboardLayout.jsx
-import React, { useState } from "react";
-import { Outlet, Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Outlet, Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./StudentDashboardLayout.css";
 import {
   FaBars,
@@ -17,9 +18,42 @@ import NotelyRectangle from "../../assets/images/NotelyRectangle.png";
 export default function StudentDashboardLayout() {
   const [isExpanded, setIsExpanded] = useState(true);
 
+  const navigate = useNavigate();
+
   const toggleSidebar = () => {
     setIsExpanded(!isExpanded);
   };
+
+  const handleLogout = async () => {
+    try {
+      console.log("Submitted")
+      await axios.post(
+        "http://localhost:3002/api/student/logout",
+        {},
+        { withCredentials: true }
+      );
+      navigate("/student/login");
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
+  
+  // Protect Dashboard Path - Routes to student/login
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await axios.get("http://localhost:3002/api/student/me", {
+          withCredentials: true,
+        });
+      } catch (err) {
+        console.warn("Not authenticated, redirecting to login...");
+        navigate("/student/login");
+      }
+    };
+  
+    checkAuth();
+  }, []);
 
   return (
     <div className="wrapper d-flex flex-grow-1">
@@ -85,7 +119,14 @@ export default function StudentDashboardLayout() {
         </ul>
 
         <div className="sidebar-item mb-2">
-          <Link to="/logout" className="sidebar-link">
+          <Link
+            to="#"
+            className="sidebar-link"
+            onClick={(e) => {
+              e.preventDefault(); // Prevent default navigation
+              handleLogout();
+            }}
+          >
             <FaSignOutAlt className="sidebar-icon" size={24} />
             <span>Logout</span>
           </Link>
@@ -93,9 +134,8 @@ export default function StudentDashboardLayout() {
       </aside>
 
       <main className="main">
-        
-        { /* Header */ }
-      <header className="d-flex flex-wrap align-items-center justify-content-between py-3 mb-3 border-bottom">
+        {/* Header */}
+        <header className="d-flex flex-wrap align-items-center justify-content-between py-3 mb-3 border-bottom">
           <div className="col-12 col-md-3 mb-2 mb-md-0 text-center text-md-start">
             <img
               src={NotelyRectangle}

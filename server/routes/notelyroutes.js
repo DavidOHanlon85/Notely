@@ -66,6 +66,17 @@ router.get('/api/student/feedback', verifyStudent, controller.getStudentFeedback
 
 router.get('/api/student/overview', verifyStudent, controller.getStudentDashboardSummary)
 
+// Get student messages overview
+
+router.get('/api/student/messages', verifyStudent, controller.getStudentConversations);
+
+// Student Messagaing
+
+router.get('/api/student/me', verifyStudent, controller.getLoggedInStudent);
+router.get("/api/messages/:tutorId", verifyStudent, controller.getMessagesForTutor);
+router.post('/api/messages/send', verifyStudent, controller.sendMessage);
+
+
 
 
 module.exports = router;

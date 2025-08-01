@@ -81,7 +81,7 @@ export default function StudentLoginPage() {
 
           console.log(response.data.status)
           const studentId = response.data.student_id;
-          navigate(`/student/dashboard/${studentId}`);
+          navigate(`/student/dashboard`);
         }
       }
     } catch (error) {

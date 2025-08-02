@@ -13,7 +13,7 @@ router.get('/users', controller.users);
 router.get('/api/tutors', controller.tutors);
 router.get('/api/tutors/distinct-fields', controller.distinctFields);
 router.get('/api/instruments/all', controller.getAllInstruments);
-router.get('/api/tutor/:id', controller.getTutorById);
+
 router.get('/api/booking/availability', controller.getAvailability);
 router.get('/api/booking/available-dates', controller.getAvailableDates);
 router.get('/api/student/dashboard/:id', verifyStudent, controller.getStudentDashboard); 
@@ -76,7 +76,25 @@ router.get('/api/student/me', verifyStudent, controller.getLoggedInStudent);
 router.get("/api/messages/:tutorId", verifyStudent, controller.getMessagesForTutor);
 router.post('/api/messages/send', verifyStudent, controller.sendMessage);
 
+// Tutor Dashboard
 
+// Overview
+router.get('/api/tutor/overview', verifyTutor, controller.getTutorOverview);
+
+// Bookings
+
+router.get("/api/tutor/bookings", verifyTutor, controller.getTutorBookings);
+router.patch('/api/tutor/booking/:id/cancel', verifyTutor, controller.tutorCancelBooking);
+router.post('/api/tutor/feedback', verifyTutor, controller.postTutorFeedback);
+
+// Reviews
+router.get("/api/tutor/reviews", verifyTutor, controller.getTutorReviews);
+
+
+
+
+// Moved below to allow tutor/overview
+router.get('/api/tutor/:id', controller.getTutorById);
 
 
 module.exports = router;

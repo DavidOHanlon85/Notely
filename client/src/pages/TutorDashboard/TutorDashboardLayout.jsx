@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./StudentDashboardLayout.css";
+import "./TutorDashboardLayout.css";
 import {
   FaBars,
   FaHome,
@@ -10,13 +10,12 @@ import {
   FaUser,
   FaCommentDots,
   FaSignOutAlt,
+  FaCalendarTimes
 } from "react-icons/fa";
-import Header from "../../components/DoubleButtonNavBar";
 import NotelyRectangle from "../../assets/images/NotelyRectangle.png";
 
-export default function StudentDashboardLayout() {
+export default function TutorDashboardLayout() {
   const [isExpanded, setIsExpanded] = useState(true);
-
   const navigate = useNavigate();
 
   const toggleSidebar = () => {
@@ -25,48 +24,46 @@ export default function StudentDashboardLayout() {
 
   const handleLogout = async () => {
     try {
-      console.log("Submitted")
       await axios.post(
-        "http://localhost:3002/api/student/logout",
+        "http://localhost:3002/api/tutor/logout",
         {},
         { withCredentials: true }
       );
-      navigate("/student/login");
+      navigate("/tutor/login");
     } catch (err) {
       console.error("Logout failed:", err);
     }
   };
-  
-  // Protect Dashboard Path - Routes to student/login
-
+  /*
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        await axios.get("http://localhost:3002/api/student/me", {
+        await axios.get("http://localhost:3002/api/tutor/me", {
           withCredentials: true,
         });
       } catch (err) {
         console.warn("Not authenticated, redirecting to login...");
-        navigate("/student/login");
+        navigate("/tutor/login");
       }
     };
-  
+
     checkAuth();
   }, []);
+  */
 
   return (
-    <div className="wrapper d-flex flex-grow-1">
+    <div className="tutor-wrapper d-flex flex-grow-1">
       <aside
-        id="sidebar"
-        className={isExpanded ? "expand student-sidebar" : "student-sidebar"}
+        id="tutor-sidebar"
+        className={isExpanded ? "expand tutor-sidebar" : "tutor-sidebar"}
       >
         <div className="d-flex">
           <button className="toggle-btn" onClick={toggleSidebar}>
-            <FaBars color="black" size={24} />
+            <FaBars color="white" size={24} />
           </button>
           <div className="sidebar-logo px-0">
             <Link
-              to="/student/dashboard"
+              to="/tutor/dashboard"
               className="notely-logo-link d-flex align-items-center"
             >
               <span className="notely-brand-text">Notely</span>
@@ -86,7 +83,7 @@ export default function StudentDashboardLayout() {
 
         <ul className="sidebar-nav">
           <li className="sidebar-item">
-            <Link to="/student/dashboard" className="sidebar-link">
+            <Link to="/tutor/dashboard" className="sidebar-link">
               <FaHome className="sidebar-icon" size={24} />
               <span>Dashboard</span>
             </Link>
@@ -100,13 +97,19 @@ export default function StudentDashboardLayout() {
           <li className="sidebar-item">
             <Link to="feedback" className="sidebar-link">
               <FaStar className="sidebar-icon" size={24} />
-              <span>Feedback</span>
+              <span>Reviews</span>
             </Link>
           </li>
           <li className="sidebar-item">
             <Link to="messages" className="sidebar-link">
               <FaCommentDots className="sidebar-icon" size={24} />
               <span>Messages</span>
+            </Link>
+          </li>
+          <li className="sidebar-item">
+            <Link to="timeoff" className="sidebar-link">
+              <FaCalendarTimes className="sidebar-icon" size={24} />
+              <span>Time Off</span>
             </Link>
           </li>
           <li className="sidebar-item">
@@ -122,7 +125,7 @@ export default function StudentDashboardLayout() {
             to="#"
             className="sidebar-link"
             onClick={(e) => {
-              e.preventDefault(); // Prevent default navigation
+              e.preventDefault();
               handleLogout();
             }}
           >
@@ -133,24 +136,19 @@ export default function StudentDashboardLayout() {
       </aside>
 
       <main className="main">
-        {/* Header */}
-        <header className="d-flex flex-wrap align-items-center justify-content-between py-3 mb-3 border-bottom">
+        <header className="d-flex flex-wrap align-items-center justify-content-between py-3 border-bottom">
           <div className="col-12 col-md-3 mb-2 mb-md-0 text-center text-md-start">
             <img
               src={NotelyRectangle}
               alt="Notely Logo"
               width="175"
               height="50"
-            ></img>
+            />
           </div>
-
-          {/* Buttons and Links Section */}
-
           <div className="col-12 col-md-3 d-flex justify-content-center justify-content-md-end gap-2">
             <Link to="/" className="btn btn-notely-outline me-2">
               Home
             </Link>
-
             <Link to="/tutors" className="btn btn-notely-primary">
               Tutors
             </Link>

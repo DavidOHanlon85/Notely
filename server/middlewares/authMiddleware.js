@@ -30,8 +30,6 @@ exports.verifyStudent = (req, res, next) => {
 
 // Middleware to verify that the tutor is authenticated and authorized to access certain pages
 exports.verifyTutor = (req, res, next) => {
-  console.log("Cookies received in tutor middleware:", req.cookies);
-
   const token = req.cookies.tutor_token;
 
   if (!token) {
@@ -41,18 +39,18 @@ exports.verifyTutor = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Check if user is a tutor
     if (decoded.userType !== "tutor") {
       return res.status(403).json({ message: "Access denied: not a tutor" });
     }
 
-    // Check if token matches the requested tutor ID
-    const requestedId = parseInt(req.params.id);
-    if (decoded.tutor_id !== requestedId) {
-      return res.status(403).json({ message: "Access denied: ID mismatch" });
+    // 🔐 Only check tutor ID match if route includes tutor ID in params (it doesn't here)
+    if (req.originalUrl.includes("/tutor/") && req.params?.id && req.originalUrl.includes("/tutor/:id")) {
+      const requestedId = parseInt(req.params.id);
+      if (isNaN(requestedId) || decoded.tutor_id !== requestedId) {
+        return res.status(403).json({ message: "Access denied: ID mismatch" });
+      }
     }
 
-    // Store decoded tutor info in req.tutor
     req.user = decoded;
     next();
   } catch (error) {

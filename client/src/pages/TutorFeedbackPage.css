@@ -1,0 +1,82 @@
+.tutor-feedback-page {
+    background-color: #fdfcfe;
+    color: #333;
+  }
+  
+  .tutor-feedback-page .form-heading {
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1.4rem;
+    text-align: center;
+  }
+  
+  .tutor-feedback-page .tutor-feedback-form {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border: 1px solid #6f42c1;
+    border-radius: 12px;
+    background-color: #f9f6ff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .tutor-feedback-page .tutor-feedback-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .tutor-feedback-page textarea,
+  .tutor-feedback-page input,
+  .tutor-feedback-page select {
+    width: 100%;
+    padding: 0.5rem;
+    margin: 0.75rem 0 1.25rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    min-height: 60px;
+  }
+  
+  .tutor-feedback-page .feedback-submit {
+    width: 100%;
+    padding: 0.6rem;
+    background-color: #6f42c1;
+    color: #fff;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+  
+  .tutor-feedback-page .feedback-submit:hover {
+    background-color: #59329d;
+  }
+  
+  .tutor-feedback-page .feedback-error {
+    color: #c00;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+  
+  .tutor-feedback-page .feedback-success {
+    text-align: center;
+    color: green;
+    font-size: 1.2rem;
+    margin-top: 2rem;
+  }
+  
+  .tutor-feedback-form textarea {
+    display: flex;
+    align-items: center;
+    padding-top: 1rem; 
+    vertical-align: middle;
+  }
+
+  .tutor-feedback-page .btn-1 {
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    min-width: 160px;
+    text-align: center;
+  }

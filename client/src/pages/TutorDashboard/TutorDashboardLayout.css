@@ -1,0 +1,112 @@
+/* Scoped CSS for TutorDashboardLayout */
+
+.tutor-dashboard-wrapper {
+    display: flex;
+    min-height: 100vh;
+  }
+  
+  .tutor-dashboard-main {
+    flex-grow: 1;
+    min-height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    transition: all 0.35s ease-in-out;
+    background-color: #fafbfe;
+    padding: 0.8rem 2rem;
+    height: 100%;
+  }
+  
+  .tutor-sidebar {
+    width: 70px;
+    min-width: 70px;
+    z-index: 1000;
+    transition: all 0.25s ease-in-out;
+    background-color: #6f42c1; /* Notely Purple */
+    display: flex;
+    flex-direction: column;
+    color: #ffffff;
+    height: auto;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+  }
+  
+  .tutor-sidebar.expand {
+    width: 220px;
+    min-width: 220px;
+  }
+  
+  .tutor-sidebar .toggle-btn {
+    background-color: transparent;
+    cursor: pointer;
+    border: 0;
+    padding: 1rem 1.5rem;
+    color: white;
+  }
+  
+  .tutor-sidebar .sidebar-logo {
+    margin: auto 0;
+    padding-left: 0;
+  }
+  
+  .tutor-sidebar .sidebar-logo a {
+    color: #ffffff;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  
+  .tutor-sidebar:not(.expand) .sidebar-logo,
+  .tutor-sidebar:not(.expand) a.sidebar-link span {
+    display: none;
+  }
+  
+  .tutor-sidebar .sidebar-nav {
+    padding: 2rem 0;
+    flex: 1 1 auto;
+  }
+  
+  .tutor-sidebar a.sidebar-link {
+    padding: 0.75rem 1.625rem;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    white-space: nowrap;
+    border-left: 3px solid transparent;
+    gap: 10px;
+  }
+  
+  .tutor-sidebar a.sidebar-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-left: 3px solid #ffffff;
+    border-radius: 5px;
+  }
+  
+  .tutor-sidebar .sidebar-footer {
+    padding: 1rem 1.5rem;
+  }
+  
+  .tutor-sidebar .sidebar-footer .sidebar-link {
+    font-size: 1rem;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .tutor-sidebar .sidebar-footer .sidebar-link:hover {
+    color: #f0f0f0;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+  }
+  
+  .tutor-brand-text {
+    font-size: larger;
+    font-weight: 600;
+  }
+  
+  .tutor-sidebar .sidebar-icon {
+    font-size: 1.2rem;
+    min-width: 24px;
+    display: inline-flex;
+    justify-content: center;
+  }

@@ -40,9 +40,19 @@ import StudentOverview from './pages/StudentDashboard/StudentOverview.jsx';
 import StudentBookings from './pages/StudentDashboard/StudentBookings.jsx';
 import StudentFeedback from './pages/StudentDashboard/StudentFeedback.jsx';
 import StudentProfile from './pages/StudentDashboard/StudentProfile.jsx';
-import StudentMessages from './pages/StudentDashboard/StudentMessages.jsx'
+import StudentMessages from './pages/StudentDashboard/StudentMessages.jsx';
+import TutorDashboardLayout from './pages/TutorDashboard/TutorDashboardLayout.jsx';
+import TutorBookings from './pages/TutorDashboard/TutorBookings.jsx';
+import TutorFeedback from './pages/TutorDashboard/TutorFeedback.jsx';
+import TutorMessages from './pages/TutorDashboard/TutorMessages.jsx';
+import TutorOverride from './pages/TutorDashboard/TutorOverride.jsx';
+import TutorOverview from './pages/TutorDashboard/TutorOverview.jsx';
+import TutorProfile from './pages/TutorDashboard/TutorProfile.jsx';
+
+
 
 import StudentFeedbackForm from './pages/StudentFeedbackPage.jsx';
+import TutorFeedbackPage from './pages/TutorFeedbackPage.jsx'
 
 import MessagePage from './pages/MessagePage.jsx';
 
@@ -166,6 +176,22 @@ const router = createBrowserRouter([
   {
     path: '/student/messages/:tutorId',
     element: <MessagePage />
+  },
+  {
+    path: '/tutor/dashboard',
+    element: <TutorDashboardLayout />,
+    children: [
+      { index: true, element: <TutorOverview /> },
+      { path: 'bookings', element: <TutorBookings /> },
+      { path: 'feedback', element: <TutorFeedback /> },
+      { path: 'profile', element: <TutorProfile /> },
+      { path: 'messages', element: <TutorMessages /> },
+      { path: 'timeoff', element: <TutorOverride /> }
+    ]
+  },
+  {
+    path: '/tutor/feedback/:booking_id',
+    element: <TutorFeedbackPage />
   },
 ]);
 

@@ -48,6 +48,7 @@ import TutorMessages from './pages/TutorDashboard/TutorMessages.jsx';
 import TutorOverride from './pages/TutorDashboard/TutorOverride.jsx';
 import TutorOverview from './pages/TutorDashboard/TutorOverview.jsx';
 import TutorProfile from './pages/TutorDashboard/TutorProfile.jsx';
+import TutorMessagePage from './pages/TutorMessagePage.jsx';
 
 
 
@@ -192,6 +193,10 @@ const router = createBrowserRouter([
   {
     path: '/tutor/feedback/:booking_id',
     element: <TutorFeedbackPage />
+  },
+  {
+    path: '/tutor/messages/:student_id',
+    element: <TutorMessagePage />
   },
 ]);
 

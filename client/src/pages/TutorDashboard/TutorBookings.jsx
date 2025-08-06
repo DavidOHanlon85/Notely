@@ -44,7 +44,7 @@ export default function TutorBookings() {
             time: formattedTime,
             status: bookingDateTime > now ? "Upcoming" : "Completed",
             feedback_given: booking.feedback_given === 1,
-            canLeaveFeedback: bookingDateTime < now && !booking.feedback_given,
+            canLeaveFeedback: bookingDateTime < now && booking.feedback_given === 0,
             canJoin:
               bookingDateTime - now <= 24 * 60 * 60 * 1000 &&
               bookingDateTime > now,
@@ -52,6 +52,7 @@ export default function TutorBookings() {
               bookingDateTime > now &&
               bookingDateTime - now > 24 * 60 * 60 * 1000,
             link: booking.booking_link,
+            bookingDateTime, 
           };
         });
 

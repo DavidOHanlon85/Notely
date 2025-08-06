@@ -1,0 +1,90 @@
+/* Tutor Profile Wrapper */
+.tutor-profile__wrapper {
+    padding: 0rem;
+  }
+  
+  /* Page Heading */
+  .tutor-profile__heading {
+    border-bottom: 1px solid #e4e2e2;
+    margin-bottom: 1.5rem;
+    margin-top: 1.5rem;
+    padding-bottom: 1rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  /* Shared card styling */
+  .tutor-profile__container .card {
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Section Titles */
+  .tutor-profile__card h5 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+  }
+  
+  /* Stripe button styles */
+  .tutor-profile__stripe-button {
+    background-color: #8551E6;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  .tutor-profile__stripe-button:hover {
+    background-color: #6f3dc9;
+    color: #fff;
+  }
+  
+  /* Text link inside info */
+  .tutor-profile__info-link {
+    color: #8551E6;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  
+  .tutor-profile__info-link:hover {
+    text-decoration: none;
+  }
+  
+  /* Responsive padding override (optional, for sidebar layout) */
+  @media (max-width: 768px) {
+    .tutor-profile__container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+
+  .tutor-profile__container a,
+  .tutor-profile__container .tutor-profile__link {
+    color: #ffc107; /* Notely Gold */
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .tutor-profile__container a:hover,
+  .tutor-profile__container .tutor-profile__link:hover {
+    color: #e0a800; /* Darker gold on hover */
+    text-decoration: none;
+  }
+
+  .tutor-profile__stripe-connected {
+    background-color: #ffc107; 
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    cursor: default;
+    opacity: 0.9;
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.3);
+  }

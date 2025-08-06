@@ -64,7 +64,7 @@ export default function TutorLoginPage() {
 
       if (response.data.status === "success") {
         const tutorId = response.data.tutor_id;
-        navigate(`/tutor/dashboard/${tutorId}`);
+        navigate(`/tutor/dashboard`);
       }
     } catch (error) {
       if (error.response?.data?.errors) {

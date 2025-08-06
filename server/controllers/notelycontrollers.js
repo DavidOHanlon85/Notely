@@ -839,13 +839,10 @@ exports.getStudentConversations = async (req, res) => {
 // Get tutor overview details
 
 exports.getTutorOverview = async (req, res) => {
-
   console.log("Decoded user from token:", req.user);
 
   const tutorId = req.user?.tutor_id;
   const range = req.query.range || "last_month";
-
-
 
   if (!tutorId) return res.status(401).json({ error: "Unauthorized" });
 
@@ -860,7 +857,9 @@ exports.getTutorOverview = async (req, res) => {
     const interval = rangeMap[range];
 
     // 1. Revenue and lesson filters
-    const timeFilter = interval ? `AND booking_date >= NOW() - ${interval}` : "";
+    const timeFilter = interval
+      ? `AND booking_date >= NOW() - ${interval}`
+      : "";
 
     // 1. Total revenue (confirmed = 2)
     const [revenueRow] = await conn.query(
@@ -886,14 +885,18 @@ exports.getTutorOverview = async (req, res) => {
     const [avgRow] = await conn.query(
       `SELECT AVG(feedback_score) AS avgRating
        FROM student_feedback
-       WHERE tutor_id = ? ${interval ? `AND feedback_date >= CURDATE() - ${interval}` : ""}`,
+       WHERE tutor_id = ? ${
+         interval ? `AND feedback_date >= CURDATE() - ${interval}` : ""
+       }`,
       [tutorId]
     );
 
     const [starCounts] = await conn.query(
       `SELECT feedback_score AS rating, COUNT(*) AS count
        FROM student_feedback
-       WHERE tutor_id = ? ${interval ? `AND feedback_date >= CURDATE() - ${interval}` : ""}
+       WHERE tutor_id = ? ${
+         interval ? `AND feedback_date >= CURDATE() - ${interval}` : ""
+       }
        GROUP BY feedback_score`,
       [tutorId]
     );
@@ -947,13 +950,15 @@ exports.getTutorReviews = async (req, res) => {
     const tutorId = req.user?.tutor_id;
 
     if (!tutorId) {
-      return res.status(401).json({ error: "Unauthorized: tutor not logged in" });
+      return res
+        .status(401)
+        .json({ error: "Unauthorized: tutor not logged in" });
     }
 
     const [rows] = await conn.query(
       `
       SELECT 
-        DATE_FORMAT(sf.feedback_date, '%d %M %Y') AS date,
+        DATE_FORMAT(sf.feedback_date, '%d/%m/%Y') AS date,
         CONCAT(s.student_first_name, ' ', s.student_last_name) AS student,
         sf.feedback_score AS rating,
         sf.feedback_text AS text
@@ -979,36 +984,239 @@ exports.getTutorBookings = async (req, res) => {
     const tutorId = req.user?.tutor_id;
 
     if (!tutorId) {
-      return res.status(401).json({ error: "Unauthorized: tutor not logged in" });
+      return res
+        .status(401)
+        .json({ error: "Unauthorized: tutor not logged in" });
     }
 
     const [rows] = await conn.query(
-      `
-      SELECT 
+      `SELECT 
         b.booking_id,
         b.booking_date,
         b.booking_time,
+        b.booking_status,
         b.booking_link,
+        s.student_id,
         s.student_first_name,
         s.student_last_name,
-        s.student_id,
-        CASE 
-          WHEN sf.feedback_id IS NOT NULL THEN 1
-          ELSE 0
-        END AS feedback_given
+        CASE WHEN tf.booking_id IS NOT NULL THEN 1 ELSE 0 END AS feedback_given
       FROM booking b
       JOIN student s ON b.student_id = s.student_id
-      LEFT JOIN student_feedback sf ON sf.booking_id = b.booking_id
-      WHERE b.tutor_id = ?
-        AND b.booking_status = 2
-      ORDER BY TIMESTAMP(b.booking_date, b.booking_time) DESC
-      `,
+      LEFT JOIN tutor_feedback tf ON b.booking_id = tf.booking_id
+      WHERE b.tutor_id = ? AND b.booking_status = 2
+      ORDER BY b.booking_date DESC, b.booking_time DESC`,
       [tutorId]
     );
 
     res.json(rows);
   } catch (err) {
     console.error("Error fetching tutor bookings:", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Get tutor booking details
+
+exports.getTutorBookingDetails = async (req, res) => {
+  const { bookingId } = req.params;
+
+  try {
+    const [rows] = await conn.query(
+      `
+      SELECT 
+        s.student_id,
+        s.student_first_name,
+        s.student_last_name,
+        t.tutor_id,
+        t.tutor_first_name,
+        t.tutor_second_name
+      FROM booking b
+      JOIN student s ON b.student_id = s.student_id
+      JOIN tutor t ON b.tutor_id = t.tutor_id
+      WHERE b.booking_id = ?
+      `,
+      [bookingId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    const row = rows[0];
+
+    res.status(200).json({
+      tutor: {
+        tutor_id: row.tutor_id,
+        tutor_first_name: row.tutor_first_name,
+        tutor_second_name: row.tutor_second_name,
+      },
+      student: {
+        student_id: row.student_id,
+        student_first_name: row.student_first_name,
+        student_last_name: row.student_last_name,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching tutor feedback booking details:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Get tutor messages table details
+
+exports.getTutorMessages = async (req, res) => {
+  try {
+    const tutorId = req.user?.tutor_id;
+
+    if (!tutorId) {
+      return res
+        .status(401)
+        .json({ error: "Unauthorized: tutor not logged in" });
+    }
+
+    const [rows] = await conn.query(
+      `
+      SELECT 
+        s.student_id,
+        s.student_first_name,
+        s.student_last_name,
+        m.message_text AS last_message_text,
+        m.timestamp AS last_message_time,
+        m.message_read
+      FROM (
+        SELECT 
+          student_id,
+          MAX(timestamp) AS latest_time
+        FROM messages
+        WHERE tutor_id = ?
+        GROUP BY student_id
+      ) AS latest
+      JOIN messages m 
+        ON m.student_id = latest.student_id AND m.timestamp = latest.latest_time
+      JOIN student s 
+        ON s.student_id = latest.student_id
+      WHERE m.tutor_id = ?
+      ORDER BY m.timestamp DESC
+      `,
+      [tutorId, tutorId]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error("Error fetching tutor messages:", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Get tutor messages from student (chat functionality)
+
+exports.getTutorConversation = async (req, res) => {
+  const tutorId = req.user?.tutor_id;
+  const { student_id } = req.params;
+
+  try {
+    // Get student info
+    const [studentRows] = await conn.query(
+      `
+      SELECT 
+        student_id,
+        student_first_name,
+        student_last_name,
+        student_registration_date
+      FROM student
+      WHERE student_id = ?
+      `,
+      [student_id]
+    );
+
+    if (studentRows.length === 0) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    const student = studentRows[0];
+
+    // Average rating + review count from tutor_feedback
+    const [[feedbackStats]] = await conn.query(
+      `
+      SELECT 
+        ROUND(AVG(performance_score), 1) AS avg_rating,
+        COUNT(*) AS review_count
+      FROM tutor_feedback
+      WHERE student_id = ?
+      `,
+      [student_id]
+    );
+
+    // Total Notely lessons across any tutor
+    const [[lessonStats]] = await conn.query(
+      `
+      SELECT COUNT(*) AS total_lessons
+      FROM booking
+      WHERE student_id = ? AND booking_status = 2
+      `,
+      [student_id]
+    );
+
+    // Messages
+    const [messages] = await conn.query(
+      `
+      SELECT message_text, sender_role, timestamp
+      FROM messages
+      WHERE tutor_id = ? AND student_id = ?
+      ORDER BY timestamp ASC
+      `,
+      [tutorId, student_id]
+    );
+
+    const memberSince = student.student_registration_date
+      ? new Date(student.student_registration_date).toLocaleDateString(
+          "en-GB",
+          {
+            month: "short",
+            year: "numeric",
+          }
+        )
+      : "N/A";
+
+    res.status(200).json({
+      student,
+      stats: {
+        avg_rating: feedbackStats.avg_rating || "N/A",
+        review_count: feedbackStats.review_count || 0,
+        total_lessons: lessonStats.total_lessons || 0,
+        member_since: memberSince,
+      },
+      messages,
+    });
+  } catch (error) {
+    console.error("Error fetching tutor conversation:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Get logged in tutor from JWT
+
+exports.getLoggedInTutor = async (req, res) => {
+  try {
+    const tutorId = req.user?.tutor_id;
+
+    if (!tutorId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    // Optional: Fetch full name or profile info
+    const [rows] = await conn.query(
+      `SELECT tutor_id, tutor_first_name, tutor_second_name, tutor_stripe_account_id FROM tutor WHERE tutor_id = ?`,
+      [tutorId]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: "Tutor not found" });
+    }
+
+    res.status(200).json(rows[0]); // Returns tutor_id, first name, last name
+  } catch (err) {
+    console.error("Error fetching tutor details:", err.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -2783,7 +2991,7 @@ exports.submitFeedback = async (req, res) => {
       feedback_date,
       tutor_id,
       student_id,
-      booking_id
+      booking_id,
     ]);
 
     res.status(201).json({ message: "Feedback submitted successfully." });
@@ -2839,7 +3047,9 @@ exports.tutorCancelBooking = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      return res.status(404).json({ error: "Booking not found or already cancelled." });
+      return res
+        .status(404)
+        .json({ error: "Booking not found or already cancelled." });
     }
 
     const booking = rows[0];
@@ -2861,7 +3071,7 @@ exports.tutorCancelBooking = async (req, res) => {
   } catch (err) {
     console.error("Error cancelling booking:", err);
     res.status(500).json({ error: "Internal server error" });
-  } 
+  }
 };
 
 // Post tutor feedback to student
@@ -2873,7 +3083,7 @@ exports.postTutorFeedback = async (req, res) => {
     notes,
     tutor_id,
     booking_id,
-    feedback_date
+    feedback_date,
   } = req.body;
 
   if (!performance_score || !tutor_id || !booking_id || !feedback_date) {
@@ -2923,5 +3133,136 @@ exports.postTutorFeedback = async (req, res) => {
   } catch (error) {
     console.error("Error submitting feedback:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Post tutor messages (in-chat)
+
+exports.sendTutorMessage = async (req, res) => {
+  const tutorId = req.user?.tutor_id;
+  const { student_id, message_text } = req.body;
+
+  if (!tutorId || !student_id || !message_text?.trim()) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  try {
+    const [result] = await conn.query(
+      `INSERT INTO messages (tutor_id, student_id, sender_role, message_text)
+       VALUES (?, ?, 'tutor', ?)`,
+      [tutorId, student_id, message_text.trim()]
+    );
+
+    res.status(201).json({
+      message_id: result.insertId,
+      tutor_id: tutorId,
+      student_id,
+      sender_role: "tutor",
+      message_text: message_text.trim(),
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Error sending tutor message:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Post Tutor Holidays
+
+exports.setTimeOff = async (req, res) => {
+  const tutorId = req.user?.tutor_id;
+  const { date, blockedSlots } = req.body;
+
+  if (!tutorId || !date || !Array.isArray(blockedSlots)) {
+    return res.status(400).json({ error: "Missing data" });
+  }
+
+  const connection = await conn.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    // Delete existing overrides for this tutor and date
+    await connection.query(
+      `DELETE FROM tutor_availability_override 
+       WHERE tutor_id = ? AND override_date = ?`,
+      [tutorId, date]
+    );
+
+    // Insert new overrides
+    if (blockedSlots.length > 0) {
+      const values = blockedSlots.map((time) => [
+        date,
+        time,
+        0, // override_is_available = 0 (unavailable)
+        new Date(), // override_created_at
+        new Date(), // override_updated_at
+        tutorId,
+      ]);
+
+      await connection.query(
+        `INSERT INTO tutor_availability_override 
+        (override_date, override_time_slot, override_is_available, override_created_at, override_updated_at, tutor_id)
+        VALUES ?`,
+        [values]
+      );
+    }
+
+    await connection.commit();
+    res.status(200).json({ message: "Time off updated successfully." });
+  } catch (err) {
+    await connection.rollback();
+    console.error("Error saving time off:", err);
+    res.status(500).json({ error: "Internal server error" });
+  } finally {
+    connection.release();
+  }
+};
+
+// Tutor Stripe Setup
+
+exports.connectStripeAccount = async (req, res) => {
+  const tutorId = req.user.tutor_id;
+
+  try {
+    // Get tutor email + check Stripe account
+    const [[{ tutor_email, tutor_stripe_account_id }]] = await conn.query(
+      `SELECT tutor_email, tutor_stripe_account_id FROM tutor WHERE tutor_id = ?`,
+      [tutorId]
+    );
+
+    if (tutor_stripe_account_id) {
+      return res.status(400).json({ message: "Stripe account already connected." });
+    }
+
+    // Create Stripe Express account
+    const account = await stripe.accounts.create({
+      type: "express",
+      country: "GB",
+      email: tutor_email,
+      capabilities: {
+        transfers: { requested: true },
+      },
+    });
+
+    // Save Stripe account ID to DB
+    await conn.query(
+      `UPDATE tutor SET tutor_stripe_account_id = ? WHERE tutor_id = ?`,
+      [account.id, tutorId]
+    );
+
+    const returnUrl = "http://localhost:5173/tutor/dashboard/profile";
+
+    const accountLink = await stripe.accountLinks.create({
+      account: account.id,
+      refresh_url: returnUrl,
+      return_url: returnUrl,
+      type: "account_onboarding",
+    });
+
+    res.json({ url: accountLink.url });
+  } catch (err) {
+    console.error("Stripe Connect error:", err);
+    res.status(500).json({ error: "Stripe connection failed." });
   }
 };

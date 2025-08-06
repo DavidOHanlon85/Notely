@@ -24,7 +24,7 @@ export default function TutorLeaveFeedbackPage() {
     const fetchBookingInfo = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3002/api/booking/${booking_id}/details`,
+          `http://localhost:3002/api/tutor/booking/${booking_id}/details`,
           { withCredentials: true }
         );
         setTutor(response.data.tutor);

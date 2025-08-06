@@ -22,14 +22,16 @@ export default function StudentBookings() {
         const transformed = response.data.map((booking) => {
           const dateObj = new Date(booking.booking_date);
           dateObj.setDate(dateObj.getDate() + 1); // Force +1 day
-        
+
           const dateOnly = dateObj.toISOString().split("T")[0]; // '2025-08-07'
           const timeOnly = booking.booking_time.slice(0, 5);
-        
-          const bookingDateTime = new Date(`${dateOnly}T${booking.booking_time}`);
-        
+
+          const bookingDateTime = new Date(
+            `${dateOnly}T${booking.booking_time}`
+          );
+
           const now = new Date();
-        
+
           return {
             id: booking.booking_id,
             date: dateOnly.split("-").reverse().join("/"), // '07/08/2025'
@@ -40,8 +42,9 @@ export default function StudentBookings() {
             feedback_given: booking.feedback_given === 1,
             canLeaveFeedback: bookingDateTime < now && !booking.feedback_given,
             canJoin:
-              bookingDateTime.toDateString() === now.toDateString() &&
-              bookingDateTime > now,
+              now.getTime() >=
+                bookingDateTime.getTime() - 24 * 60 * 60 * 1000 &&
+              now.getTime() <= bookingDateTime.getTime() + 2 * 60 * 60 * 1000,
             canCancel:
               bookingDateTime > now &&
               bookingDateTime - now > 24 * 60 * 60 * 1000,
@@ -62,10 +65,7 @@ export default function StudentBookings() {
     {
       name: "Tutor",
       cell: (row) => (
-        <a
-          href={`/tutor/${row.tutor_id}`}
-          className="tutor-link"
-        >
+        <a href={`/tutor/${row.tutor_id}`} className="tutor-link">
           {row.tutor}
         </a>
       ),
@@ -74,7 +74,11 @@ export default function StudentBookings() {
     {
       name: "Status",
       cell: (row) => (
-        <span className={`badge ${row.status === "Upcoming" ? "badge-gold" : "badge-green"}`}>
+        <span
+          className={`badge ${
+            row.status === "Upcoming" ? "badge-gold" : "badge-green"
+          }`}
+        >
           {row.status}
         </span>
       ),

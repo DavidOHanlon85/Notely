@@ -1,0 +1,56 @@
+.tutor-message-page .tutor-message__student-card {
+    background-color: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  
+  .tutor-message-page .tutor-message__student-card .stat {
+    text-align: center;
+  }
+  
+  .tutor-message-page .tutor-message__student-card .stat .label {
+    font-size: 0.85rem;
+    color: #666;
+  }
+  
+  .tutor-message-page .tutor-message__chat-container {
+    background-color: #f9f9f9;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .tutor-message__chat-messages {
+    max-height: 320px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+  
+  .tutor-message__chat-bubble {
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    max-width: 75%;
+    position: relative;
+    word-wrap: break-word;
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+  
+  .tutor-message__chat-bubble.tutor {
+    align-self: flex-end;
+    background-color: #c99cfc;
+    color: #383d41;
+  }
+  
+  .tutor-message__chat-bubble.student {
+    align-self: flex-start;
+    background-color: #ffc107;
+    color: #0c5460;
+  }
+  
+  .tutor-message__chat-input input,
+  .tutor-message__chat-input button {
+    border-radius: 0.5rem;
+  }

@@ -71,7 +71,6 @@ router.get('/api/student/overview', verifyStudent, controller.getStudentDashboar
 router.get('/api/student/messages', verifyStudent, controller.getStudentConversations);
 
 // Student Messagaing
-
 router.get('/api/student/me', verifyStudent, controller.getLoggedInStudent);
 router.get("/api/messages/:tutorId", verifyStudent, controller.getMessagesForTutor);
 router.post('/api/messages/send', verifyStudent, controller.sendMessage);
@@ -82,15 +81,25 @@ router.post('/api/messages/send', verifyStudent, controller.sendMessage);
 router.get('/api/tutor/overview', verifyTutor, controller.getTutorOverview);
 
 // Bookings
-
 router.get("/api/tutor/bookings", verifyTutor, controller.getTutorBookings);
+router.get('/api/tutor/booking/:bookingId/details', verifyTutor, controller.getTutorBookingDetails);
 router.patch('/api/tutor/booking/:id/cancel', verifyTutor, controller.tutorCancelBooking);
 router.post('/api/tutor/feedback', verifyTutor, controller.postTutorFeedback);
 
 // Reviews
 router.get("/api/tutor/reviews", verifyTutor, controller.getTutorReviews);
 
+// Tutor Messaging
+router.get('/api/tutor/messages', verifyTutor, controller.getTutorMessages);
+router.get('/api/tutor/messages/:student_id', verifyTutor, controller.getTutorConversation);
+router.post("/api/tutor/messages/send", verifyTutor, controller.sendTutorMessage);
 
+// Tutor Manage Time Off
+router.get("/api/tutor/me", verifyTutor, controller.getLoggedInTutor);
+router.post('/api/tutor/timeoff/set', verifyTutor, controller.setTimeOff);
+
+// Tutor Profile
+router.post('/api/tutor/stripe/connect', verifyTutor, controller.connectStripeAccount);
 
 
 // Moved below to allow tutor/overview

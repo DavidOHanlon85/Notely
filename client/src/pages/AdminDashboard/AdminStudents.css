@@ -1,0 +1,89 @@
+/* Wrapper and Layout */
+.admin-students {
+    padding: 0rem 0rem;
+  }
+  
+  .admin-students-heading {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #1f3b5c; /* Notely Navy */
+    margin: 0;
+  }
+  
+  .admin-students-search-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0rem;
+  }
+  
+  .admin-students-search-input {
+    padding: 0.3rem 1rem;
+    font-size: 1rem;
+    width: 100%;
+    max-width: 220px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: all 0.2s ease;
+    margin-bottom: 5px;
+  }
+  
+  .admin-students-search-input:focus {
+    border-color: #1f3b5c;
+    box-shadow: 0 0 0 2px rgba(31, 59, 92, 0.2);
+  }
+  
+  .admin-students-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .admin-students-table-wrapper .rdt_Table {
+    min-width: 800px;
+  }
+  
+  .admin-no-students-message {
+    font-size: 1.1rem;
+    color: #888;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  /* Links */
+  .admin-student-link {
+    color: #212529;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  /* Badges */
+  .admin-students-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1;
+    border: none;
+  }
+  
+  .admin-students-badge-green {
+    background-color: #ffc107;
+    color: #fff;
+  }
+  
+  .admin-students-badge-red {
+    background-color: #dc3545;
+    color: #fff;
+  }
+  
+  .admin-students-badge-red:hover {
+    background-color: #c82333;
+  }
+  
+  .admin-students-clickable {
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }

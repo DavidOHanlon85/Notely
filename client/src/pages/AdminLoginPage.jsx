@@ -28,7 +28,7 @@ export default function AdminLoginPage() {
       );
 
       if (response.data && response.data.admin_id) {
-        navigate(`/admin/dashboard/${response.data.admin_id}`);
+        navigate(`/admin/dashboard`);
       }
     } catch (err) {
       setError(

@@ -49,6 +49,10 @@ import TutorOverride from './pages/TutorDashboard/TutorOverride.jsx';
 import TutorOverview from './pages/TutorDashboard/TutorOverview.jsx';
 import TutorProfile from './pages/TutorDashboard/TutorProfile.jsx';
 import TutorMessagePage from './pages/TutorMessagePage.jsx';
+import AdminDashboardLayout from './pages/AdminDashboard/AdminDashboardLayout.jsx';
+import AdminOverview from './pages/AdminDashboard/AdminOverview.jsx';
+import AdminStudents from './pages/AdminDashboard/AdminStudents.jsx';
+import AdminTutors from './pages/AdminDashboard/AdminTutors.jsx';
 
 
 
@@ -197,6 +201,15 @@ const router = createBrowserRouter([
   {
     path: '/tutor/messages/:student_id',
     element: <TutorMessagePage />
+  },
+  {
+    path: '/admin/dashboard',
+    element: <AdminDashboardLayout />,
+    children: [
+      { index: true, element: <AdminOverview /> },
+      { path: 'tutors', element: <AdminTutors /> },
+      { path: 'students', element: <AdminStudents /> },
+    ]
   },
 ]);
 

@@ -116,6 +116,11 @@ export default function StudentBookings() {
           <button
             className="badge badge-red clickable"
             onClick={async () => {
+              const confirmed = window.confirm(
+                "Are you sure you want to cancel this booking? This cannot be undone."
+              );
+              if (!confirmed) return;
+            
               try {
                 await axios.patch(
                   `http://localhost:3002/api/booking/${row.id}/cancel`,

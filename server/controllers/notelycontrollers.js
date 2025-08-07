@@ -699,7 +699,7 @@ exports.getStudentDashboardSummary = async (req, res) => {
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const label = d.toLocaleString("default", { month: "short" });
-      const key = d.toISOString().slice(0, 7); // YYYY-MM
+      const key = d.toISOString().slice(0, 7);
       months.push({ key, label, lesson_count: 0 });
     }
 
@@ -748,13 +748,53 @@ exports.getStudentDashboardSummary = async (req, res) => {
       };
     });
 
+    // 5. Booking Breakdown Table
+    const [bookingBreakdown] = await conn.query(
+      `
+      SELECT 
+        t.tutor_id,
+        CONCAT(t.tutor_first_name, ' ', t.tutor_second_name) AS tutor_name,
+        COUNT(b.booking_id) AS lesson_count,
+        ROUND(AVG(tf.performance_score), 1) AS avg_rating
+      FROM booking b
+      JOIN tutor t ON b.tutor_id = t.tutor_id
+      LEFT JOIN tutor_feedback tf ON tf.booking_id = b.booking_id
+      WHERE b.student_id = ? AND b.booking_status = 2
+      GROUP BY t.tutor_id
+      ORDER BY lesson_count DESC
+    `,
+      [studentId]
+    );
+
+    // 6. Upcoming Lessons Table
+    const [upcomingLessons] = await conn.query(
+      `
+      SELECT 
+        b.tutor_id,
+        CONCAT(t.tutor_first_name, ' ', t.tutor_second_name) AS tutor_name,
+        b.booking_date,
+        b.booking_time,
+        DATE_FORMAT(b.booking_date, '%d/%m/%Y') AS formatted_date,
+        TIME_FORMAT(b.booking_time, '%H:%i') AS formatted_time
+      FROM booking b
+      JOIN tutor t ON b.tutor_id = t.tutor_id
+      WHERE b.student_id = ? 
+        AND b.booking_status = 2 
+        AND b.booking_date >= CURDATE()
+      ORDER BY b.booking_date ASC
+      LIMIT 5
+      `,
+      [studentId]
+      );
+
     res.json({
       totalLessons: lessonStats[0].total,
-      upcomingLessons: lessonStats[0].upcoming,
+      upcomingLessons: upcomingLessons,
       completedLessons: lessonStats[0].completed,
       feedbackGiven: feedbackCount[0].feedback_given,
       lessonsPerMonth,
       feedbackStars,
+      bookingBreakdown,
     });
   } catch (error) {
     console.error("Error fetching student dashboard data:", error);
@@ -1442,9 +1482,6 @@ exports.getAllStudents = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
-
-
 
 // POST requests
 
@@ -3561,7 +3598,7 @@ exports.sendStripeReminder = async (req, res) => {
       <p>This is a quick reminder to connect your Stripe account so you can get paid for your lessons on Notely.</p>
       <p>If you’ve already connected, you can ignore this message. Otherwise, please log in to your tutor dashboard and click “Connect to Stripe.”</p>
       <p>Thanks,<br/>The Notely Team</p>
-      `
+      `,
     });
 
     res.json({ message: "Reminder email sent." });
@@ -3576,11 +3613,14 @@ exports.sendStripeReminder = async (req, res) => {
 exports.verifyStudent = async (req, res) => {
   const { studentId } = req.params;
   try {
-    await conn.query(`
+    await conn.query(
+      `
       UPDATE student
       SET student_verification_date = NOW()
       WHERE student_id = ?
-    `, [studentId]);
+    `,
+      [studentId]
+    );
 
     res.json({ message: "Student verified." });
   } catch (err) {
@@ -3594,11 +3634,14 @@ exports.verifyStudent = async (req, res) => {
 exports.revokeStudent = async (req, res) => {
   const { studentId } = req.params;
   try {
-    await conn.query(`
+    await conn.query(
+      `
       UPDATE student
       SET student_verification_date = NULL
       WHERE student_id = ?
-    `, [studentId]);
+    `,
+      [studentId]
+    );
 
     res.json({ message: "Student verification revoked." });
   } catch (err) {

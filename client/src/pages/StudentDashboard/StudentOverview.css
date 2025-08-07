@@ -89,7 +89,7 @@
   .dashboard-charts {
     display: flex;
     gap: 2rem;
-    margin-top: 2rem;
+    margin-top: 0.3rem;
     flex-wrap: wrap; /* Allows wrapping on smaller screens */
   }
   
@@ -107,3 +107,148 @@
       flex: 1 1 100%;
     }
   }
+
+  .dashboard-tables {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .table-container {
+    flex: 1 1 48%;
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    min-height: 225px; /* keeps charts aligned regardless of row count */
+  }
+  
+  .notely-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  
+  .notely-table th {
+    text-align: left;
+    padding: 0.75rem;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .notely-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #f0f0f0;
+    color: #555;
+  }
+  
+  .join-button {
+    background-color: #ffc107;
+    border: none;
+    border-radius: 6px;
+    padding: 0.4rem 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: #000;
+    font-size: 0.85rem;
+    transition: background-color 0.2s ease;
+  }
+  
+  .join-button:hover {
+    background-color: #e0a800;
+  }
+  
+  @media (max-width: 768px) {
+    .dashboard-tables {
+      flex-direction: column;
+    }
+  
+    .table-container {
+      flex: 1 1 100%;
+    }
+  }
+
+  .avg-rating {
+    color: #333;
+    font-weight: 500;
+  }
+  
+  .avg-rating .star {
+    color: #ffc107; /* Notely Gold */
+    margin-right: 0px;
+    font-size: 0.85rem;
+    vertical-align: center;
+  }
+
+  .join-button {
+    background-color: #ffc107;
+    color: #000;
+    font-weight: 600;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .join-button:hover {
+    background-color: #e6ac00;
+  }
+
+  /* Match button height to text */
+.join-button {
+  padding: 4px 12px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  height: 32px;
+  vertical-align: middle;
+  background-color: #ffc107;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notely-table tr {
+  height: 48px;
+}
+
+.notely-table td {
+  vertical-align: middle;
+  height: 35px;
+}
+
+.notely-table td {
+  vertical-align: middle;
+  padding: 8px 12px;
+}
+
+.join-button {
+  font-family: inherit;
+}
+
+.feedback-link {
+  text-decoration: none;
+  color: inherit;
+  font-weight: bold;
+}
+
+.feedback-link:hover {
+  color: #8551E6; /* Notely gold */
+}
+
+.chart-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.chart-link:hover {
+  color: #8551E6; /* Notely Gold on hover */
+}

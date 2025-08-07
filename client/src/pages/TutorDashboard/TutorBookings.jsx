@@ -44,7 +44,8 @@ export default function TutorBookings() {
             time: formattedTime,
             status: bookingDateTime > now ? "Upcoming" : "Completed",
             feedback_given: booking.feedback_given === 1,
-            canLeaveFeedback: bookingDateTime < now && booking.feedback_given === 0,
+            canLeaveFeedback:
+              bookingDateTime < now && booking.feedback_given === 0,
             canJoin:
               bookingDateTime - now <= 24 * 60 * 60 * 1000 &&
               bookingDateTime > now,
@@ -52,7 +53,7 @@ export default function TutorBookings() {
               bookingDateTime > now &&
               bookingDateTime - now > 24 * 60 * 60 * 1000,
             link: booking.booking_link,
-            bookingDateTime, 
+            bookingDateTime,
           };
         });
 
@@ -118,6 +119,11 @@ export default function TutorBookings() {
           <button
             className="badge badge-red clickable"
             onClick={async () => {
+              const confirmed = window.confirm(
+                "Are you sure you want to cancel this booking? This will notify the student and cannot be undone."
+              );
+              if (!confirmed) return;
+
               try {
                 await axios.patch(
                   `http://localhost:3002/api/tutor/booking/${row.id}/cancel`,

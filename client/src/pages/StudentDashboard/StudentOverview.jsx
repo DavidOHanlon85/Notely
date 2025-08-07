@@ -67,15 +67,104 @@ export default function StudentOverview() {
         </div>
         <div className="stat-card">
           <div className="stat-card-header">Upcoming</div>
-          <div className="stat-card-body">{summary.upcomingLessons}</div>
+          <div className="stat-card-body">{summary.upcomingLessons.length}</div>
         </div>
         <div className="stat-card">
           <div className="stat-card-header">Completed</div>
           <div className="stat-card-body">{summary.completedLessons}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-card-header">Tutor Feedback</div>
+          <div className="stat-card-header">
+            <a href="/student/dashboard/feedback" className="feedback-link">
+              Tutor Feedback
+            </a>
+          </div>
           <div className="stat-card-body">{summary.feedbackGiven}</div>
+        </div>
+      </div>
+
+      {/* Tables */}
+      <div className="dashboard-tables">
+        {/* Booking Breakdown Table */}
+        <div className="table-container">
+          <h5 className="chart-title">Booking Breakdown</h5>
+          <table className="notely-table">
+            <thead>
+              <tr>
+                <th>Tutor</th>
+                <th>Lessons</th>
+                <th>Avg Rating</th>
+              </tr>
+            </thead>
+            <tbody>
+              {summary.bookingBreakdown?.map((row, idx) => (
+                <tr key={idx}>
+                  <td>{row.tutor_name}</td>
+                  <td>{row.lesson_count}</td>
+                  <td className="avg-rating">
+                    {row.avg_rating != null &&
+                    !isNaN(Number(row.avg_rating)) ? (
+                      <>
+                        <span className="star">★</span>{" "}
+                        {Number(row.avg_rating).toFixed(1)}
+                      </>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Upcoming Lessons Table */}
+        {/* Upcoming Lessons Table */}
+        <div className="table-container">
+          <h5 className="chart-title">
+            <a href="/student/dashboard/bookings" className="chart-link">
+              Upcoming Lessons
+            </a>
+          </h5>
+          <table className="notely-table">
+            <thead>
+              <tr>
+                <th>Tutor</th>
+                <th>Date</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {summary.upcomingLessons
+                ?.filter((row) => {
+                  if (!row.booking_date || !row.booking_time) return false;
+
+                  const baseDate = new Date(row.booking_date);
+                  const [hours, minutes, seconds] = row.booking_time
+                    .split(":")
+                    .map(Number);
+                  baseDate.setHours(hours, minutes, seconds || 0, 0);
+
+                  if (isNaN(baseDate.getTime())) {
+                    console.warn(
+                      "Invalid lessonStart value:",
+                      row.booking_date,
+                      row.booking_time
+                    );
+                    return false;
+                  }
+
+                  return baseDate > new Date();
+                })
+                .map((row, idx) => (
+                  <tr key={idx}>
+                    <td>{row.tutor_name}</td>
+                    <td>{row.formatted_date}</td>
+                    <td>{row.formatted_time || "-"}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -110,7 +199,11 @@ export default function StudentOverview() {
           <ResponsiveContainer width="100%" height={300}>
             <BarChart layout="vertical" data={summary.feedbackStars}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" />
+              <XAxis
+                type="number"
+                allowDecimals={false}
+                tickFormatter={(tick) => (Number.isInteger(tick) ? tick : "")}
+              />
               <YAxis type="category" dataKey="label" />
               <Tooltip
                 cursor={false}

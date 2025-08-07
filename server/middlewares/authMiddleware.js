@@ -71,18 +71,15 @@ exports.verifyAdmin = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Check if user is an admin
     if (decoded.userType !== "admin") {
       return res.status(403).json({ message: "Access denied: not an admin" });
     }
 
-    // Check if token matches the requested admin ID
-    const requestedId = parseInt(req.params.id);
-    if (decoded.admin_id !== requestedId) {
+    // Only check ID if route includes a param (e.g., /api/admin/:id)
+    if (req.params?.id && decoded.admin_id !== parseInt(req.params.id)) {
       return res.status(403).json({ message: "Access denied: ID mismatch" });
     }
 
-    // Store decoded admin info in req.user
     req.user = decoded;
     next();
   } catch (error) {

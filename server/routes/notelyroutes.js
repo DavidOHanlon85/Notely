@@ -101,9 +101,26 @@ router.post('/api/tutor/timeoff/set', verifyTutor, controller.setTimeOff);
 // Tutor Profile
 router.post('/api/tutor/stripe/connect', verifyTutor, controller.connectStripeAccount);
 
+// Admin Dashboard
+
+// Overview 
+router.get("/api/admin/me", verifyAdmin, controller.getLoggedInAdmin);
+router.get('/api/admin/overview', verifyAdmin, controller.getAdminOverview);
+
+// Tutor Table
+router.get('/api/admin/tutors', verifyAdmin, controller.getAllTutorsForAdmin);
+router.patch('/api/admin/tutor/:tutorId/verify', verifyAdmin, controller.verifyTutor);
+router.patch('/api/admin/tutor/:tutorId/revoke', verifyAdmin, controller.revokeTutor);
+router.post('/api/admin/tutor/:tutorId/stripe-reminder', verifyAdmin, controller.sendStripeReminder);
+
+// Students Table
+router.get('/api/admin/students', verifyAdmin, controller.getAllStudents);
+router.patch('/api/admin/student/:studentId/verify', verifyAdmin, controller.verifyStudent);
+router.patch('/api/admin/student/:studentId/revoke', verifyAdmin, controller.revokeStudent);
 
 // Moved below to allow tutor/overview
 router.get('/api/tutor/:id', controller.getTutorById);
+
 
 
 module.exports = router;

@@ -1221,6 +1221,231 @@ exports.getLoggedInTutor = async (req, res) => {
   }
 };
 
+// Get logged in admin from JWT
+
+exports.getLoggedInAdmin = async (req, res) => {
+  try {
+    const adminId = req.user?.admin_id;
+
+    if (!adminId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const [rows] = await conn.query(
+      `SELECT admin_id, admin_first_name, admin_last_name FROM admin WHERE admin_id = ?`,
+      [adminId]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: "Admin not found" });
+    }
+
+    res.status(200).json(rows[0]); // includes admin_id, first name, last name
+  } catch (err) {
+    console.error("Error fetching admin:", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Get information for overview table
+
+exports.getAdminOverview = async (req, res) => {
+  try {
+    const range = req.query.range || "last_month";
+
+    const getDateRange = () => {
+      const now = new Date();
+      const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0); // end of current month
+      let startDate;
+
+      switch (range) {
+        case "last_month":
+          startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+          break;
+        case "last_quarter":
+          startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+          break;
+        case "last_year":
+          startDate = new Date(now.getFullYear() - 1, now.getMonth(), 1);
+          break;
+        case "all_time":
+        default:
+          startDate = new Date("2023-01-01");
+          break;
+      }
+
+      return {
+        startDateStr: startDate.toISOString().split("T")[0],
+        endDateStr: endDate.toISOString().split("T")[0],
+      };
+    };
+
+    const { startDateStr, endDateStr } = getDateRange();
+
+    // Total Revenue
+    const [[{ totalRevenue }]] = await conn.query(
+      `
+      SELECT IFNULL(SUM(t.tutor_price), 0) AS totalRevenue
+      FROM booking b
+      JOIN tutor t ON b.tutor_id = t.tutor_id
+      WHERE b.booking_status = 2 AND b.booking_date >= ?
+    `,
+      [startDateStr]
+    );
+
+    // Total Bookings
+    const [[{ totalBookings }]] = await conn.query(
+      `
+      SELECT COUNT(*) AS totalBookings
+      FROM booking
+      WHERE booking_status = 2 AND booking_date >= ?
+    `,
+      [startDateStr]
+    );
+
+    // New Users
+    const [[{ studentCount }]] = await conn.query(
+      `SELECT COUNT(*) AS studentCount
+       FROM student
+       WHERE student_registration_date >= ?`,
+      [startDateStr]
+    );
+
+    const [[{ tutorCount }]] = await conn.query(
+      `SELECT COUNT(*) AS tutorCount
+       FROM tutor
+       WHERE tutor_registration_date >= ?`,
+      [startDateStr]
+    );
+
+    const totalUsers = studentCount + tutorCount;
+
+    // Student Growth Over Time
+    const [studentGrowth] = await conn.query(
+      `
+      SELECT DATE_FORMAT(reg_month, '%b %Y') AS month, total AS count
+      FROM (
+        SELECT DATE_FORMAT(student_registration_date, '%Y-%m-01') AS reg_month, COUNT(*) AS total
+        FROM student
+        WHERE student_registration_date >= ?
+        GROUP BY reg_month
+      ) AS sub
+      ORDER BY reg_month
+      `,
+      [startDateStr]
+    );
+
+    // Tutor Growth Over Time
+    const [tutorGrowth] = await conn.query(
+      `
+      SELECT DATE_FORMAT(reg_month, '%b %Y') AS month, total AS count
+      FROM (
+        SELECT DATE_FORMAT(tutor_registration_date, '%Y-%m-01') AS reg_month, COUNT(*) AS total
+        FROM tutor
+        WHERE tutor_registration_date >= ?
+        GROUP BY reg_month
+      ) AS sub
+      ORDER BY reg_month
+      `,
+      [startDateStr]
+    );
+
+    res.json({
+      totalRevenue,
+      tutorPayouts: totalRevenue * 0.8,
+      totalBookings,
+      totalUsers,
+      newUsers: {
+        students: studentCount,
+        tutors: tutorCount,
+      },
+      studentGrowthOverTime: studentGrowth,
+      tutorGrowthOverTime: tutorGrowth,
+    });
+  } catch (err) {
+    console.error("Error fetching admin overview:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Get Admin Tutor Table data
+
+exports.getAllTutorsForAdmin = async (req, res) => {
+  try {
+    const [rows] = await conn.query(`
+      SELECT 
+        t.tutor_id,
+        t.tutor_first_name,
+        t.tutor_second_name,
+        t.tutor_email,
+        t.tutor_phone,
+        t.tutor_city,
+        DATE_FORMAT(t.tutor_registration_date, '%d/%m/%Y') AS tutor_registration_date,
+        t.tutor_stripe_account_id,
+        t.tutor_approval_date,
+        (
+          SELECT COUNT(*) 
+          FROM booking 
+          WHERE booking.tutor_id = t.tutor_id 
+            AND booking_status = 2
+        ) AS booking_count,
+        (
+          SELECT ROUND(AVG(feedback_score), 1) 
+          FROM student_feedback 
+          WHERE tutor_id = t.tutor_id
+        ) AS average_rating
+      FROM tutor t
+      ORDER BY t.tutor_registration_date DESC
+    `);
+
+    // Format for frontend
+    const formatted = rows.map((t) => ({
+      tutor_id: t.tutor_id,
+      name: `${t.tutor_first_name} ${t.tutor_second_name}`,
+      tutor_email: t.tutor_email,
+      tutor_phone: t.tutor_phone,
+      tutor_city: t.tutor_city,
+      tutor_registration_date: t.tutor_registration_date,
+      tutor_stripe_account_id: t.tutor_stripe_account_id,
+      tutor_approval_date: t.tutor_approval_date,
+      booking_count: t.booking_count,
+      average_rating: t.average_rating,
+    }));
+
+    res.json(formatted);
+  } catch (err) {
+    console.error("Error fetching tutor list for admin:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Get Admin Student Table Data
+
+// controllers/adminController.js
+
+exports.getAllStudents = async (req, res) => {
+  try {
+    const [rows] = await conn.query(`
+      SELECT 
+        student_id,
+        CONCAT(student_first_name, ' ', student_last_name) AS name,
+        student_email,
+        student_phone,
+        student_registration_date,
+        student_verification_date
+      FROM student
+    `);
+
+    res.json(rows);
+  } catch (err) {
+    console.error("Error fetching students:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+
+
 // POST requests
 
 // Creates a booking for a student
@@ -3232,7 +3457,9 @@ exports.connectStripeAccount = async (req, res) => {
     );
 
     if (tutor_stripe_account_id) {
-      return res.status(400).json({ message: "Stripe account already connected." });
+      return res
+        .status(400)
+        .json({ message: "Stripe account already connected." });
     }
 
     // Create Stripe Express account
@@ -3264,5 +3491,118 @@ exports.connectStripeAccount = async (req, res) => {
   } catch (err) {
     console.error("Stripe Connect error:", err);
     res.status(500).json({ error: "Stripe connection failed." });
+  }
+};
+
+// Admin Verify Tutor
+
+exports.verifyTutor = async (req, res) => {
+  const { tutorId } = req.params;
+
+  try {
+    const [result] = await conn.query(
+      `UPDATE tutor SET tutor_approval_date = NOW() WHERE tutor_id = ?`,
+      [tutorId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Tutor not found" });
+    }
+
+    res.json({ message: "Tutor verified." });
+  } catch (err) {
+    console.error("Error verifying tutor:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Admin Revoke Tutor
+
+exports.revokeTutor = async (req, res) => {
+  const { tutorId } = req.params;
+
+  try {
+    const [result] = await conn.query(
+      `UPDATE tutor SET tutor_approval_date = NULL WHERE tutor_id = ?`,
+      [tutorId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Tutor not found" });
+    }
+
+    res.json({ message: "Tutor verification revoked." });
+  } catch (err) {
+    console.error("Error revoking tutor:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Admin Send Stripe Reminder
+
+exports.sendStripeReminder = async (req, res) => {
+  const { tutorId } = req.params;
+
+  try {
+    const [[tutor]] = await conn.query(
+      `SELECT tutor_email, tutor_first_name FROM tutor WHERE tutor_id = ?`,
+      [tutorId]
+    );
+
+    if (!tutor) {
+      return res.status(404).json({ error: "Tutor not found" });
+    }
+
+    await sendEmail({
+      to: tutor.tutor_email,
+      subject: "Reminder: Connect Your Stripe Account",
+      html: `
+      <p>Hi ${tutor.tutor_first_name},</p>
+      <p>This is a quick reminder to connect your Stripe account so you can get paid for your lessons on Notely.</p>
+      <p>If you’ve already connected, you can ignore this message. Otherwise, please log in to your tutor dashboard and click “Connect to Stripe.”</p>
+      <p>Thanks,<br/>The Notely Team</p>
+      `
+    });
+
+    res.json({ message: "Reminder email sent." });
+  } catch (err) {
+    console.error("Error sending Stripe reminder:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Admin Verify Student
+
+exports.verifyStudent = async (req, res) => {
+  const { studentId } = req.params;
+  try {
+    await conn.query(`
+      UPDATE student
+      SET student_verification_date = NOW()
+      WHERE student_id = ?
+    `, [studentId]);
+
+    res.json({ message: "Student verified." });
+  } catch (err) {
+    console.error("Error verifying student:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Admin Revoke Student
+
+exports.revokeStudent = async (req, res) => {
+  const { studentId } = req.params;
+  try {
+    await conn.query(`
+      UPDATE student
+      SET student_verification_date = NULL
+      WHERE student_id = ?
+    `, [studentId]);
+
+    res.json({ message: "Student verification revoked." });
+  } catch (err) {
+    console.error("Error revoking student verification:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

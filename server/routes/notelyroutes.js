@@ -7,6 +7,7 @@ const path = require("path");
 const { registerLimiter, authLimiter, loginLimiter } = require('../middlewares/rateLimiter')
 const { verifyStudent, verifyTutor, verifyAdmin, verifyUser } = require('../middlewares/authMiddleware')
 const upload = require('../utils/multerConfig');
+const uploadDocs = require('../utils/multerDocs');
 const controller = require('./../controllers/notelycontrollers');
 
 router.get('/users', controller.users);
@@ -125,6 +126,20 @@ router.get('/api/tutor/:id', controller.getTutorById);
 
 router.get('/api/booking/:booking_id', verifyUser, controller.getBookingById);
 
+// Verifcation Documentation Routes
 
+// List files
+router.get('/api/tutor/verification/files', verifyTutor, controller.getTutorVerificationDocs);
+
+// Upload files
+router.post('/api/tutor/verification/upload', verifyTutor,
+  uploadDocs.fields([
+    { name: "dbs", maxCount: 3 },
+    { name: "qualified", maxCount: 3 },
+    { name: "sen", maxCount: 3 },
+  ]), controller.uploadTutorVerificationDocs);
+
+// Optional delete
+router.delete('/api/tutor/verification/file/:filename', verifyTutor, controller.deleteTutorVerificationDoc);
 
 module.exports = router;

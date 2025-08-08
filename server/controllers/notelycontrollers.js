@@ -6,6 +6,8 @@ const stripe = require("./../lib/stripe");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const sendEmail = require("../utils/email");
+const path = require("path");
+const fs = require("fs");
 
 // GET requests
 
@@ -3699,5 +3701,63 @@ exports.revokeStudent = async (req, res) => {
   } catch (err) {
     console.error("Error revoking student verification:", err);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Verfication Documents Routes
+
+exports.getTutorVerificationDocs = async (req, res) => {
+  try {
+    const tutorId = req.user.tutor_id;
+    const base = path.join(__dirname, "..", "uploads", "verification", `tutor_${tutorId}`);
+
+    if (!fs.existsSync(base)) return res.json({ files: [] });
+
+    const files = fs.readdirSync(base).map((name) => ({
+      name,
+      url: `/uploads/verification/tutor_${tutorId}/${encodeURIComponent(name)}`,
+    }));
+
+    res.json({ files });
+  } catch (err) {
+    console.error("getTutorVerificationDocs error:", err);
+    res.status(500).json({ message: "Failed to read files" });
+  }
+};
+
+exports.uploadTutorVerificationDocs = async (req, res) => {
+  try {
+    // Multer has already saved files to disk at this point
+    const payload = [];
+    ["dbs", "qualified", "sen"].forEach((k) => {
+      (req.files?.[k] || []).forEach((f) => {
+        payload.push({
+          field: k,
+          filename: f.filename,
+          mimetype: f.mimetype,
+          size: f.size,
+        });
+      });
+    });
+
+    res.json({ success: true, files: payload });
+  } catch (err) {
+    console.error("uploadTutorVerificationDocs error:", err);
+    res.status(500).json({ message: "Upload failed" });
+  }
+};
+
+// Optional MVP delete
+exports.deleteTutorVerificationDoc = async (req, res) => {
+  try {
+    const tutorId = req.user.tutor_id;
+    const filename = req.params.filename;
+    const full = path.join(__dirname, "..", "uploads", "verification", `tutor_${tutorId}`, filename);
+
+    if (fs.existsSync(full)) fs.unlinkSync(full);
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("deleteTutorVerificationDoc error:", err);
+    res.status(500).json({ message: "Delete failed" });
   }
 };

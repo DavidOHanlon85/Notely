@@ -34,7 +34,7 @@ export default function TutorDashboardLayout() {
       console.error("Logout failed:", err);
     }
   };
-  /*
+  
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -49,7 +49,7 @@ export default function TutorDashboardLayout() {
 
     checkAuth();
   }, []);
-  */
+  
 
   return (
     <div className="tutor-wrapper d-flex flex-grow-1">

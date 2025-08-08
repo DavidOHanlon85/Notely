@@ -54,6 +54,7 @@ import AdminStudents from './pages/AdminDashboard/AdminStudents.jsx';
 import AdminTutors from './pages/AdminDashboard/AdminTutors.jsx';
 import JoinPage from './pages/JoinPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
+import TutorHomePage from './pages/TutorHomePage.jsx';
 
 
 
@@ -215,6 +216,10 @@ const router = createBrowserRouter([
   {
     path: '/join/:booking_id',
     element: <JoinPage />
+  },
+  {
+    path: '/home/tutor',
+    element: <TutorHomePage />
   },
   {
     path: '*',

@@ -1,0 +1,37 @@
+/* Scoped to .tutor-features to avoid leakage */
+.tutor-features {
+    --notely-purple: #8551E6;
+    --notely-gold: #F7B52D;
+  }
+  
+  /* Purple CTA */
+  .tutor-features .btn-notely-purple {
+    background-color: var(--notely-purple);
+    color: #ffffff;
+    font-weight: 600;
+    border: 2px solid var(--notely-purple);
+    border-radius: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    text-decoration: none;
+    transition: filter 0.2s ease;
+  }
+  .tutor-features .btn-notely-purple:hover {
+    filter: brightness(0.95);
+  }
+  
+  /* Feature icons */
+  .tutor-features .feature-icon-small {
+    width: 50px;
+    height: 50px;
+    background:#8551E6;
+  }
+  
+  .tutor-features .feature-icon {
+    width: 30px;
+    height: 30px;
+  }
+  
+  /* Keep card copy roughly the same visual height */
+  .tutor-features .tutor-feature p {
+    min-height: 3.4em; /* ~2 lines at normal size; adjust if needed */
+  }

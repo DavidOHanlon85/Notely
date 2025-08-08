@@ -1,0 +1,31 @@
+.tutor-journey {
+    --notely-gold: #f7b52d;
+    --ink: #202c33;
+  }
+  
+  .tutor-journey .step-img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #8551E6;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+  }
+  
+  .tutor-journey .step-img:hover {
+    transform: scale(1.05);
+  }
+  
+  .tutor-journey h5 {
+    font-family: "Poppins", sans-serif;
+    font-size: 1.25rem;
+    color: #8551E6;
+  }
+  
+  .tutor-journey p {
+    color: #555;
+    font-size: 0.95rem;
+    max-width: 280px;
+    margin: 0 auto;
+  }

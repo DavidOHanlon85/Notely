@@ -102,7 +102,12 @@ export default function StudentBookings() {
       name: "Join",
       cell: (row) =>
         row.canJoin ? (
-          <a href={row.link} className="badge badge-purple clickable">
+          <a
+            href={`/join/${row.id}`}
+            className="badge badge-purple clickable"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Join Class
           </a>
         ) : (
@@ -120,7 +125,7 @@ export default function StudentBookings() {
                 "Are you sure you want to cancel this booking? This cannot be undone."
               );
               if (!confirmed) return;
-            
+
               try {
                 await axios.patch(
                   `http://localhost:3002/api/booking/${row.id}/cancel`,

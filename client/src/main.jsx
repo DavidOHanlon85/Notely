@@ -53,6 +53,7 @@ import AdminDashboardLayout from './pages/AdminDashboard/AdminDashboardLayout.js
 import AdminOverview from './pages/AdminDashboard/AdminOverview.jsx';
 import AdminStudents from './pages/AdminDashboard/AdminStudents.jsx';
 import AdminTutors from './pages/AdminDashboard/AdminTutors.jsx';
+import JoinPage from './pages/JoinPage.jsx';
 
 
 
@@ -210,6 +211,10 @@ const router = createBrowserRouter([
       { path: 'tutors', element: <AdminTutors /> },
       { path: 'students', element: <AdminStudents /> },
     ]
+  },
+  {
+    path: '/join/:booking_id',
+    element: <JoinPage />
   },
 ]);
 

@@ -12,7 +12,6 @@ import App from './App.jsx'
 // Imported pages
 import HomePage from './pages/HomePage.jsx'
 import Profiles from './pages/Profiles.jsx';
-import NotFoundPage from './pages/NotFoundPage.jsx';
 import ProfilesPage from './pages/ProfilesPage.jsx';
 import SearchPage from './pages/SearchPage.jsx';
 import StaticProfilePage from './pages/StaticProfilePage.jsx'
@@ -54,6 +53,7 @@ import AdminOverview from './pages/AdminDashboard/AdminOverview.jsx';
 import AdminStudents from './pages/AdminDashboard/AdminStudents.jsx';
 import AdminTutors from './pages/AdminDashboard/AdminTutors.jsx';
 import JoinPage from './pages/JoinPage.jsx';
+import NotFoundPage from './pages/NotFoundPage.jsx';
 
 
 
@@ -215,6 +215,10 @@ const router = createBrowserRouter([
   {
     path: '/join/:booking_id',
     element: <JoinPage />
+  },
+  {
+    path: '*',
+    element: <NotFoundPage />
   },
 ]);
 

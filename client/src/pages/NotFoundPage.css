@@ -1,0 +1,43 @@
+/* Keep styles local to the 404 */
+.notfound-wrap .btn svg {
+    width: 22px;
+    height: 22px;
+  }
+  
+  .notfound-wrap .btn-notely-gold,
+  .notfound-wrap .btn-notely-outline-light {
+    min-height: 48px;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+  }
+  
+  .notfound-wrap .btn-notely-outline-light {
+    background-color: #fff;
+    border: 2px solid var(--notely-gold);
+    color: var(--notely-gold);
+  }
+  
+  .notfound-wrap .btn-notely-outline-light:hover {
+    background-color: #e3a321;
+    color: #202C33;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(247, 181, 45, 0.25);
+  }
+  
+  .notfound-copy {
+    max-width: 620px;
+  }
+  
+  .notely-rectangle {
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.08));
+  }
+
+  .notfound-wrap .btn-notely-outline-light span strong {
+    color: #202C33; 
+  }
+
+  .notfound-wrap .btn-notely-outline-light:hover span strong {
+    color: #202C33;
+  }

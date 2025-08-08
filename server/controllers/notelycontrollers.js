@@ -3706,6 +3706,7 @@ exports.revokeStudent = async (req, res) => {
 
 // Verfication Documents Routes
 
+// Get uploaded documents for tutor's My Profile Page
 exports.getTutorVerificationDocs = async (req, res) => {
   try {
     const tutorId = req.user.tutor_id;
@@ -3725,6 +3726,7 @@ exports.getTutorVerificationDocs = async (req, res) => {
   }
 };
 
+// Post new documents to the Tutors Upload Folder
 exports.uploadTutorVerificationDocs = async (req, res) => {
   try {
     // Multer has already saved files to disk at this point
@@ -3747,7 +3749,7 @@ exports.uploadTutorVerificationDocs = async (req, res) => {
   }
 };
 
-// Optional MVP delete
+// Let's the tutor delete uploaded documents
 exports.deleteTutorVerificationDoc = async (req, res) => {
   try {
     const tutorId = req.user.tutor_id;

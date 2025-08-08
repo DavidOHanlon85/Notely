@@ -1,0 +1,41 @@
+/* Scope everything to avoid leakage */
+.tutor-home.tutor-home-nav-wrapper {
+    --notely-gold: #F7B52D;
+    --notely-purple: #8551E6;
+    --ink: #202C33;
+    --border: #e4e2e2;
+  }
+  
+  /* reuse your existing tokens/classes but keep this file minimal */
+  .tutor-home-border-bottom {
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .tutor-home-btn-outline {
+    color: var(--notely-purple);
+    border: 2px solid var(--notely-purple);
+    background-color: transparent;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: all 0.25s ease-in-out;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+  }
+  .tutor-home-btn-outline:hover {
+    background-color: var(--notely-purple);
+    color: #fff;
+  }
+  
+  .tutor-home-btn-primary {
+    background-color: var(--notely-purple);
+    color: #fff;
+    border: 2px solid var(--notely-purple);
+    font-weight: 600;
+    border-radius: 0.5rem;
+    transition: all 0.25s ease-in-out;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+  }
+  .tutor-home-btn-primary:hover {
+    filter: brightness(0.95);
+  }

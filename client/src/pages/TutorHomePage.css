@@ -1,0 +1,137 @@
+/* Scoped to .tutor-home to avoid leakage */
+.tutor-home {
+    --notely-gold: #F7B52D;
+    --notely-purple: #8551E6;
+    --ink: #202C33;
+    --muted: #666;
+    --card: #ffffff;
+    --border: #e4e2e2;
+  }
+  
+  /* Borders */
+  .tutor-home-border-bottom {
+    border-bottom: 1px solid var(--border);
+  }
+  
+  /* Buttons */
+  .tutor-home-btn-outline {
+    color: var(--notely-purple);
+    border: 2px solid var(--notely-purple);
+    background-color: transparent;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: all 0.25s ease-in-out;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+  }
+  .tutor-home-btn-outline:hover {
+    background-color: var(--notely-purple);
+    color: #fff;
+  }
+  
+  .tutor-home-btn-primary {
+    background-color: var(--notely-purple);
+    color: #fff;
+    border: 2px solid var(--notely-purple);
+    font-weight: 600;
+    border-radius: 0.5rem;
+    transition: all 0.25s ease-in-out;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+  }
+  .tutor-home-btn-primary:hover {
+    filter: brightness(0.95);
+  }
+  
+  .tutor-home-btn-gold {
+    background-color: var(--notely-gold);
+    color: var(--ink);
+    font-weight: 700;
+    border: none;
+    padding: 0.65rem 1.25rem;
+    border-radius: 0.6rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    text-decoration: none;
+  }
+  .tutor-home-btn-gold:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(247, 181, 45, 0.25);
+  }
+  
+  /* Hero */
+  .tutor-home-hero {
+    background: linear-gradient(180deg, #f9f7ff 0%, #ffffff 100%);
+  }
+  .tutor-home-heading {
+    color: var(--ink);
+  }
+  .tutor-home-lead {
+    color: #333;
+  }
+  .tutor-home-subnote {
+    color: var(--muted);
+  }
+  
+  /* Section titles */
+  .tutor-home-section-title {
+    font-weight: 700;
+    color: var(--ink);
+  }
+  
+  /* Copy */
+  .tutor-home-subheading {
+    color: var(--ink);
+  }
+  .tutor-home-copy {
+    color: #333;
+    max-width: 560px;
+  }
+  .tutor-home-copy-small {
+    color: #555;
+    margin: 0;
+  }
+  
+  /* Features */
+  .tutor-home-feature-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: rgba(133, 81, 230, 0.12);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tutor-home-feature-dot {
+    width: 10px;
+    height: 10px;
+    background: var(--notely-purple);
+    border-radius: 50%;
+  }
+  
+  /* Journey */
+  .tutor-home-journey {
+    background: #fff;
+    padding: 0 0 2rem 0;
+  }
+  .tutor-home-divider {
+    width: 80px;
+    height: 2px;
+    background: var(--border);
+    border: none;
+    opacity: 0.5;
+  }
+  .tutor-home-step-img {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    object-fit: cover;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  /* Small tweaks */
+  .tutor-home .display-5 {
+    font-weight: 700;
+  }

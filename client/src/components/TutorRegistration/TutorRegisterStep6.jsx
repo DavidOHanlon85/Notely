@@ -71,7 +71,17 @@ export default function TutorRegisterStep6({
       style={{ maxWidth: "700px" }}
     >
       <div className="card p-4 mt-4">
-        <h2 className="h5 mb-3">Availability</h2>
+        <h2 className="h5 mb-3 d-flex align-items-center gap-2">
+          Availability
+          <i
+            className="bi bi-info-circle-fill text-muted"
+            data-hint="Morning: 07:00 - 11:00
+                      Afternoon: 12:00 - 14:00
+                      After School: 15:00 - 17:00
+                      Evening: 18:00 - 22:00"
+            style={{ cursor: "help", fontSize: "1rem" }}
+          ></i>
+        </h2>
         {formErrors.availability && (
           <div className="text-danger mb-3">{formErrors.availability}</div>
         )}
@@ -110,6 +120,12 @@ export default function TutorRegisterStep6({
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Right-aligned note */}
+        <div className="text-end small text-muted mt-2">
+          Availability can be fully customised via your <strong>Profile</strong>{" "}
+          settings.
         </div>
       </div>
 

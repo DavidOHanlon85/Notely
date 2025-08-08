@@ -18,7 +18,7 @@ import heroImageStep1 from "../../assets/images/LoginAndRegistration/StudentLogi
 import heroImageStep2 from "../../assets/images/LoginAndRegistration/StudentRegistration.jpg";
 import heroImageStep3 from "../../assets/images/LoginAndRegistration/StudentForgotPassword.jpg";
 import heroImageStep4 from "../../assets/images/LoginAndRegistration/StudentResetPassword.jpg";
-import heroImageStep5 from "../../assets/images/LoginAndRegistration/Test3.jpg";
+import heroImageStep5 from "../../assets/images/LoginAndRegistration/StudentRegistration.jpg";
 import heroImageStep6 from "../../assets/images/LoginAndRegistration/Test4.jpg";
 import heroImageStep7 from "../../assets/images/LoginAndRegistration/StudentLogin.jpg";
 
@@ -178,7 +178,10 @@ export default function TutorRegistrationPage() {
             totalSteps={totalSteps}
             onStepClick={handleStepClick}
           />
+          {/* Left in as alternative to Step Indicators
           <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
+          */}
+
 
           {/* Current step form */}
           {StepComponent}

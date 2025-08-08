@@ -88,4 +88,32 @@ exports.verifyAdmin = (req, res, next) => {
   }
 };
 
+// Middleware to verify that students and tutors before entering a class
+
+exports.verifyUser = (req, res, next) => {
+  console.log("Cookies received in admin middleware:", req.cookies);
+
+  const token =
+    req.cookies.token || // student token
+    req.cookies.tutor_token; // tutor token
+
+  if (!token) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.userType !== "student" && decoded.userType !== "tutor") {
+      return res.status(403).json({ message: "Access denied: not a student or tutor" });
+    }
+
+    req.user = decoded; // You’ll now have userType + student_id/tutor_id in req.user
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
+};
+
+
 

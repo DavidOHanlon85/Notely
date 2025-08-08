@@ -5,7 +5,7 @@ const router = express.Router();
 const multer = require("multer");
 const path = require("path");
 const { registerLimiter, authLimiter, loginLimiter } = require('../middlewares/rateLimiter')
-const{ verifyStudent, verifyTutor, verifyAdmin, } = require('../middlewares/authMiddleware')
+const { verifyStudent, verifyTutor, verifyAdmin, verifyUser } = require('../middlewares/authMiddleware')
 const upload = require('../utils/multerConfig');
 const controller = require('./../controllers/notelycontrollers');
 
@@ -120,6 +120,10 @@ router.patch('/api/admin/student/:studentId/revoke', verifyAdmin, controller.rev
 
 // Moved below to allow tutor/overview
 router.get('/api/tutor/:id', controller.getTutorById);
+
+// Jitsu Video Calls
+
+router.get('/api/booking/:booking_id', verifyUser, controller.getBookingById);
 
 
 

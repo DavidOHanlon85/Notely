@@ -105,7 +105,12 @@ export default function TutorBookings() {
       name: "Join",
       cell: (row) =>
         row.canJoin ? (
-          <a href={row.link} className="badge badge-purple clickable">
+          <a
+            href={`/join/${row.id}`}
+            className="badge badge-purple clickable"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Join Class
           </a>
         ) : (

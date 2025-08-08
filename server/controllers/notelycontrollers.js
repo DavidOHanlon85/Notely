@@ -1461,8 +1461,6 @@ exports.getAllTutorsForAdmin = async (req, res) => {
 
 // Get Admin Student Table Data
 
-// controllers/adminController.js
-
 exports.getAllStudents = async (req, res) => {
   try {
     const [rows] = await conn.query(`
@@ -1480,6 +1478,60 @@ exports.getAllStudents = async (req, res) => {
   } catch (err) {
     console.error("Error fetching students:", err);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Get booking by id
+
+exports.getBookingById = async (req, res) => {
+  const { booking_id } = req.params;
+  const userId = req.user?.id;
+  const userRole = req.user?.role; // 'student' or 'tutor'
+
+  try {
+    const [results] = await conn.query(
+      `
+      SELECT 
+        b.booking_id,
+        b.booking_date,
+        b.booking_time,
+        s.student_first_name AS student_name,
+        t.tutor_first_name AS tutor_name,
+        b.student_id,
+        b.tutor_id
+      FROM booking b
+      JOIN student s ON b.student_id = s.student_id
+      JOIN tutor t ON b.tutor_id = t.tutor_id
+      WHERE b.booking_id = ?
+      `,
+      [booking_id]
+    );
+
+    const booking = results[0];
+
+    if (!booking) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+
+    // Authorisation: allow only student or tutor on this booking
+    if (
+      (userRole === 'student' && booking.student_id !== userId) ||
+      (userRole === 'tutor' && booking.tutor_id !== userId)
+    ) {
+      return res.status(403).json({ error: "Unauthorized access to this booking" });
+    }
+
+    // Dynamically inject booking_link
+    booking.booking_link = `https://meet.jit.si/notely-class-${booking_id}`;
+
+    // trip internal IDs if you want
+    delete booking.student_id;
+    delete booking.tutor_id;
+
+    return res.json(booking);
+  } catch (err) {
+    console.error("Error fetching booking:", err);
+    return res.status(500).json({ error: "Server error" });
   }
 };
 

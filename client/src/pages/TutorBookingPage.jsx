@@ -118,7 +118,7 @@ export default function TutorBookingPage() {
   };
 
   {
-    /* Confirming Booking */
+    /* Confirming Booking - Removed to allow Stripe web hook - maintained as fallback*/
   }
 
 /*   const handleConfirmBooking = async () => {

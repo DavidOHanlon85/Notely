@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from 'axios';
+import axios from "axios";
 
 export default function TutorRegisterStep3({
   formData,
@@ -157,7 +157,16 @@ export default function TutorRegisterStep3({
 
       {/* Level Checkboxes */}
       <div className="mb-4">
-        <label className="form-label">Level(s) You're Happy to Teach</label>
+        <label className="form-label d-flex align-items-center gap-2">
+          Level(s) You're Happy to Teach
+          <i
+            className="bi bi-info-circle-fill text-muted"
+            data-hint="Beginner: Grade 1 - Grade 3. 
+            Intermediate: Grade 4 - Grade 5 
+            Advanced: High technical skill - Grades 6 – Grade 8 / Professional Performance."
+            style={{ cursor: "help", fontSize: "1rem" }}
+          ></i>
+        </label>
         <div className="d-flex gap-3 flex-wrap">
           {[
             { label: "Beginner", value: "0" },
@@ -271,8 +280,21 @@ export default function TutorRegisterStep3({
         ))}
       </div>
 
+      <div
+        className="alert alert-warning mt-3"
+        role="alert"
+        style={{ fontSize: "0.85rem", lineHeight: "1.3", textAlign: "justify", backgroundColor: "#c09be7", border: "none", color: "white", padding: "0.75rem 1rem" }}
+      >
+        <strong>Verification requirement: </strong>
+        If you select <em>Yes</em> for <strong>DBS Checked</strong>,{" "}
+        <strong>Qualified Teacher</strong> or <strong>SEN Experience</strong>,
+        you must upload supporting evidence in your <strong>Profile</strong>{" "}
+        section of the dashboard to facilitate verification and account
+        activation.
+      </div>
+
       {/* Price Input */}
-      <div className="mb-3 mt-4">
+      <div className="mb-3 mt-3">
         <label className="form-label">Price per Hour (£)</label>
         <div className="input-group notely-input-group">
           {notelyIconWrapper("bi-cash-coin")}

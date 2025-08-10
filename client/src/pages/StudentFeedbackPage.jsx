@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import DoubleButtonNavBar from "../components/DoubleButtonNavBar";
-import SocialsFooter from "../components/SocialsFooter";
+import DoubleButtonNavBar from "../components/UI/DoubleButtonNavBar";
+import SocialsFooter from "../components/UI/SocialsFooter";
 import NotelyRectangle from "../assets/images/NotelyRectangle.png";
 
 export default function LeaveFeedbackPage() {

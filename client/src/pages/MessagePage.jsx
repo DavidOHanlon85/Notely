@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import DoubleNavBar from "../components/DoubleButtonNavBar";
+import DoubleNavBar from "../components/UI/DoubleButtonNavBar";
 import "./MessagePage.css";
 
 export default function MessagePage() {

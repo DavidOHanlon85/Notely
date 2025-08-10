@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import NotelyRectangle from "../assets/images/NotelyRectangle.png";
+import NotelyRectangle from "../../assets/images/NotelyRectangle.png";
 import "./SocialsFooter.css";
 
 export default function Footer() {

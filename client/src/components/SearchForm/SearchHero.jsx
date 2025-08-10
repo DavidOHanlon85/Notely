@@ -1,5 +1,5 @@
 import React from "react";
-import NotelyRectangle from "../assets/images/NotelyRectangle.png";
+import NotelyRectangle from "../../assets/images/NotelyRectangle.png";
 
 export default function SearchHero() {
   return (

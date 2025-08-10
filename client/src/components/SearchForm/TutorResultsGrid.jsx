@@ -1,5 +1,5 @@
 import React from "react";
-import TutorCard from "../TutorCard";
+import TutorCard from "./TutorCard";
 import PropTypes from "prop-types";
 
 export default function TutorResultsGrid({ tutors }) {

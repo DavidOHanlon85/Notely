@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import NotelyRectangle from "../assets/images/NotelyRectangle.png";
-import ExploreTutorsButton from "./UI/ExploreTutorsButton";
+import NotelyRectangle from "../../assets/images/NotelyRectangle.png";
+import ExploreTutorsButton from "../../components/UI/ExploreTutorsButton";
 import "./HomePageHeroSection.css";
 
 const buttons = ["Lessons", "Practice", "Grading", "Certification", "Mastery"];

@@ -1,5 +1,5 @@
 import React from "react";
-import ExploreTutorsButton from "./UI/ExploreTutorsButton";
+import ExploreTutorsButton from "../UI/ExploreTutorsButton";
 import "./HomePageFeaturesSection.css";
 
 export default function HomePageFeaturesSection() {

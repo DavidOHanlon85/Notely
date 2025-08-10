@@ -11,7 +11,7 @@ import {
   FaCommentDots,
   FaSignOutAlt,
 } from "react-icons/fa";
-import Header from "../../components/DoubleButtonNavBar";
+import Header from "../../components/UI/DoubleButtonNavBar";
 import NotelyRectangle from "../../assets/images/NotelyRectangle.png";
 
 export default function StudentDashboardLayout() {

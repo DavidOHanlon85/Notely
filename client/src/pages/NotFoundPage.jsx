@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import DoubleButtonNavBar from "../components/DoubleButtonNavBar";
-import SocialsFooter from "../components/SocialsFooter";
+import DoubleButtonNavBar from "../components/UI/DoubleButtonNavBar";
+import SocialsFooter from "../components/UI/SocialsFooter";
 import NotelyRectangle from "../assets/images/NotelyRectangle.png";
 import "./NotFoundPage.css";
 import axios from "axios";

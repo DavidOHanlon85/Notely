@@ -1,6 +1,6 @@
 import React from "react";
-import DoubleButtonNavBar from "../components/DoubleButtonNavBar";
-import SocialsFooter from "../components/SocialsFooter";
+import DoubleButtonNavBar from "../components/UI/DoubleButtonNavBar";
+import SocialsFooter from "../components/UI/SocialsFooter";
 import "./StaticProfilePage.css";
 
 export default function StaticProfilePage() {

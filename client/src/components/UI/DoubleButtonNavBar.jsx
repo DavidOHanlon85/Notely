@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import NotelyRectangle from "../assets/images/NotelyRectangle.png";
+import NotelyRectangle from "../../assets/images/NotelyRectangle.png";
 import "./DoubleButtonNavBar.css";
 import axios from "axios";
 

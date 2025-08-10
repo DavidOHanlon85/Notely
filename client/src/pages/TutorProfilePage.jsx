@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { data, useParams } from "react-router-dom";
+import { data, useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import DoubleButtonNavBar from "../components/DoubleButtonNavBar";
 import SocialsFooter from "../components/SocialsFooter";
 import "./StaticProfilePage.css";
 
 export default function StaticProfilePage() {
+
+  const navigate = useNavigate();
+
   {
     /* Helper Method to formatAvailability */
   }
@@ -36,21 +39,27 @@ export default function StaticProfilePage() {
   useEffect(() => {
     const fetchTutor = async () => {
       try {
-        const response = await axios.get(`http://localhost:3002/api/tutor/${id}`, {
-          params: {
-            feedbackLimit: 5,
-            feedbackPage: 1,
-            sort: "newest",
-          },
-        });
-  
+        const response = await axios.get(
+          `http://localhost:3002/api/tutor/${id}`,
+          {
+            params: {
+              feedbackLimit: 5,
+              feedbackPage: 1,
+              sort: "newest",
+            },
+          }
+        );
+
         console.log("Tutor profile response:", response.data);
         setTutor(response.data);
       } catch (error) {
-        console.error("Error fetching tutor profile:", error.response?.data || error.message);
+        console.error(
+          "Error fetching tutor profile:",
+          error.response?.data || error.message
+        );
       }
     };
-  
+
     if (id) fetchTutor();
   }, [id]);
 
@@ -91,7 +100,14 @@ export default function StaticProfilePage() {
               {/* Information Section */}
               <div className="col-md-8 d-flex flex-column justify-content-between">
                 <div>
-                  <h1 className="h3 text-md-start text-center">{fullName}</h1>
+                  <h1 className="h3 text-md-start text-center">
+                    <Link
+                      to={`/tutor/${tutor.tutor_id}`}
+                      className="text-decoration-none text-dark"
+                    >
+                      {fullName}
+                    </Link>
+                  </h1>
                   {instruments.map((inst, index) => (
                     <span key={index} className="badge bg-secondary mb-2 me-1">
                       {inst}
@@ -120,9 +136,21 @@ export default function StaticProfilePage() {
                   {/* Stats */}
                   <ul className="list-unstyled mb-3">
                     <li>
-                      <i className="bi bi-star-fill svg-icon"></i>
-                      <strong> {tutor.stats.avg_rating || "N/A"}</strong> (
-                      {tutor.stats.review_count} reviews)
+                      <Link
+                        to={`/feedback/${tutor.tutor_id}`}
+                        className="text-decoration-none text-dark d-flex align-items-center"
+                      >
+                        <i
+                          className="bi bi-star-fill"
+                          style={{
+                            fontSize: "1.3rem",
+                            color: "#F7B52D",
+                            marginRight: "12px",
+                          }}
+                        ></i>
+                        <strong> {tutor.stats.avg_rating || "N/A"} </strong> (
+                        {tutor.stats.review_count} reviews)
+                      </Link>
                     </li>
                     <li>
                       <i className="bi bi-clock-fill svg-icon"></i>{" "}
@@ -137,10 +165,18 @@ export default function StaticProfilePage() {
 
                 {/* CTAs */}
                 <div className="d-flex gap-2">
-                  <button className="btn btn-notely-gold fw-bold">
+                  <button
+                    className="btn btn-notely-gold fw-bold"
+                    onClick={() => navigate(`/booking/${tutor.tutor_id}`)}
+                  >
                     Book Now
                   </button>
-                  <button className="btn btn-notely-outline-gold">
+                  <button
+                    className="btn btn-notely-outline-gold"
+                    onClick={() =>
+                      navigate(`/student/messages/${tutor.tutor_id}`)
+                    }
+                  >
                     Message
                   </button>
                 </div>
@@ -340,10 +376,6 @@ export default function StaticProfilePage() {
       <div className="mt-4">
         <SocialsFooter />
       </div>
-
-
-
-      
     </div>
   );
 }

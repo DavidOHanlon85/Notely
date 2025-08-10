@@ -44,14 +44,11 @@ export default function TutorCard({ tutor }) {
       </p>
 
       <div className="d-flex flex-wrap gap-2 mt-0 mb-1">
-
         {/* Stats badges */}
         <span className="badge bg-light text-dark">
           <i className="bi bi-star-fill text-warning me-1"></i>
           <strong>{tutor.avg_rating || "N/A"}</strong> (
           {tutor.review_count || 0} reviews)
-        
-        
           <i className="bi bi-clock-fill ms-3 me-1 clock-colour"></i>
           {tutor.years_experience || 0}+ yrs experience
         </span>
@@ -81,9 +78,14 @@ export default function TutorCard({ tutor }) {
         <strong className="fs-5">
           £{Number.isFinite(tutor.tutor_price) ? tutor.tutor_price : "—"}/hr
         </strong>
-        <button className="btn btn-notely-gold btn-sm rounded-pill">
-          Book Now
-        </button>
+        <Link
+          to={`/booking/${tutor.tutor_id}`}
+          style={{ textDecoration: "none" }}
+        >
+          <button className="btn btn-notely-gold btn-sm rounded-pill">
+            Book Now
+          </button>
+        </Link>
       </div>
     </div>
   );

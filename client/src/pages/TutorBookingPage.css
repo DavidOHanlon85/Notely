@@ -121,3 +121,8 @@
       width: 20%; /* Large screens: 5 per row */
     }
   }
+
+  .svg-icon-2{
+    size: 2rem;
+    color: #F7B52D;
+  }

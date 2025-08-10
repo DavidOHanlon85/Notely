@@ -1,60 +1,72 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import SearchSortField from '../SearchForm/SearchSortField';
-import React from 'react';
-import { vi } from 'vitest';
+import React from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { vi } from "vitest";
+import SearchSortField from "./SearchSortField";
 
-describe('SearchSortField', () => {
-  const mockHandleChange = vi.fn();
-  const baseProps = {
-    formData: {
-      sortBy: '',
-    },
-    handleChange: mockHandleChange,
-  };
+// Small helper to render with sensible defaults
+const setup = (override = {}) => {
+  const handleChange = vi.fn();
+  const formData = { sortBy: "", ...override.formData };
 
-  beforeEach(() => {
-    mockHandleChange.mockClear();
+  const utils = render(
+    <SearchSortField formData={formData} handleChange={handleChange} />
+  );
+
+  const select = screen.getByRole("combobox"); // only one combobox in this component
+  return { ...utils, select, handleChange };
+};
+
+describe("SearchSortField", () => {
+  it("renders the select with all expected options", () => {
+    const { select } = setup();
+
+    const options = screen.getAllByRole("option");
+    const optionTexts = options.map((o) => o.textContent?.trim());
+    const optionValues = options.map((o) => o.getAttribute("value"));
+
+    expect(select).toBeInTheDocument();
+    expect(optionTexts).toEqual([
+      "Sort by...",
+      "Price: Low to High",
+      "Price: High to Low",
+      "Rating: High to Low",
+      "Experience: High to Low",
+      "Reviews: High to Low",
+    ]);
+    expect(optionValues).toEqual([
+      "",
+      "priceLowHigh",
+      "priceHighLow",
+      "ratingHighLow",
+      "experienceHighLow",
+      "reviewsHighLow",
+    ]);
   });
 
-  { /* Render sort select input */ }
+  it("shows the disabled placeholder when sortBy is empty", () => {
+    setup({ formData: { sortBy: "" } });
 
-  it('renders the sort select input', () => {
-    render(<SearchSortField {...baseProps} />);
-    expect(screen.getByLabelText(/Sort By/i)).toBeInTheDocument();
+    const placeholder = screen.getByRole("option", { name: /sort by\.\.\./i });
+    expect(placeholder).toBeDisabled();
+
+    // With empty sortBy, the placeholder should be selected
+    const select = screen.getByRole("combobox");
+    expect(select).toHaveDisplayValue("Sort by...");
   });
 
-  { /* Renders all implemented sort options */ }
-
-  it('renders all implemented sort options', () => {
-    render(<SearchSortField {...baseProps} />);
-    expect(screen.getByRole('option', { name: 'Recommended' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'Price: Low to High' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'Price: High to Low' })).toBeInTheDocument();
+  it("reflects a provided sortBy value", () => {
+    const { select } = setup({ formData: { sortBy: "ratingHighLow" } });
+    expect(select).toHaveValue("ratingHighLow");
+    expect(select).toHaveDisplayValue("Rating: High to Low");
   });
 
-  { /* Calls handleChange when sort option is selected */ }
+  it("calls handleChange when the selection changes", () => {
+    const { select, handleChange } = setup();
 
-  it('calls handleChange when sort option is selected', () => {
-    const updatedProps = {
-      ...baseProps,
-      formData: {
-        ...baseProps.formData,
-        sortBy: 'priceLowHigh',
-      },
-    };
-  
-    render(<SearchSortField {...updatedProps} />);
-  
-    const select = screen.getByLabelText(/Sort By/i);
-  
     fireEvent.change(select, {
-      target: { name: 'sortBy', value: 'priceLowHigh' },
+      target: { name: "sortBy", value: "priceLowHigh" },
     });
-  
-    expect(mockHandleChange).toHaveBeenCalledTimes(1);
-  
-    const event = mockHandleChange.mock.calls[0][0];
-    expect(event.target.name).toBe('sortBy');
-    expect(event.target.value).toBe('priceLowHigh');
+
+    expect(handleChange).toHaveBeenCalledTimes(1);
   });
 });

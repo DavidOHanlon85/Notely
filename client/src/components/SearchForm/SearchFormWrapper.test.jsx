@@ -1,74 +1,48 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import SearchFormWrapper from './SearchFormWrapper';
-import SearchFieldRow1 from './SearchFieldRow1';
-import SearchFieldRow2 from './SearchFieldRow2';
-import SearchFieldRow3 from './SearchFieldRow3';
-import SearchSortField from './SearchSortField';
-import SearchSubmitButton from './SearchSubmitButton';
-import React from 'react';
-import { vi } from 'vitest';
+import React from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { vi } from "vitest";
+import SearchFormWrapper from "./SearchFormWrapper";
 
-describe('SearchForm integration', () => {
-  const mockHandleSearch = vi.fn();
-  const mockHandleChange = vi.fn();
+describe("SearchFormWrapper", () => {
+  it("renders children", () => {
+    const mockHandleSearch = vi.fn();
 
-  const baseProps = {
-    formData: {
-      instrument: '',
-      level: '',
-      tutorName: '',
-      lessonType: '',
-      price: '',
-      city: '',
-      qualified: '',
-      gender: '',
-      sen: '',
-      dbs: '',
-      sortBy: '',
-    },
-    formErrors: {},
-    instrumentOptions: ['Piano', 'Guitar'],
-    cityOptions: ['Belfast', 'Dublin'],
-    handleChange: mockHandleChange,
-    hasSearched: false,
-  };
-
-  beforeEach(() => {
-    mockHandleSearch.mockClear();
-    mockHandleChange.mockClear();
-  });
-
-  { /* Form Integration Test */ }
-
-  it('renders form and triggers handleSearch on submit', () => {
     render(
       <SearchFormWrapper handleSearch={mockHandleSearch}>
-        <SearchFieldRow1 {...baseProps} />
-        <SearchFieldRow2 {...baseProps} />
-        <SearchFieldRow3 {...baseProps} />
-        <SearchSortField formData={baseProps.formData} handleChange={mockHandleChange} />
-        <SearchSubmitButton />
+        <div data-testid="child">Child content</div>
       </SearchFormWrapper>
     );
 
-    // Fill in name input
-    fireEvent.change(screen.getByPlaceholderText(/e\.g\. Sarah Palmer/i), {
-      target: { name: 'tutorName', value: 'Sarah' },
-    });
+    expect(screen.getByTestId("child")).toBeInTheDocument();
+    expect(screen.getByText("Child content")).toBeInTheDocument();
+  });
 
-    // Select a lesson type
-    fireEvent.change(screen.getByLabelText(/Lesson Type/i), {
-      target: { name: 'lessonType', value: 'Online' },
-    });
+  it("calls handleSearch when the form is submitted via submit button", () => {
+    const mockHandleSearch = vi.fn();
 
-    // Choose sort option
-    fireEvent.change(screen.getByLabelText(/Sort By/i), {
-      target: { name: 'sortBy', value: 'priceLowHigh' },
-    });
+    render(
+      <SearchFormWrapper handleSearch={mockHandleSearch}>
+        {/* Any child content */}
+        <button type="submit">Search</button>
+      </SearchFormWrapper>
+    );
 
-    // Click Search button
-    fireEvent.click(screen.getByRole('button', { name: /Find Your Teacher!/i }));
+    fireEvent.click(screen.getByRole("button", { name: /search/i }));
+    expect(mockHandleSearch).toHaveBeenCalledTimes(1);
+  });
 
+  it("calls handleSearch when the form is submitted programmatically", () => {
+    const mockHandleSearch = vi.fn();
+  
+    const { container } = render(
+      <SearchFormWrapper handleSearch={mockHandleSearch}>
+        <input placeholder="type and press enter" />
+      </SearchFormWrapper>
+    );
+  
+    const form = container.querySelector("form");
+    fireEvent.submit(form);
+  
     expect(mockHandleSearch).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { registerLocale } from "react-datepicker";
 import enGB from "date-fns/locale/en-GB";
 import DoubleButtonNavBar from "../components/DoubleButtonNavBar";
@@ -17,8 +17,37 @@ export default function TutorBookingPage() {
   const [highlightedDates, setHighlightedDates] = useState([]);
   const [bookingNotes, setBookingNotes] = useState("");
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [studentId, setStudentId] = useState(null);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  // gate UI until we know auth status
+  const [authChecked, setAuthChecked] = useState(false);
 
   registerLocale("en-GB", enGB);
+
+  {
+    /* Require Student Login */
+  }
+
+  useEffect(() => {
+    const checkStudent = async () => {
+      try {
+        const { data: me } = await axios.get(
+          "http://localhost:3002/api/student/me",
+          {
+            withCredentials: true,
+          }
+        );
+        setStudentId(me.student_id);
+        setAuthChecked(true); // OK to proceed
+      } catch {
+        const next = encodeURIComponent(location.pathname + location.search);
+        navigate(`/student/login?next=${next}`, { replace: true });
+      }
+    };
+    checkStudent();
+  }, [navigate, location.pathname, location.search]);
 
   {
     /* Availability Information - extracted fetchAvailability to use post booking */
@@ -66,8 +95,8 @@ export default function TutorBookingPage() {
       }
     };
 
-    fetchTutor();
-  }, [id]);
+    if (authChecked) fetchTutor();
+  }, [id, authChecked]);
 
   {
     /* Calender Availability Highlights - fetchAvailableDates extracted to use after booking */
@@ -96,11 +125,12 @@ export default function TutorBookingPage() {
 
   // Run once on load or when tutor id changes
   useEffect(() => {
-    if (id) {
+    if (id && authChecked) {
       fetchAvailableDates();
     }
-  }, [id]);
+  }, [id, authChecked]);
 
+  if (!authChecked) return null; // wait for auth result first
   if (!tutor) return <div className="text-center mt-5">Loading...</div>;
 
   const fullName = `${tutor.tutor_first_name} ${tutor.tutor_second_name}`;
@@ -121,7 +151,7 @@ export default function TutorBookingPage() {
     /* Confirming Booking - Removed to allow Stripe web hook - maintained as fallback*/
   }
 
-/*   const handleConfirmBooking = async () => {
+  /*   const handleConfirmBooking = async () => {
     try {
       const response = await axios.post(
         "http://localhost:3002/api/booking/create",
@@ -147,26 +177,31 @@ export default function TutorBookingPage() {
     }
   }; */
 
-  { /* Stripe Additions */ }
+  {
+    /* Stripe Additions */
+  }
 
   const handleConfirmBooking = async () => {
     try {
-      const response = await axios.post("http://localhost:3002/api/create-checkout-session", {
-        tutor_id: parseInt(id), // from URL param
-        student_id: 1, // TEMP: Replace with actual user ID when JWT is set up
-        booking_date: selectedDate.toLocaleDateString("en-CA"), // format: YYYY-MM-DD
-        booking_time: selectedSlot,
-        booking_notes: bookingNotes.trim(),
-        return_url: window.location.href,
-      });
-  
+      const response = await axios.post(
+        "http://localhost:3002/api/create-checkout-session",
+        {
+          tutor_id: parseInt(id), // from URL param
+          student_id: studentId,
+          booking_date: selectedDate.toLocaleDateString("en-CA"), // format: YYYY-MM-DD
+          booking_time: selectedSlot,
+          booking_notes: bookingNotes.trim(),
+          return_url: window.location.href,
+        },
+        { withCredentials: true }
+      );
+
       window.location.href = response.data.url;
     } catch (err) {
       console.error("Error creating checkout session:", err);
       alert("Failed to initiate payment. Please try again.");
     }
   };
-
 
   return (
     <div className="container py-4">
@@ -196,7 +231,14 @@ export default function TutorBookingPage() {
 
               <div className="col-md-8 d-flex flex-column justify-content-between">
                 <div>
-                  <h1 className="h3 text-md-start text-center">{fullName}</h1>
+                  <h1 className="h3 text-md-start text-center">
+                    <Link
+                      to={`/tutor/${id}`}
+                      className="text-dark text-decoration-none"
+                    >
+                      {fullName}
+                    </Link>
+                  </h1>
                   {instruments.map((inst, index) => (
                     <span key={index} className="badge bg-secondary mb-2 me-1">
                       {inst}
@@ -220,11 +262,18 @@ export default function TutorBookingPage() {
                     )}
                   </div>
                   <ul className="list-unstyled mb-3">
-                    <li>
-                      <i className="bi bi-star-fill svg-icon"></i>
-                      <strong> {tutor.stats.avg_rating || "N/A"}</strong> (
-                      {tutor.stats.review_count} reviews)
-                    </li>
+                    <Link
+                      to={`/feedback/${tutor.tutor_id}`}
+                      className="text-decoration-none"
+                      style={{ color: "inherit" }}
+                    >
+                      <li>
+                        <i className="bi bi-star-fill svg-icon"
+                        style={{ fontSize: "1.3rem", color: "#F7B52D" }}></i>
+                        <strong>{tutor.stats.avg_rating || "N/A"}</strong> (
+                        {tutor.stats.review_count} reviews)
+                      </li>
+                    </Link>
                     <li>
                       <i className="bi bi-clock-fill svg-icon"></i>{" "}
                       {tutor.stats.years_experience}+ years teaching experience
@@ -236,12 +285,20 @@ export default function TutorBookingPage() {
                   </ul>
                 </div>
                 <div className="d-flex gap-2">
-                  <button className="btn btn-notely-gold fw-bold">
-                    Book Now
-                  </button>
-                  <button className="btn btn-notely-outline-gold">
-                    Message
-                  </button>
+                  <div className="d-flex gap-2">
+                    <button
+                      className="btn btn-notely-gold fw-bold"
+                      onClick={() => navigate(`/booking/${id}`)}
+                    >
+                      Book Now
+                    </button>
+                    <button
+                      className="btn btn-notely-outline-gold"
+                      onClick={() => navigate(`/student/messages/${id}`)}
+                    >
+                      Message
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

@@ -1804,7 +1804,7 @@ exports.stripeWebhook = async (req, res) => {
 
       // Email to student
       await sendEmail({
-        to: "davidohanlon85@googlemail.com", //student_email,
+        to: student_email, //student_email,
         subject: "🎵 Booking Confirmed — Your Notely Lesson",
         html: `
           <p>Hi ${student_first_name},</p>
@@ -1815,7 +1815,7 @@ exports.stripeWebhook = async (req, res) => {
 
       // Email to tutor
       await sendEmail({
-        to: "davidohanlon85@googlemail.com", //tutor_email,
+        to: tutor_email, //tutor_email,
         subject: "🎵 New Student Booking via Notely",
         html: `
           <p>Hi ${tutor_first_name},</p>

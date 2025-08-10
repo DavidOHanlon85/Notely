@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import DoubleNavBar from "../components/DoubleButtonNavBar";
 import "./MessagePage.css";
@@ -10,16 +10,37 @@ export default function MessagePage() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  const navigate = useNavigate();
 
   // Bottom scrolling in chat
 
   const bottomRef = useRef(null);
 
+  {/* Redirect if not a student */}
+
+  useEffect(() => {
+    const checkStudent = async () => {
+      try {
+        await axios.get("http://localhost:3002/api/student/me", {
+          withCredentials: true,
+        });
+        setAuthChecked(true);
+      } catch {
+        const next = encodeURIComponent(location.pathname + location.search);
+        navigate(`/student/login?next=${next}`, { replace: true });
+      }
+    };
+    checkStudent();
+  }, [navigate, location.pathname, location.search]);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  useEffect(() => {
+   useEffect(() => {
+    if (!authChecked) return;
     const fetchTutorAndMessages = async () => {
       try {
         const [tutorRes, messagesRes] = await Promise.all([
@@ -37,9 +58,8 @@ export default function MessagePage() {
         );
       }
     };
-
     fetchTutorAndMessages();
-  }, [tutorId]);
+  }, [tutorId, authChecked]);
 
   const handleSend = async () => {
     if (!newMessage.trim()) return;
@@ -102,7 +122,13 @@ export default function MessagePage() {
 
             <div className="col-md-8 d-flex flex-column justify-content-between">
               <div>
-                <h1 className="h3 text-md-start text-center">{fullName}</h1>
+                <h1
+                  className="h3 text-md-start text-center"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => navigate(`/tutor/${tutor.tutor_id}`)}
+                >
+                  {fullName}
+                </h1>
                 {instruments.map((inst, index) => (
                   <span key={index} className="badge bg-secondary mb-2 me-1">
                     {inst}
@@ -126,7 +152,10 @@ export default function MessagePage() {
                   )}
                 </div>
                 <ul className="list-unstyled mb-3">
-                  <li>
+                  <li
+                    style={{ cursor: "pointer" }}
+                    onClick={() => navigate(`/feedback/${tutor.tutor_id}`)}
+                  >
                     <i className="bi bi-star-fill svg-icon"></i>
                     <strong> {tutor.stats?.avg_rating || "N/A"}</strong> (
                     {tutor.stats?.review_count || 0} reviews)
@@ -143,10 +172,20 @@ export default function MessagePage() {
                 </ul>
               </div>
               <div className="d-flex gap-2">
-                <button className="btn btn-notely-gold fw-bold">
+                <button
+                  className="btn btn-notely-gold fw-bold"
+                  onClick={() => navigate(`/booking/${tutor.tutor_id}`)}
+                >
                   Book Now
                 </button>
-                <button className="btn btn-notely-outline-gold">Message</button>
+                <button
+                  className="btn btn-notely-outline-gold"
+                  onClick={() =>
+                    navigate(`/student/messages/${tutor.tutor_id}`)
+                  }
+                >
+                  Message
+                </button>
               </div>
             </div>
           </div>

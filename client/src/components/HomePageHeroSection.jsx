@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import NotelyRectangle from "../assets/images/NotelyRectangle.png";
 import ExploreTutorsButton from "./UI/ExploreTutorsButton";
 import "./HomePageHeroSection.css";
@@ -16,11 +17,16 @@ const instruments = [
 
 export default function HomePageHeroSection() {
   const [activeBtn, setActiveBtns] = useState([]);
+  const navigate = useNavigate();
 
   const handleButtonClick = (btn) => {
     setActiveBtns((prev) =>
       prev.includes(btn) ? prev.filter((b) => b !== btn) : [...prev, btn]
     );
+  };
+
+  const handleInstrumentClick = (instrumentName) => {
+    navigate(`/tutors?instrument=${encodeURIComponent(instrumentName)}`);
   };
 
   return (
@@ -68,8 +74,15 @@ export default function HomePageHeroSection() {
           <ExploreTutorsButton />
         </div>
 
-        <div className="pt-4">
-          <p>Only 1 in 4 tutors meet Notely's standards!</p>
+        <div className="pt-3">
+          <p style={{ fontWeight: "400", color: "#8551e6" }}>
+            <a
+              href="/home/tutor"
+              style={{ textDecoration: "none", color: "#8551e6" }}
+            >
+              Tutor? - Click here!
+            </a>
+          </p>
         </div>
 
         {/* Instrument Section */}
@@ -77,7 +90,19 @@ export default function HomePageHeroSection() {
           <div className="container">
             <div className="d-flex flex-wrap justify-content-center gap-4">
               {instruments.map((inst, index) => (
-                <div key={index} className="instrument-tile text-center">
+                <div
+                  key={index}
+                  className="instrument-tile text-center"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => handleInstrumentClick(inst.name)}
+                  onKeyDown={(e) =>
+                    (e.key === "Enter" || e.key === " ") &&
+                    handleInstrumentClick(inst.name)
+                  }
+                  style={{ cursor: "pointer" }}
+                  aria-label={`Find ${inst.name} tutors`}
+                >
                   <div className="instrument-icon-wrapper mb-2">
                     <img
                       src={inst.icon}

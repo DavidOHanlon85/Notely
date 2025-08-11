@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tooltip } from "bootstrap";
 import "./FeedbackPage.css";
-import DoubleButtonNavBar from "../components/UI/DoubleButtonNavBar";
+import DoubleButtonNavBar from "../../components/UI/DoubleButtonNavBar";
 import { FaStar } from "react-icons/fa";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
-import PaginationFeedback from "../components/FeedbackForm/PaginationFeedback";
-import SocialsFooter from "../components/UI/SocialsFooter";
+import PaginationFeedback from "../../components/FeedbackForm/PaginationFeedback";
+import SocialsFooter from "../../components/UI/SocialsFooter";
 
 export default function FeedbackPage() {
   const { id } = useParams();

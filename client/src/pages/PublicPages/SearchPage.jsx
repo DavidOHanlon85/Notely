@@ -3,26 +3,26 @@ import React, { useState, useEffect, useRef } from "react";
 {
   /* API calls and helpers */
 }
-import { validateSearchForm } from "../utils/helpers/validateSearchForm";
+import { validateSearchForm } from "../../utils/helpers/validateSearchForm";
 import {
   fetchTutors,
   fetchDistinctFields,
-} from "../services/api/tutorServices";
+} from "../../services/api/tutorServices";
 
 {
   /* Component Imports */
 }
-import SearchHero from "../components/SearchForm/SearchHero";
-import DoubleButtonNavBar from "../components/UI/DoubleButtonNavBar";
-import SearchFormWrapper from "../components/SearchForm/SearchFormWrapper";
-import SearchFieldTopRow from "../components/SearchForm/SearchFieldTopRow";
-import SearchFieldMoreFilters from "../components/SearchForm/SearchFieldMoreFilters";
-import SearchSubmitButton from "../components/SearchForm/SearchSubmitButton";
-import SearchSortField from "../components/SearchForm/SearchSortField";
-import Pagination from "../components/SearchForm/Pagination";
-import TutorResultsGrid from "../components/SearchForm/TutorResultsGrid";
-import SearchResultsHeader from "../components/SearchForm/SearchResultsHeader";
-import SocialsFooter from "../components/UI/SocialsFooter";
+import SearchHero from "../../components/SearchForm/SearchHero";
+import DoubleButtonNavBar from "../../components/UI/DoubleButtonNavBar";
+import SearchFormWrapper from "../../components/SearchForm/SearchFormWrapper";
+import SearchFieldTopRow from "../../components/SearchForm/SearchFieldTopRow";
+import SearchFieldMoreFilters from "../../components/SearchForm/SearchFieldMoreFilters";
+import SearchSubmitButton from "../../components/SearchForm/SearchSubmitButton";
+import SearchSortField from "../../components/SearchForm/SearchSortField";
+import Pagination from "../../components/SearchForm/Pagination";
+import TutorResultsGrid from "../../components/SearchForm/TutorResultsGrid";
+import SearchResultsHeader from "../../components/SearchForm/SearchResultsHeader";
+import SocialsFooter from "../../components/UI/SocialsFooter";
 
 {
   /* CSS Imports */

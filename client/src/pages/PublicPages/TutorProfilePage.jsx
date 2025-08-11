@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { data, useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import DoubleButtonNavBar from "../components/UI/DoubleButtonNavBar";
-import SocialsFooter from "../components/UI/SocialsFooter";
-import "./StaticProfilePage.css";
+import DoubleButtonNavBar from "../../components/UI/DoubleButtonNavBar";
+import SocialsFooter from "../../components/UI/SocialsFooter";
+import "./TutorProfilePage.css";
 
-export default function StaticProfilePage() {
+export default function TutorProfilePage() {
 
   const navigate = useNavigate();
 

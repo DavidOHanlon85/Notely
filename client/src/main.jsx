@@ -10,13 +10,13 @@ import './index.css'
 import App from './App.jsx'
 
 // Imported pages
-import HomePage from './pages/HomePage.jsx'
+import HomePage from './pages/PublicPages/HomePage.jsx'
 import Profiles from './pages/Profiles.jsx';
 import ProfilesPage from './pages/ProfilesPage.jsx';
-import SearchPage from './pages/SearchPage.jsx';
+import SearchPage from './pages/PublicPages/SearchPage.jsx';
 import StaticProfilePage from './pages/StaticProfilePage.jsx'
-import TutorProfilePage from './pages/TutorProfilePage.jsx'
-import FeedbackPage from './pages/FeedbackPage.jsx';
+import TutorProfilePage from './pages/PublicPages/TutorProfilePage.jsx'
+import FeedbackPage from './pages/PublicPages/FeedbackPage.jsx';
 import TutorBookingPage from './pages/TutorBookingPage.jsx';
 import BookingSuccessPage from './pages/BookingSuccessPage.jsx';
 import BookingSuccessPage2 from './pages/BookingSuccessPage2.jsx'
@@ -53,8 +53,8 @@ import AdminOverview from './pages/AdminDashboard/AdminOverview.jsx';
 import AdminStudents from './pages/AdminDashboard/AdminStudents.jsx';
 import AdminTutors from './pages/AdminDashboard/AdminTutors.jsx';
 import JoinPage from './pages/JoinPage.jsx';
-import NotFoundPage from './pages/NotFoundPage.jsx';
-import TutorHomePage from './pages/TutorHomePage.jsx';
+import NotFoundPage from './pages/PublicPages/NotFoundPage.jsx';
+import TutorHomePage from './pages/PublicPages/TutorHomePage.jsx';
 
 
 

@@ -20,7 +20,7 @@ export default function TutorBookings() {
         const now = new Date();
         const transformed = response.data.map((booking) => {
           const dateObj = new Date(booking.booking_date);
-          dateObj.setDate(dateObj.getDate() + 1); // Temporary +1 fix
+          dateObj.setDate(dateObj.getDate() + 1); 
 
           const formattedDate = dateObj
             .toISOString()

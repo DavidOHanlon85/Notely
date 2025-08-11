@@ -102,7 +102,7 @@ export default function BookingSuccessPage() {
           <div className="row justify-content-center gy-2 gx-3">
             <div className="col-12 col-sm-auto">
               <Link
-                to="/"
+                to="/student/dashboard/bookings"
                 className="btn btn-notely-gold w-100 d-inline-flex justify-content-center align-items-center gap-2"
               >
                 <span>View My Bookings</span>

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import "./BookingSuccessPage.css";
-import DoubleButtonNavBar from "../components/UI/DoubleButtonNavBar";
-import NotelyRectangle from "../assets/images/NotelyRectangle.png";
-import SocialsFooter from "../components/UI/SocialsFooter";
+import DoubleButtonNavBar from "../../components/UI/DoubleButtonNavBar";
+import NotelyRectangle from "../../assets/images/NotelyRectangle.png";
+import SocialsFooter from "../../components/UI/SocialsFooter";
 import axios from "axios";
-import { fetchTutors } from "../services/api/tutorServices";
+import { fetchTutors } from "../../services/api/tutorServices";
 
 export default function BookingSuccessPage() {
   const [searchParams] = useSearchParams();

@@ -17,6 +17,23 @@ import AdminOverview from './pages/AdminDashboard/AdminOverview.jsx';
 import AdminStudents from './pages/AdminDashboard/AdminStudents.jsx';
 import AdminTutors from './pages/AdminDashboard/AdminTutors.jsx';
 
+// Admin Login and Password Reset
+import AdminForgotPasswordPage from './pages/AdminLoginAndPasswordReset/AdminForgotPasswordPage.jsx';
+import AdminLoginPage from './pages/AdminLoginAndPasswordReset/AdminLoginPage.jsx';
+import AdminResetPasswordPage from './pages/AdminLoginAndPasswordReset/AdminResetPasswordPage.jsx';
+
+// Booking
+import BookingSuccessPage from './pages/Booking/BookingSuccessPage.jsx';
+import TutorBookingPage from './pages/Booking/TutorBookingPage.jsx';
+
+// Feedback
+import StudentFeedbackForm from './pages/Feedback/StudentFeedbackPage.jsx';
+import TutorFeedbackPage from './pages/Feedback/TutorFeedbackPage.jsx';
+
+// Messaging
+import MessagePage from './pages/Messgaing/MessagePage.jsx';
+import TutorMessagePage from './pages/Messgaing/TutorMessagePage.jsx';
+
 // Public Pages
 import FeedbackPage from './pages/PublicPages/FeedbackPage.jsx';
 import HomePage from './pages/PublicPages/HomePage.jsx'
@@ -40,7 +57,6 @@ import StudentRegistrationPage from './pages/StudentLoginRegistrationAndPassword
 import StudentResetPasswordPage from './pages/StudentLoginRegistrationAndPasswordReset/StudentResetPasswordPage.jsx';
 
 // Tutor Dashboard
-
 import TutorBookings from './pages/TutorDashboard/TutorBookings.jsx';
 import TutorDashboardLayout from './pages/TutorDashboard/TutorDashboardLayout.jsx';
 import TutorFeedback from './pages/TutorDashboard/TutorFeedback.jsx';
@@ -49,49 +65,53 @@ import TutorOverride from './pages/TutorDashboard/TutorOverride.jsx';
 import TutorOverview from './pages/TutorDashboard/TutorOverview.jsx';
 import TutorProfile from './pages/TutorDashboard/TutorProfile.jsx';
 
+// Tutor Login and Password Reset
+import TutorForgotPasswordPage from './pages/TutorLoginAndPasswordReset/TutorForgotPasswordPage.jsx';
+import TutorLoginPage from './pages/TutorLoginAndPasswordReset/TutorLoginPage.jsx';
+import TutorResetPasswordPage from './pages/TutorLoginAndPasswordReset/TutorResetPasswordPage.jsx';
+
 // Tutor Registration
 import TutorRegistrationPage from './pages/TutorRegistration/TutorRegistrationPage.jsx';
 
-
+// Video Calling
+import JoinPage from './pages/VideoCalling/JoinPage.jsx';
 
 
 
 import Profiles from './pages/Profiles.jsx';
 import ProfilesPage from './pages/ProfilesPage.jsx';
-
 import StaticProfilePage from './pages/StaticProfilePage.jsx'
 
 
-import TutorBookingPage from './pages/TutorBookingPage.jsx';
-import BookingSuccessPage from './pages/BookingSuccessPage.jsx';
 import BookingSuccessPage2 from './pages/BookingSuccessPage2.jsx'
-
-
 import DashboardDemo from './pages/DashboardDemo.jsx';
-
-
-import TutorLoginPage from './pages/TutorLoginAndPasswordReset/TutorLoginPage.jsx';
 import TutorDemoDashboard from './pages/TutorDemoDashboard.jsx';
-import TutorForgotPasswordPage from './pages/TutorLoginAndPasswordReset/TutorForgotPasswordPage.jsx';
-import TutorResetPasswordPage from './pages/TutorLoginAndPasswordReset/TutorResetPasswordPage.jsx';
-import AdminLoginPage from './pages/AdminLoginPage.jsx';
+
 import AdminDemoDashboard from './pages/AdminDemoDashboard.jsx';
-import AdminForgotPasswordPage from './pages/AdminForgotPasswordPage.jsx';
-import AdminResetPasswordPage from './pages/AdminResetPasswordPage.jsx';
-
-
-
-import TutorMessagePage from './pages/TutorMessagePage.jsx';
-
-import JoinPage from './pages/JoinPage.jsx';
 
 
 
 
-import StudentFeedbackForm from './pages/StudentFeedbackPage.jsx';
-import TutorFeedbackPage from './pages/TutorFeedbackPage.jsx'
 
-import MessagePage from './pages/MessagePage.jsx';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Creating a router
 const router = createBrowserRouter([

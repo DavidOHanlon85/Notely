@@ -70,10 +70,10 @@ import BookingSuccessPage2 from './pages/BookingSuccessPage2.jsx'
 import DashboardDemo from './pages/DashboardDemo.jsx';
 
 
-import TutorLoginPage from './pages/TutorLoginPage.jsx';
+import TutorLoginPage from './pages/TutorLoginAndPasswordReset/TutorLoginPage.jsx';
 import TutorDemoDashboard from './pages/TutorDemoDashboard.jsx';
-import TutorForgotPasswordPage from './pages/TutorForgotPasswordPage.jsx';
-import TutorResetPasswordPage from './pages/TutorResetPasswordPage.jsx';
+import TutorForgotPasswordPage from './pages/TutorLoginAndPasswordReset/TutorForgotPasswordPage.jsx';
+import TutorResetPasswordPage from './pages/TutorLoginAndPasswordReset/TutorResetPasswordPage.jsx';
 import AdminLoginPage from './pages/AdminLoginPage.jsx';
 import AdminDemoDashboard from './pages/AdminDemoDashboard.jsx';
 import AdminForgotPasswordPage from './pages/AdminForgotPasswordPage.jsx';

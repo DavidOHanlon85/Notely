@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import DoubleNavBar from "../components/UI/DoubleButtonNavBar";
-import SocialsFooter from "../components/UI/SocialsFooter";
+import DoubleNavBar from "../../components/UI/DoubleButtonNavBar";
+import SocialsFooter from "../../components/UI/SocialsFooter";
 import axios from "axios";
-import studentSilhouette from "../assets/images/Messaging/StudentPlaceholder.jpg";
+import studentSilhouette from "../../assets/images/Messaging/StudentPlaceholder.jpg";
 import "./TutorMessagePage.css";
 
 export default function TutorMessagePage() {

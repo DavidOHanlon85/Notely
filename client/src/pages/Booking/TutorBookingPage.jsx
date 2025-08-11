@@ -3,7 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { registerLocale } from "react-datepicker";
 import enGB from "date-fns/locale/en-GB";
-import DoubleButtonNavBar from "../components/UI/DoubleButtonNavBar";
+import DoubleButtonNavBar from "../../components/UI/DoubleButtonNavBar";
 import "./TutorBookingPage.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";

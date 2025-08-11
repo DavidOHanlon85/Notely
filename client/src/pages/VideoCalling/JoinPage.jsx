@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import DoubleButtonNavBar from "../components/UI/DoubleButtonNavBar";
-import SocialsFooter from "../components/UI/SocialsFooter";
-import NotelyRectangle from "../assets/images/NotelyRectangle.png";
+import DoubleButtonNavBar from "../../components/UI/DoubleButtonNavBar";
+import SocialsFooter from "../../components/UI/SocialsFooter";
+import NotelyRectangle from "../../assets/images/NotelyRectangle.png";
 import "./JoinPage.css";
 
 export default function JoinPage() {

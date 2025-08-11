@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import NotelyRectangle from "../assets/images/NotelyRectangle.png";
-import heroImage from "../assets/images/LoginAndRegistration/StudentResetPassword.jpg"; // Replace with tutor image
+import NotelyRectangle from "../../assets/images/NotelyRectangle.png";
+import heroImage from "../../assets/images/LoginAndRegistration/StudentResetPassword.jpg"; // Replace with tutor image
 import axios from "axios";
 import "./TutorResetPasswordPage.css";
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import NotelyRectangle from "../assets/images/NotelyRectangle.png";
-import heroImage from "../assets/images/LoginAndRegistration/StudentResetPassword.jpg";
+import NotelyRectangle from "../../assets/images/NotelyRectangle.png";
+import heroImage from "../../assets/images/LoginAndRegistration/StudentResetPassword.jpg";
 import axios from "axios";
 import "./StudentResetPasswordPage.css"; // Reuse for consistent styling
 

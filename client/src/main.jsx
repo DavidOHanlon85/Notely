@@ -76,43 +76,6 @@ import TutorRegistrationPage from './pages/TutorRegistration/TutorRegistrationPa
 // Video Calling
 import JoinPage from './pages/VideoCalling/JoinPage.jsx';
 
-
-
-import Profiles from './pages/Profiles.jsx';
-import ProfilesPage from './pages/ProfilesPage.jsx';
-import StaticProfilePage from './pages/StaticProfilePage.jsx'
-
-
-import BookingSuccessPage2 from './pages/BookingSuccessPage2.jsx'
-import DashboardDemo from './pages/DashboardDemo.jsx';
-import TutorDemoDashboard from './pages/TutorDemoDashboard.jsx';
-
-import AdminDemoDashboard from './pages/AdminDemoDashboard.jsx';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Creating a router
 const router = createBrowserRouter([
   {
@@ -143,10 +106,6 @@ const router = createBrowserRouter([
     element: <StudentLoginPage />
   },
   {
-    path: '/student/dashboard/:id',
-    element: <DashboardDemo />
-  },
-  {
     path: '/student/forgot-password',
     element: <StudentForgotPasswordPage />
   },
@@ -163,10 +122,6 @@ const router = createBrowserRouter([
     element: <TutorLoginPage />
   },
   {
-    path: "/tutor/dashboard/:tutorId",
-    element: <TutorDemoDashboard />
-  },
-  {
     path: '/tutor/forgot-password',
     element: <TutorForgotPasswordPage />
   },
@@ -177,10 +132,6 @@ const router = createBrowserRouter([
   {
     path: '/admin/login',
     element: <AdminLoginPage />
-  },
-  {
-    path: "/admin/dashboard/:id",
-    element: <AdminDemoDashboard />
   },
   {
     path: '/admin/forgot-password',
@@ -197,23 +148,6 @@ const router = createBrowserRouter([
   {
     path: '/booking-success',
     element: <BookingSuccessPage />
-  },
-  {
-    path: '/booking-success-2',
-    element: <BookingSuccessPage2 />
-  },
-  {
-    path: "/staticprofile",
-    element: <StaticProfilePage />,
-    errorElement: <NotFoundPage />
-  },
-  {
-    path: "/profiles",
-    element: <Profiles />
-  },
-  {
-    path: "/profiles/:profileId",
-    element: <ProfilesPage />
   },
   {
     path: '/student/dashboard',

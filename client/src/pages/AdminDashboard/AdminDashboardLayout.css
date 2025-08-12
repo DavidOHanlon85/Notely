@@ -24,6 +24,14 @@
     border-bottom-right-radius: 20px;
     z-index: 1000;
   }
+
+  .admin-sidebar .notely-brand-text{
+      color: #ffffff;
+  }
+
+  .admin-sidebar a.sidebar-link {
+    color: #ffffff;
+  }
   
   .admin-sidebar.expand {
     width: 220px;

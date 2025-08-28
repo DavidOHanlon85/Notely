@@ -26,7 +26,7 @@ const columns = [
     sortable: true,
   },
   {
-    name: "Feedback",
+    name: "Review",
     selector: (row) => row.text,
     wrap: true,
   },

@@ -47,7 +47,7 @@ export default function TutorBookings() {
             canLeaveFeedback:
               bookingDateTime < now && booking.feedback_given === 0,
             canJoin:
-              bookingDateTime - now <= 24 * 60 * 60 * 1000 &&
+              //bookingDateTime - now <= 24 * 60 * 60 * 1000 && - Removed based on client feedback but left commented for future flexibility
               bookingDateTime > now,
             canCancel:
               bookingDateTime > now &&
@@ -67,8 +67,8 @@ export default function TutorBookings() {
   }, []);
 
   const columns = [
-    { name: "Date", selector: (row) => row.date, sortable: true },
-    { name: "Time", selector: (row) => row.time, sortable: true },
+    { name: "Lesson Date", selector: (row) => row.date, sortable: true },
+    { name: "Lesson Time", selector: (row) => row.time, sortable: true },
     {
       name: "Student",
       selector: (row) => row.student,
@@ -102,7 +102,7 @@ export default function TutorBookings() {
         ),
     },
     {
-      name: "Join",
+      name: "Video Link",
       cell: (row) =>
         row.canJoin ? (
           <a
@@ -118,7 +118,7 @@ export default function TutorBookings() {
         ),
     },
     {
-      name: "Cancel",
+      name: "Cancel Lesson",
       cell: (row) =>
         row.canCancel ? (
           <button

@@ -42,9 +42,10 @@ export default function StudentBookings() {
             feedback_given: booking.feedback_given === 1,
             canLeaveFeedback: bookingDateTime < now && !booking.feedback_given,
             canJoin:
-              now.getTime() >=
-                bookingDateTime.getTime() - 24 * 60 * 60 * 1000 &&
-              now.getTime() <= bookingDateTime.getTime() + 2 * 60 * 60 * 1000,
+              bookingDateTime.getTime() > now.getTime(),
+              //now.getTime() >=
+                //bookingDateTime.getTime() - 24 * 60 * 60 * 1000 &&
+              //now.getTime() <= bookingDateTime.getTime() + 2 * 60 * 60 * 1000,
             canCancel:
               bookingDateTime > now &&
               bookingDateTime - now > 24 * 60 * 60 * 1000,
@@ -60,8 +61,8 @@ export default function StudentBookings() {
   }, []);
 
   const columns = [
-    { name: "Date", selector: (row) => row.date, sortable: true },
-    { name: "Time", selector: (row) => row.time, sortable: true },
+    { name: "Lesson Date", selector: (row) => row.date, sortable: true },
+    { name: "Lesson Time", selector: (row) => row.time, sortable: true },
     {
       name: "Tutor",
       cell: (row) => (
@@ -85,21 +86,21 @@ export default function StudentBookings() {
       sortable: true,
     },
     {
-      name: "Feedback",
+      name: "Tutor Review",
       cell: (row) =>
         row.canLeaveFeedback ? (
           <button
             className="badge badge-cyan clickable"
             onClick={() => navigate(`/student/feedback/${row.id}`)}
           >
-            Leave Feedback
+            Leave Review
           </button>
         ) : (
           "-"
         ),
     },
     {
-      name: "Join",
+      name: "Video Link",
       cell: (row) =>
         row.canJoin ? (
           <a
@@ -115,7 +116,7 @@ export default function StudentBookings() {
         ),
     },
     {
-      name: "Cancel",
+      name: "Cancel Lesson",
       cell: (row) =>
         row.canCancel ? (
           <button

@@ -3,6 +3,8 @@ import axios from "axios";
 import DataTable from "react-data-table-component";
 import "./TutorFeedback.css";
 
+{ /* Table Design */}
+
 const columns = [
   {
     name: "Date",
@@ -39,7 +41,7 @@ export default function TutorFeedback() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const res = await axios.get("http://localhost:3002/api/tutor/reviews", {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/tutor/reviews`, {
           withCredentials: true,
         });
         setReviews(res.data);

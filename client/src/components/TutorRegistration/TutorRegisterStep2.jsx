@@ -15,7 +15,7 @@ export default function TutorRegisterStep2({
 
   useEffect(() => {
     if (formData.tutor_image?.startsWith("/uploads")) {
-      setImagePreview(`http://localhost:3002${formData.tutor_image}`);
+      setImagePreview(`${import.meta.env.VITE_API_URL}${formData.tutor_image}`);
     }
 
     return () => {
@@ -50,7 +50,7 @@ export default function TutorRegisterStep2({
         formDataObj.append("image", file);
 
         const res = await axios.post(
-          "http://localhost:3002/api/tutor/upload-image",
+          `${import.meta.env.VITE_API_URL}/api/tutor/upload-image`,
           formDataObj,
           {
             headers: { "Content-Type": "multipart/form-data" },

@@ -11,6 +11,8 @@ export default function AdminForgotPasswordPage() {
   const [formError, setFormError] = useState("");
   const [serverMessage, setServerMessage] = useState(null);
 
+  { /* Forgot Password */ }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError("");
@@ -26,7 +28,7 @@ export default function AdminForgotPasswordPage() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3002/api/admin/forgot-password",
+        `${import.meta.env.VITE_API_URL}/api/admin/forgot-password`,
         { email },
         { withCredentials: true }
       );

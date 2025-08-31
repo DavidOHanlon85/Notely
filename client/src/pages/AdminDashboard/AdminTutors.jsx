@@ -8,10 +8,12 @@ export default function AdminTutors() {
   const [tutors, setTutors] = useState([]);
   const [filterText, setFilterText] = useState("");
 
+  { /* Fetch Tutors */ }
+
   useEffect(() => {
     const fetchTutors = async () => {
       try {
-        const res = await axios.get("http://localhost:3002/api/admin/tutors", {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/tutors`, {
           withCredentials: true,
         });
         setTutors(res.data);
@@ -23,11 +25,13 @@ export default function AdminTutors() {
     fetchTutors();
   }, []);
 
+  { /* Revoke / Verify */ }
+
   const handleVerifyToggle = async (tutorId, currentlyVerified) => {
     try {
       const endpoint = currentlyVerified ? "revoke" : "verify";
       await axios.patch(
-        `http://localhost:3002/api/admin/tutor/${tutorId}/${endpoint}`,
+        `${import.meta.env.VITE_API_URL}/api/admin/tutor/${tutorId}/${endpoint}`,
         {},
         { withCredentials: true }
       );

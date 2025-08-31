@@ -14,11 +14,13 @@ export default function LeaveFeedbackPage() {
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
 
+  { /* Fetch Booking Info */ }
+
   useEffect(() => {
     const fetchBookingInfo = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3002/api/booking/${booking_id}/details`,
+          `${import.meta.env.VITE_API_URL}/api/booking/${booking_id}/details`,
           {
             withCredentials: true,
           }
@@ -62,7 +64,7 @@ export default function LeaveFeedbackPage() {
       });
 
       await axios.post(
-        "http://localhost:3002/api/feedback",
+        `${import.meta.env.VITE_API_URL}/api/feedback`,
         {
           ...form,
           tutor_id: tutor.tutor_id,

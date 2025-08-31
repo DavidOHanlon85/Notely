@@ -7,11 +7,13 @@ export default function TutorBookings() {
   const [bookings, setBookings] = useState([]);
   const [filterText, setFilterText] = useState("");
 
+  { /* Fetch Bookings */}
+
   useEffect(() => {
     const fetchBookings = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3002/api/tutor/bookings",
+          `${import.meta.env.VITE_API_URL}/api/tutor/bookings`,
           {
             withCredentials: true,
           }
@@ -65,6 +67,8 @@ export default function TutorBookings() {
 
     fetchBookings();
   }, []);
+
+  { /* Table Design */ }
 
   const columns = [
     { name: "Lesson Date", selector: (row) => row.date, sortable: true },

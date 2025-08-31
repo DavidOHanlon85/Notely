@@ -20,11 +20,13 @@ export default function TutorLeaveFeedbackPage() {
   const [student, setStudent] = useState(null);
   const [errors, setErrors] = useState({});
 
+  { /* Fetch Booking Info */ }
+
   useEffect(() => {
     const fetchBookingInfo = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3002/api/tutor/booking/${booking_id}/details`,
+          `${import.meta.env.VITE_API_URL}/api/tutor/booking/${booking_id}/details`,
           { withCredentials: true }
         );
         setTutor(response.data.tutor);
@@ -61,7 +63,7 @@ export default function TutorLeaveFeedbackPage() {
 
     try {
       await axios.post(
-        "http://localhost:3002/api/tutor/feedback",
+        `${import.meta.env.VITE_API_URL}/api/tutor/feedback`,
         {
           ...form,
           tutor_id: tutor.tutor_id,

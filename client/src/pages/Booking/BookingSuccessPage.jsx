@@ -14,11 +14,13 @@ export default function BookingSuccessPage() {
   const bookingTime = searchParams.get("booking_time");
   const [tutor, setTutor] = useState(null);
 
+  { /* Fetch Tutor */ }
+
   useEffect(() => {
     const fetchTutor = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3002/api/tutor/${tutorId}`
+          `${import.meta.env.VITE_API_URL}/api/tutor/${tutorId}`
         );
 
         setTutor(response.data);

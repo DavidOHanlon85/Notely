@@ -23,7 +23,7 @@ export default function MessagePage() {
   useEffect(() => {
     const checkStudent = async () => {
       try {
-        await axios.get("http://localhost:3002/api/student/me", {
+        await axios.get(`${import.meta.env.VITE_API_URL}/api/student/me`, {
           withCredentials: true,
         });
         setAuthChecked(true);
@@ -39,13 +39,15 @@ export default function MessagePage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  { /* Fetch Tutor and Messages */ }
+
    useEffect(() => {
     if (!authChecked) return;
     const fetchTutorAndMessages = async () => {
       try {
         const [tutorRes, messagesRes] = await Promise.all([
-          axios.get(`http://localhost:3002/api/tutor/${tutorId}`),
-          axios.get(`http://localhost:3002/api/messages/${tutorId}`, {
+          axios.get(`${import.meta.env.VITE_API_URL}/api/tutor/${tutorId}`),
+          axios.get(`${import.meta.env.VITE_API_URL}/api/messages/${tutorId}`, {
             withCredentials: true,
           }),
         ]);
@@ -72,7 +74,7 @@ export default function MessagePage() {
         sender_role: "student",
       });
       const res = await axios.post(
-        "http://localhost:3002/api/messages/send",
+        `${import.meta.env.VITE_API_URL}/api/messages/send`,
         {
           tutor_id: tutorId,
           message_text: newMessage,

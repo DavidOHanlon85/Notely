@@ -60,7 +60,7 @@ export default function StudentResetPasswordPage() {
 
     try {
       const response = await axios.post(
-        `http://localhost:3002/api/student/reset-password/${token}`,
+        `${import.meta.env.VITE_API_URL}/api/student/reset-password/${token}`,
         { 
           password: formData.password,
           confirmPassword: formData.confirmPassword,

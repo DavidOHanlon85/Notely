@@ -3,6 +3,8 @@ import axios from "axios";
 import DataTable from "react-data-table-component";
 import "./StudentFeedback.css";
 
+{ /* Table Design */}
+
 const columns = [
   {
     name: "Date",
@@ -53,7 +55,7 @@ export default function StudentFeedback() {
   useEffect(() => {
     const fetchFeedback = async () => {
       try {
-        const res = await axios.get("http://localhost:3002/api/student/feedback", {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/student/feedback`, {
           withCredentials: true,
         });
         setFeedback(res.data);

@@ -89,7 +89,7 @@ export default function StudentRegistrationPage() {
     if (Object.keys(errors).length === 0) {
       try {
         const response = await axios.post(
-          "http://localhost:3002/api/student/register",
+          `${import.meta.env.VITE_API_URL}/api/student/register`,
           formData
         );
 

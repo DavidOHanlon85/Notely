@@ -10,11 +10,13 @@ export default function StudentBookings() {
 
   const navigate = useNavigate();
 
+  { /* Fetch Bookings */ }
+
   useEffect(() => {
     const fetchBookings = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3002/api/student/bookings",
+          `${import.meta.env.VITE_API_URL}/api/student/bookings`,
           {
             withCredentials: true,
           }
@@ -129,7 +131,7 @@ export default function StudentBookings() {
 
               try {
                 await axios.patch(
-                  `http://localhost:3002/api/booking/${row.id}/cancel`,
+                  `${import.meta.env.VITE_API_URL}/api/booking/${row.id}/cancel`,
                   {},
                   { withCredentials: true }
                 );

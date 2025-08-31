@@ -17,19 +17,23 @@ export default function AdminDashboardLayout() {
 
   const toggleSidebar = () => setIsExpanded((prev) => !prev);
 
+  {/* Handle log out */}
+
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:3002/api/admin/logout", {}, { withCredentials: true });
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/admin/logout`, {}, { withCredentials: true });
       navigate("/admin/login");
     } catch (err) {
       console.error("Logout failed:", err);
     }
   };
 
+  {/* Check Auth */}
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        await axios.get("http://localhost:3002/api/admin/me", {
+        await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/me`, {
           withCredentials: true,
         });
       } catch (err) {

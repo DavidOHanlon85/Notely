@@ -17,11 +17,13 @@ export default function TutorOverview() {
   const [summary, setSummary] = useState(null);
   const [sortRange, setSortRange] = useState("last_month");
 
+  { /* Fetch Dashboard */}
+
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:3002/api/tutor/overview?range=${sortRange}`,
+          `${import.meta.env.VITE_API_URL}/api/tutor/overview?range=${sortRange}`,
           { withCredentials: true }
         );
         setSummary(res.data);

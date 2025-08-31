@@ -34,7 +34,7 @@ export default function TutorBookingPage() {
     const checkStudent = async () => {
       try {
         const { data: me } = await axios.get(
-          "http://localhost:3002/api/student/me",
+          `${import.meta.env.VITE_API_URL}/api/student/me`,
           {
             withCredentials: true,
           }
@@ -58,7 +58,7 @@ export default function TutorBookingPage() {
 
     try {
       const response = await axios.get(
-        "http://localhost:3002/api/booking/availability",
+        `${import.meta.env.VITE_API_URL}/api/booking/availability`,
         {
           params: {
             tutor_id: id,
@@ -87,7 +87,7 @@ export default function TutorBookingPage() {
     const fetchTutor = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3002/api/tutor/${id}`
+          `${import.meta.env.VITE_API_URL}/api/tutor/${id}`
         );
         setTutor(response.data);
       } catch (error) {
@@ -105,7 +105,7 @@ export default function TutorBookingPage() {
   const fetchAvailableDates = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3002/api/booking/available-dates",
+        `${import.meta.env.VITE_API_URL}/api/booking/available-dates`,
         {
           params: {
             tutor_id: id,

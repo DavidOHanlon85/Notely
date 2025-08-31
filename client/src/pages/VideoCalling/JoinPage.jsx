@@ -16,7 +16,7 @@ export default function JoinPage() {
     const fetchBooking = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:3002/api/booking/${booking_id}`,
+          `${import.meta.env.VITE_API_URL}/api/booking/${booking_id}`,
           { withCredentials: true }
         );
         setBooking(res.data);

@@ -13,7 +13,7 @@ export default function TutorRegisterStep3({
 
   useEffect(() => {
     axios
-      .get("http://localhost:3002/api/instruments/all")
+      .get(`${import.meta.env.VITE_API_URL}/api/instruments/all`)
       .then((res) => {
         setAvailableInstruments(res.data.instruments);
       })

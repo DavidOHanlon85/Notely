@@ -11,6 +11,8 @@ export default function StudentForgotPasswordPage() {
   const [formError, setFormError] = useState("");
   const [serverMessage, setServerMessage] = useState(null);
 
+  { /* Forgot Password */ }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError("");
@@ -26,7 +28,7 @@ export default function StudentForgotPasswordPage() {
     }
 
     try {
-        const response = await axios.post("http://localhost:3002/api/student/forgot-password", 
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/student/forgot-password`, 
             { email},
             { withCredentials: true }
         );

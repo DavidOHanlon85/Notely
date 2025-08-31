@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import NotFoundPage from "./NotFoundPage";
 
-// Stub chrome so we don't drag the whole world in
+// Stub chrome 
 vi.mock("../../components/UI/DoubleButtonNavBar", () => ({
   default: () => <div data-testid="nav">Nav</div>,
 }));

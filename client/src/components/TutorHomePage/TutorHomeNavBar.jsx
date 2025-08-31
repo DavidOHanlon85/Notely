@@ -9,22 +9,24 @@ export default function TutorHomeNavBar() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  {/* Role specific links in Nav Bar */}
+
   useEffect(() => {
     let isMounted = true;
 
     const fetchRole = async () => {
       try {
-        const s = await axios.get("http://localhost:3002/api/student/me", { withCredentials: true });
+        const s = await axios.get(`${import.meta.env.VITE_API_URL}/api/student/me`, { withCredentials: true });
         if (isMounted && s.data?.student_id) return setUserRole("student");
       } catch {}
 
       try {
-        const t = await axios.get("http://localhost:3002/api/tutor/me", { withCredentials: true });
+        const t = await axios.get(`${import.meta.env.VITE_API_URL}/api/tutor/me`, { withCredentials: true });
         if (isMounted && t.data?.tutor_id) return setUserRole("tutor");
       } catch {}
 
       try {
-        const a = await axios.get("http://localhost:3002/api/admin/me", { withCredentials: true });
+        const a = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/me`, { withCredentials: true });
         if (isMounted && a.data?.admin_id) return setUserRole("admin");
       } catch {}
 

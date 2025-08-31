@@ -16,11 +16,13 @@ import {
 export default function StudentOverview() {
   const [summary, setSummary] = useState(null);
 
+  { /* Fetch Dashboard */ }
+
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:3002/api/student/overview",
+          `${import.meta.env.VITE_API_URL}/api/student/overview`,
           {
             withCredentials: true,
           }

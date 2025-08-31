@@ -9,11 +9,13 @@ export default function StudentMessages() {
   const [filterText, setFilterText] = useState("");
   const navigate = useNavigate();
 
+  { /* Fetch Messages */ }
+
   useEffect(() => {
     const fetchMessages = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3002/api/student/messages",
+          `${import.meta.env.VITE_API_URL}/api/student/messages`,
           {
             withCredentials: true,
           }
@@ -26,6 +28,8 @@ export default function StudentMessages() {
 
     fetchMessages();
   }, []);
+
+  { /* Table Design */ }
 
   const columns = [
     {

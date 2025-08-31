@@ -62,7 +62,7 @@ export default function StudentLoginPage() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3002/api/student/login",
+        `${import.meta.env.VITE_API_URL}/api/student/login`,
         {
           identifier: formData.identifier,
           password: formData.password,

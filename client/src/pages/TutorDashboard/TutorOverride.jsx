@@ -14,10 +14,12 @@ export default function TutorTimeOffPage() {
   const [highlightedDates, setHighlightedDates] = useState([]);
   const [tutorId, setTutorId] = useState(null);
 
+  { /* Fetch Tutor ID */ } 
+
   useEffect(() => {
     const fetchTutorId = async () => {
       try {
-        const res = await axios.get("http://localhost:3002/api/tutor/me", {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/tutor/me`, {
           withCredentials: true,
         });
         setTutorId(res.data.tutor_id);
@@ -33,7 +35,7 @@ export default function TutorTimeOffPage() {
       if (!tutorId) return;
       try {
         const response = await axios.get(
-          "http://localhost:3002/api/booking/available-dates",
+          `${import.meta.env.VITE_API_URL}/api/booking/available-dates`,
           {
             params: {
               tutor_id: tutorId,
@@ -58,7 +60,7 @@ export default function TutorTimeOffPage() {
       if (!selectedDate || !tutorId) return;
       try {
         const response = await axios.get(
-          "http://localhost:3002/api/booking/availability",
+          `${import.meta.env.VITE_API_URL}/api/booking/availability`,
           {
             params: {
               tutor_id: tutorId,

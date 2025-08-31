@@ -30,7 +30,7 @@ export default function FeedbackPage() {
   const fetchTutor = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3002/api/tutor/${id}`,
+        `${import.meta.env.VITE_API_URL}/api/tutor/${id}`,
         {
           params: {
             sort: sortOption,

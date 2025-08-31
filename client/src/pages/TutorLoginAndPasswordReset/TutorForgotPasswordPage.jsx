@@ -26,7 +26,7 @@ export default function TutorForgotPasswordPage() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3002/api/tutor/forgot-password",
+        `${import.meta.env.VITE_API_URL}/api/tutor/forgot-password`,
         { email },
         { withCredentials: true }
       );

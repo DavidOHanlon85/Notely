@@ -13,10 +13,12 @@ export default function TutorProfile() {
 
   const location = useLocation();
 
+  { /* Fetch Tutor Data */}
+
   useEffect(() => {
     const fetchTutorData = async () => {
       try {
-        const res = await axios.get("http://localhost:3002/api/tutor/me", {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/tutor/me`, {
           withCredentials: true,
         });
         setTutorId(res.data.tutor_id);
@@ -28,10 +30,12 @@ export default function TutorProfile() {
     fetchTutorData();
   }, [location]);
 
+  { /* Fetch Verification Files */}
+
   const fetchVerificationFiles = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:3002/api/tutor/verification/files",
+        `${import.meta.env.VITE_API_URL}/api/tutor/verification/files`,
         { withCredentials: true }
       );
       setVerificationFiles(res.data.files || []);

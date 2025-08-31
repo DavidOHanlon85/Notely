@@ -23,11 +23,13 @@ export default function StudentDashboardLayout() {
     setIsExpanded(!isExpanded);
   };
 
+  { /* Logout */ }
+
   const handleLogout = async () => {
     try {
       console.log("Submitted")
       await axios.post(
-        "http://localhost:3002/api/student/logout",
+        `${import.meta.env.VITE_API_URL}/api/student/logout`,
         {},
         { withCredentials: true }
       );
@@ -42,7 +44,7 @@ export default function StudentDashboardLayout() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        await axios.get("http://localhost:3002/api/student/me", {
+        await axios.get(`${import.meta.env.VITE_API_URL}/api/student/me`, {
           withCredentials: true,
         });
       } catch (err) {

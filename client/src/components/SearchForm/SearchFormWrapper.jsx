@@ -1,4 +1,3 @@
-// components/SearchForm/SearchFormWrapper.jsx
 import React from "react";
 
 export default function SearchFormWrapper({ children, handleSearch }) {

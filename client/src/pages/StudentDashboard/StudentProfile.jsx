@@ -16,10 +16,12 @@ export default function StudentProfilePage() {
   const [serverMessage, setServerMessage] = useState(null);
   const [showToast, setShowToast] = useState(false);
 
+  { /* Fetch Student Profile */ }
+
   useEffect(() => {
     const fetchStudentProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:3002/api/student/profile", { withCredentials: true });
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/student/profile`, { withCredentials: true });
         console.log("Student Profile Response:", res.data);
         setFormData(res.data);
       } catch (err) {
@@ -39,7 +41,7 @@ export default function StudentProfilePage() {
     setServerMessage(null);
   
     try {
-      const res = await axios.patch("http://localhost:3002/api/student/profile", formData, {
+      const res = await axios.patch(`${import.meta.env.VITE_API_URL}/api/student/profile`, formData, {
         withCredentials: true,
       });
   

@@ -17,11 +17,13 @@ export default function AdminOverview() {
 
   console.log("Admin summary data:", summary);
 
+  {/* Fetch Overview */}
+
   useEffect(() => {
     const fetchAdminOverview = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:3002/api/admin/overview?range=${sortRange}`,
+          `${import.meta.env.VITE_API_URL}/api/admin/overview?range=${sortRange}`,
           { withCredentials: true }
         );
         setSummary(res.data);

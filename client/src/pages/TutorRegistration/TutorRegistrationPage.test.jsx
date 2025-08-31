@@ -1,4 +1,3 @@
-// pages/TutorRegistration/TutorRegistrationPage.test.jsx
 import React from "react";
 import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
 import { vi } from "vitest";

@@ -8,8 +8,9 @@ export default function TutorCard({ tutor }) {
   return (
     <div className="card shadow-sm tutor-card rounded-4 p-3">
       <div className="d-flex align-items-center">
+        {/* Tutor image */}
         <img
-          src={`http://localhost:3002${tutor.tutor_image}`}
+          src={`${import.meta.env.VITE_API_URL}${tutor.tutor_image}`}
           alt={fullName}
           className="rounded-circle tutor-img me-3 border-gold"
         />

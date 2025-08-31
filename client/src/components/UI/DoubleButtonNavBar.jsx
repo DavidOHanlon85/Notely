@@ -8,10 +8,12 @@ export default function DoubleButtonNavBar() {
   const [userRole, setUserRole] = useState(null); // 'student' | 'tutor' | 'admin' | null
   const navigate = useNavigate();
 
+  {/* Role authentication for personalisation */}
+
   useEffect(() => {
     const fetchRole = async () => {
       try {
-        const studentRes = await axios.get("http://localhost:3002/api/student/me", {
+        const studentRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/student/me`, {
           withCredentials: true,
         });
         if (studentRes.data?.student_id) {
@@ -21,7 +23,7 @@ export default function DoubleButtonNavBar() {
       } catch {}
 
       try {
-        const tutorRes = await axios.get("http://localhost:3002/api/tutor/me", {
+        const tutorRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/tutor/me`, {
           withCredentials: true,
         });
         if (tutorRes.data?.tutor_id) {
@@ -31,7 +33,7 @@ export default function DoubleButtonNavBar() {
       } catch {}
 
       try {
-        const adminRes = await axios.get("http://localhost:3002/api/admin/me", {
+        const adminRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/me`, {
           withCredentials: true,
         });
         if (adminRes.data?.admin_id) {
@@ -46,14 +48,16 @@ export default function DoubleButtonNavBar() {
     fetchRole();
   }, []);
 
+  {/* Handle Logouts */ }
+  
   const handleLogout = async () => {
     try {
       if (userRole === "student") {
-        await axios.post("http://localhost:3002/api/student/logout", {}, { withCredentials: true });
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/student/logout`, {}, { withCredentials: true });
       } else if (userRole === "tutor") {
-        await axios.post("http://localhost:3002/api/tutor/logout", {}, { withCredentials: true });
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/tutor/logout`, {}, { withCredentials: true });
       } else if (userRole === "admin") {
-        await axios.post("http://localhost:3002/api/admin/logout", {}, { withCredentials: true });
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/admin/logout`, {}, { withCredentials: true });
       }
 
       setUserRole(null);

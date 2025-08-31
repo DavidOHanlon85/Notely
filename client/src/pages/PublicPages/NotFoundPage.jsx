@@ -9,22 +9,24 @@ import axios from "axios";
 export default function NotFoundPage() {
   const [role, setRole] = useState(null); // 'student' | 'tutor' | 'admin' | null
 
+  { /* Detect role for personalisation */ }
+
   useEffect(() => {
     let mounted = true;
 
     const detectRole = async () => {
       try {
-        const s = await axios.get("http://localhost:3002/api/student/me", { withCredentials: true });
+        const s = await axios.get(`${import.meta.env.VITE_API_URL}/api/student/me`, { withCredentials: true });
         if (mounted && s.data?.student_id) return setRole("student");
       } catch {}
 
       try {
-        const t = await axios.get("http://localhost:3002/api/tutor/me", { withCredentials: true });
+        const t = await axios.get(`${import.meta.env.VITE_API_URL}/api/tutor/me`, { withCredentials: true });
         if (mounted && t.data?.tutor_id) return setRole("tutor");
       } catch {}
 
       try {
-        const a = await axios.get("http://localhost:3002/api/admin/me", { withCredentials: true });
+        const a = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/me`, { withCredentials: true });
         if (mounted && a.data?.admin_id) return setRole("admin");
       } catch {}
 

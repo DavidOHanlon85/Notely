@@ -15,11 +15,13 @@ export default function TutorMessagePage() {
   const [newMessage, setNewMessage] = useState("");
   const bottomRef = useRef(null);
 
+  { /* Fetch Student and Messages */ }
+
   useEffect(() => {
     const fetchStudentAndMessages = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:3002/api/tutor/messages/${student_id}`,
+          `${import.meta.env.VITE_API_URL}/api/tutor/messages/${student_id}`,
           { withCredentials: true }
         );
   
@@ -43,7 +45,7 @@ export default function TutorMessagePage() {
   
     try {
       const res = await axios.post(
-        "http://localhost:3002/api/tutor/messages/send",
+        `${import.meta.env.VITE_API_URL}/api/tutor/messages/send`,
         {
           student_id: student.student_id,
           message_text: newMessage,

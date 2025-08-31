@@ -9,11 +9,13 @@ export default function TutorMessages() {
   const [filterText, setFilterText] = useState("");
   const navigate = useNavigate();
 
+  { /* Fetch Messages */}
+
   useEffect(() => {
     const fetchMessages = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3002/api/tutor/messages",
+          `${import.meta.env.VITE_API_URL}/api/tutor/messages`,
           { withCredentials: true }
         );
         setMessages(response.data);
@@ -24,6 +26,8 @@ export default function TutorMessages() {
 
     fetchMessages();
   }, []);
+
+  { /* Table Design */}
 
   const columns = [
     {

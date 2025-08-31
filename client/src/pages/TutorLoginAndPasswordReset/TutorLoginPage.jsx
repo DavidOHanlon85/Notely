@@ -53,7 +53,7 @@ export default function TutorLoginPage() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3002/api/tutor/login",
+        `${import.meta.env.VITE_API_URL}/api/tutor/login`,
         {
           identifier: formData.identifier,
           password: formData.password,

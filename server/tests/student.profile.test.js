@@ -1,4 +1,3 @@
-// tests/student.profile.test.js
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import jwt from "jsonwebtoken";
 

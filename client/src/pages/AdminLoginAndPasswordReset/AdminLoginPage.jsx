@@ -12,13 +12,15 @@ export default function AdminLoginPage() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  { /* Login */ }
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
 
     try {
       const response = await axios.post(
-        "http://localhost:3002/api/admin/login",
+        `${import.meta.env.VITE_API_URL}/api/admin/login`,
         {
           identifier,
           password,

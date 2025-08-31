@@ -61,7 +61,7 @@ export default function AdminResetPasswordPage() {
 
     try {
       const response = await axios.post(
-        `http://localhost:3002/api/admin/reset-password/${token}`,
+        `${import.meta.env.VITE_API_URL}/api/admin/reset-password/${token}`,
         {
           password: formData.password,
           confirmPassword: formData.confirmPassword,

@@ -7,11 +7,13 @@ export default function AdminStudents() {
   const [students, setStudents] = useState([]);
   const [filterText, setFilterText] = useState("");
 
+  { /* Fetch Students */ }
+
   useEffect(() => {
     const fetchStudents = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:3002/api/admin/students",
+          `${import.meta.env.VITE_API_URL}/api/admin/students`,
           {
             withCredentials: true,
           }
@@ -24,11 +26,13 @@ export default function AdminStudents() {
     fetchStudents();
   }, []);
 
+  { /* Verify / Revoke */}
+
   const handleVerifyToggle = async (studentId, currentlyVerified) => {
     try {
       const endpoint = currentlyVerified ? "revoke" : "verify";
       await axios.patch(
-        `http://localhost:3002/api/admin/student/${studentId}/${endpoint}`,
+        `${import.meta.env.VITE_API_URL}/api/admin/student/${studentId}/${endpoint}`,
         {},
         { withCredentials: true }
       );

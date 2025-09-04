@@ -64,7 +64,7 @@ If you've loaded the API seed data use:
 
 ---
 
-## Testing
+## Testing
 
 Unit/ Component - Vitest
 ```bash 
